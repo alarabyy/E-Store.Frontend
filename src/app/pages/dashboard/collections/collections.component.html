@@ -1,0 +1,72 @@
+<div class="collections-container">
+    <header class="page-header-luxe">
+        <div class="header-content">
+            <div class="header-text">
+                <span class="luxe-breadcrumb">Dashboard / Marketing</span>
+                <h1>Product Collections</h1>
+                <p>Curate and organize your products into high-converting storefront collections.</p>
+            </div>
+            <div class="header-stats" *ngIf="collections.length > 0">
+                <div class="stat-item">
+                    <span class="val">{{ collections.length }}</span>
+                    <span class="lab">Total</span>
+                </div>
+                <div class="stat-sep"></div>
+                <div class="stat-item">
+                    <span class="val active">{{ getActiveCount() }}</span>
+                    <span class="lab">Live</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-actions-row">
+            <div class="search-bar-premium">
+                <i class="ri-search-2-line"></i>
+                <input type="text" placeholder="Filter collections by name or slug..."
+                    (input)="filterCollections($event)">
+            </div>
+            <button class="btn-luxe-primary" (click)="openCreateModal()">
+                <i class="ri-add-line"></i>
+                <span>Create Collection</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && collections.length === 0" class="empty-state-luxe">
+        <div class="empty-canvas">
+            <div class="blob-bg"></div>
+            <div class="icon-stack">
+                <i class="ri-stack-line base"></i>
+                <i class="ri-add-circle-fill accent"></i>
+            </div>
+            <h3>Your collection library is empty</h3>
+            <p>Collections help you group products by theme, season, or style to inspire your customers.</p>
+            <button class="btn-luxe-outline" (click)="openCreateModal()">
+                Initialize First Collection
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Collections List -->
+    <div class="collections-grid" *ngIf="!isLoading && collections.length > 0">
+        <app-collection-card *ngFor="let col of collections" [collection]="col"
+            (manageProducts)="openManageProducts($event)" (edit)="openEditModal($event)"
+            (delete)="deleteCollection($event)">
+        </app-collection-card>
+    </div>
+</div>
+
+<!-- Modals -->
+<app-collection-form-modal [show]="showFormModal" [collection]="currentCollection" (close)="showFormModal = false"
+    (saved)="loadCollections()">
+</app-collection-form-modal>
+
+<app-collection-products-modal [show]="showProductModal" [collection]="currentCollection"
+    (close)="showProductModal = false" (saved)="loadCollections()">
+</app-collection-products-modal>

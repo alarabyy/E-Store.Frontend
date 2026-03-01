@@ -1,0 +1,112 @@
+<div class="profile-page">
+
+    <!-- Loader -->
+    <app-loader [show]="isLoading && !profile" text="Accessing Your Profile..."></app-loader>
+
+    <!-- Minimalist Error State -->
+    <div class="profile-error" *ngIf="error && !isLoading">
+        <div class="error-container">
+            <i class="ri-information-line"></i>
+            <h2>User Not Found</h2>
+            <p>{{ error }}</p>
+            <a routerLink="/catalog" class="back-link">Return to Catalog</a>
+        </div>
+    </div>
+
+    <!-- Minimalist Profile Content -->
+    <main class="profile-layout" *ngIf="profile">
+        <!-- Header: Minimal & Classic -->
+        <header class="profile-header">
+            <div class="profile-id-section">
+                <div class="avatar-container">
+                    <img *ngIf="profile.avatarUrl" [src]="resolveImageUrl(profile.avatarUrl)" alt="Avatar"
+                        class="profile-avatar">
+                    <div *ngIf="!profile.avatarUrl" class="avatar-placeholder">
+                        {{ getInitials(profile.firstName, profile.lastName) }}
+                    </div>
+                </div>
+                <div class="profile-headline">
+                    <div class="name-row">
+                        <h1>{{ profile.firstName }} {{ profile.lastName }}</h1>
+                        <span class="badge">{{ profile.role }}</span>
+                    </div>
+                    <p class="job-title">{{ profile.jobTitle || 'Team Member' }}</p>
+                    <div class="quick-meta">
+                        <span *ngIf="profile.city || profile.country">
+                            <i class="ri-map-pin-line"></i> {{ profile.city }}{{ profile.city && profile.country ? ', '
+                            : '' }}{{ profile.country }}
+                        </span>
+                        <span><i class="ri-calendar-event-line"></i> Joined {{ profile.joinedAt | date:'longDate'
+                            }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions" *ngIf="isOwner">
+                <button class="btn-outline" routerLink="/settings/profile">
+                    <i class="ri-edit-line"></i> Edit Profile
+                </button>
+            </div>
+        </header>
+
+        <div class="profile-grid">
+            <!-- Sidebar: Key Details -->
+            <aside class="details-sidebar">
+                <section class="details-card">
+                    <h3>Contact Information</h3>
+                    <ul class="details-list">
+                        <li>
+                            <span class="label">Email</span>
+                            <span class="value">{{ profile.email }}</span>
+                        </li>
+                        <li>
+                            <span class="label">Phone</span>
+                            <span class="value">{{ profile.phoneNumber || 'Not Provided' }}</span>
+                        </li>
+                        <li>
+                            <span class="label">City</span>
+                            <span class="value">{{ profile.city || 'Not Provided' }}</span>
+                        </li>
+                        <li>
+                            <span class="label">Country</span>
+                            <span class="value">{{ profile.country || 'Not Provided' }}</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="details-card social-section"
+                    *ngIf="profile.facebookUrl || profile.twitterUrl || profile.instagramUrl || profile.linkedInUrl || profile.githubUrl || profile.youtubeUrl || profile.websiteUrl">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a *ngIf="profile.facebookUrl" [href]="profile.facebookUrl" target="_blank" title="Facebook"
+                            class="social-icon"><i class="ri-facebook-box-line"></i></a>
+                        <a *ngIf="profile.twitterUrl" [href]="profile.twitterUrl" target="_blank" title="Twitter"
+                            class="social-icon"><i class="ri-twitter-x-line"></i></a>
+                        <a *ngIf="profile.instagramUrl" [href]="profile.instagramUrl" target="_blank" title="Instagram"
+                            class="social-icon"><i class="ri-instagram-line"></i></a>
+                        <a *ngIf="profile.linkedInUrl" [href]="profile.linkedInUrl" target="_blank" title="LinkedIn"
+                            class="social-icon"><i class="ri-linkedin-box-line"></i></a>
+                        <a *ngIf="profile.githubUrl" [href]="profile.githubUrl" target="_blank" title="GitHub"
+                            class="social-icon"><i class="ri-github-line"></i></a>
+                        <a *ngIf="profile.youtubeUrl" [href]="profile.youtubeUrl" target="_blank" title="YouTube"
+                            class="social-icon"><i class="ri-youtube-line"></i></a>
+                        <a *ngIf="profile.websiteUrl" [href]="profile.websiteUrl" target="_blank" title="Website"
+                            class="social-icon"><i class="ri-global-line"></i></a>
+                    </div>
+                </section>
+
+            </aside>
+
+            <!-- Main: About & Content -->
+            <div class="main-content">
+                <section class="content-card">
+                    <h3>About</h3>
+                    <p class="bio-text" [class.empty]="!profile.bio">
+                        {{ profile.bio || 'This user hasn\'t added a biography yet.' }}
+                    </p>
+                </section>
+
+            </div>
+        </div>
+    </main>
+</div>

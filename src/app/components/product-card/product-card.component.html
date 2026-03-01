@@ -1,0 +1,156 @@
+<div class="product-card">
+    <!-- Discount Badge -->
+    <div class="p-badge" *ngIf="product.discountPercentage">
+        <span class="save-text">SAVE</span>
+        <span class="save-pct">{{product.discountPercentage}}%</span>
+    </div>
+
+    <!-- Top Actions -->
+    <div class="p-actions-top">
+        <button class="action-btn wishlist-btn"
+            [title]="wishlistService.isInWishlist(product.id) ? 'Remove from Wishlist' : 'Save to Wishlist'"
+            [class.active]="wishlistService.isInWishlist(product.id)" (click)="toggleWishlist($event)">
+            <i [class]="wishlistService.isInWishlist(product.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
+        </button>
+        <button class="action-btn" title="Quick View" (click)="openQuickView($event)">
+            <i class="ri-eye-line"></i>
+        </button>
+    </div>
+
+    <!-- Product Image -->
+    <div class="p-image" [routerLink]="['/product', product.slug]" [state]="{ product: product }">
+        <img [src]="product.imageUrl | url" [alt]="product.name">
+    </div>
+
+    <!-- Product Info -->
+    <div class="p-info">
+        <div class="p-category">{{ categoryName || product.categoryName }}</div>
+        <h4 [routerLink]="['/product', product.slug]" [state]="{ product: product }">{{product.name}}</h4>
+
+        <div class="p-rating">
+            <div class="stars">
+                <i class="ri-star-fill" *ngFor="let star of [1,2,3,4,5]"
+                    [style.color]="star <= product.averageRating ? '#f59e0b' : '#cbd5e1'"></i>
+            </div>
+            <span class="rating-num">{{product.averageRating | number:'1.1-1'}}</span>
+        </div>
+
+        <div class="p-footer">
+            <div class="p-price">
+                <span class="current">{{product.minPrice | number:'1.0-0'}} <small>EGP</small></span>
+                <span class="old" *ngIf="originalPrice">
+                    {{ originalPrice | number:'1.0-0'}}
+                </span>
+            </div>
+            <div class="p-actions-bottom">
+                <button class="btn-quick-add" (click)="addToCart($event)" title="Add to Cart">
+                    <i class="ri-shopping-basket-line"></i>
+                    <span>Add to Cart</span>
+                </button>
+                <button class="btn-details" [routerLink]="['/product', product.slug]" [state]="{ product: product }"
+                    title="View Details">
+                    <i class="ri-arrow-right-line"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick View Modal -->
+<div class="qv-host" #quickViewOverlay>
+    <div class="qv-overlay-backdrop" (click)="closeQuickView()"></div>
+    <div class="qv-modal" *ngIf="isQuickViewOpen" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeQuickView()">
+            <i class="ri-close-line"></i>
+        </button>
+
+        <div class="qv-loading" *ngIf="isLoadingProduct">
+            <div class="loader"></div>
+            <p>Loading Product Details...</p>
+        </div>
+
+        <div class="qv-content" *ngIf="!isLoadingProduct && quickViewProduct">
+            <!-- Left: Gallery -->
+            <div class="qv-gallery">
+                <div class="main-image">
+                    <img [src]="activeImage | url" [alt]="quickViewProduct.name">
+                </div>
+                <div class="thumbnails" *ngIf="quickViewProduct.imagesList && quickViewProduct.imagesList.length > 1">
+                    <div class="thumb" *ngFor="let img of quickViewProduct.imagesList"
+                        [class.active]="activeImage === img" (click)="setActiveImage(img)">
+                        <img [src]="img | url">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Details -->
+            <div class="qv-details">
+                <div class="qv-header">
+                    <span class="qv-category-badge">{{ quickViewProduct.categoryName }}</span>
+                    <h2 class="qv-title">{{ quickViewProduct.name }}</h2>
+                    <div class="qv-rating-row">
+                        <div class="stars">
+                            <i class="ri-star-fill" *ngFor="let i of [1,2,3,4,5]"
+                                [style.color]="i <= quickViewProduct.averageRating ? '#f59e0b' : '#e2e8f0'"></i>
+                        </div>
+                        <span class="count">({{ quickViewProduct.reviewCount }} reviews)</span>
+                        <span class="sold-count" *ngIf="quickViewProduct.totalSold > 0">
+                            <i class="ri-fire-line"></i> {{ quickViewProduct.totalSold }} sold
+                        </span>
+                    </div>
+                </div>
+
+                <div class="qv-price-box">
+                    <div class="price-main">
+                        <span class="current">
+                            {{ (selectedVariant ? (selectedVariant.salePrice || selectedVariant.price) :
+                            quickViewProduct.minPrice) | number:'1.0-0' }}
+                            <small>EGP</small>
+                        </span>
+                        <span class="old" *ngIf="selectedVariant?.salePrice || quickViewProduct.discountPercentage">
+                            {{ (selectedVariant?.salePrice ? selectedVariant.price : originalPrice) | number:'1.0-0' }}
+                        </span>
+                    </div>
+                    <div class="stock-status" [class.out]="quickViewProduct.totalStock === 0">
+                        <i
+                            [class]="quickViewProduct.totalStock > 0 ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'"></i>
+                        {{ quickViewProduct.totalStock > 0 ? 'In Stock' : 'Out of Stock' }}
+                    </div>
+                </div>
+
+                <p class="qv-summary">{{ quickViewProduct.summary }}</p>
+
+                <!-- Variants -->
+                <div class="qv-variants" *ngIf="quickViewProduct.variants && quickViewProduct.variants.length > 0">
+                    <label>Available Options</label>
+                    <div class="v-grid">
+                        <div class="v-pill" *ngFor="let v of quickViewProduct.variants"
+                            [class.active]="selectedVariant?.id === v.id" (click)="selectVariant(v)">
+                            <img [src]="v.imageUrl | url" *ngIf="v.imageUrl" class="v-img">
+                            <span>{{ v.name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="qv-footer">
+                    <div class="qty-selector">
+                        <button (click)="quantity = quantity > 1 ? quantity - 1 : 1">-</button>
+                        <input type="number" [(ngModel)]="quantity" readonly>
+                        <button (click)="quantity = quantity + 1">+</button>
+                    </div>
+                    <button class="btn-add-main" (click)="addQuickToCart()"
+                        [disabled]="quickViewProduct.totalStock === 0">
+                        <i class="ri-shopping-basket-line"></i>
+                        Add to Cart
+                    </button>
+                </div>
+
+                <a [routerLink]="['/product', quickViewProduct.slug]" (click)="closeQuickView()"
+                    class="full-details-link">
+                    View Full Product Details <i class="ri-arrow-right-line"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

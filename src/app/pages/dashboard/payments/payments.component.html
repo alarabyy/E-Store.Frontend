@@ -1,0 +1,148 @@
+<div class="dashboard-container fade-in">
+    <div class="header">
+        <div class="title-group">
+            <h1>Payment Gateways</h1>
+            <p class="subtitle">Manage transaction pathways and gateway configurations</p>
+        </div>
+        <div class="actions">
+            <button class="btn-secondary" (click)="onRefresh()" title="Refresh List">
+                <i class="ri-refresh-line"></i>
+            </button>
+            <button class="btn-primary" (click)="onCreateGateway()">
+                <i class="ri-add-line"></i>
+                Add New Gateway
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon gateways">
+                <i class="ri-bank-card-line"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Total Gateways</h3>
+                <p class="value">{{ totalGateways }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="ri-checkbox-circle-line"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Active</h3>
+                <p class="value">{{ activeGateways }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon secure">
+                <i class="ri-shield-check-line"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Security Status</h3>
+                <p class="value">Verified</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gateways List Table -->
+    <div class="table-card shadow-sm">
+        <div class="card-header">
+            <h3>Registered Gateways</h3>
+        </div>
+        <div class="table-responsive desktop-view">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Gateway Name</th>
+                        <th>Environment</th>
+                        <th>Currencies</th>
+                        <th>Priority / Weight</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let g of gateways">
+                        <td>
+                            <div class="gateway-cell">
+                                <div class="icon"><i class="ri-bank-line"></i></div>
+                                <span>{{ g.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="getEnvBadgeClass(g.environment)">
+                                {{ g.environment === GatewayEnvironment.Production ? 'Production' : 'Sandbox' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="currencies">
+                                <span *ngFor="let c of g.supportedCurrencies" class="mini-badge">{{ c }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="prio-weight">P:{{ g.priority }} / W:{{ g.weight }}</span>
+                        </td>
+                        <td>
+                            <span class="status-indicator" [class.active]="g.isActive">
+                                {{ g.isActive ? 'Online' : 'Offline' }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <div class="action-buttons">
+                                <button class="btn-icon" title="Configure"><i class="ri-settings-4-line"></i></button>
+                                <button class="btn-icon-toggle" [class.active]="g.isActive" (click)="toggleGateway(g)"
+                                    [title]="g.isActive ? 'Disable Gateway' : 'Enable Gateway'">
+                                    <i [class]="g.isActive ? 'ri-toggle-fill' : 'ri-toggle-line'"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards View -->
+        <div class="mobile-cards-view">
+            <div class="gateway-mobile-card" *ngFor="let g of gateways">
+                <div class="card-top">
+                    <div class="name-group">
+                        <div class="icon"><i class="ri-bank-line"></i></div>
+                        <div class="details">
+                            <span class="name-text">{{ g.name }}</span>
+                            <span class="env-text">{{ g.environment === GatewayEnvironment.Production ? 'Production' :
+                                'Sandbox' }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <div class="currencies">
+                        <span *ngFor="let c of g.supportedCurrencies" class="mini-badge">{{ c }}</span>
+                    </div>
+                    <span class="prio-weight">P:{{ g.priority }} / W:{{ g.weight }}</span>
+                </div>
+                <div class="card-actions">
+                    <span class="status-indicator" [class.active]="g.isActive">
+                        {{ g.isActive ? 'Online' : 'Offline' }}
+                    </span>
+                    <button class="btn-icon-toggle" [class.active]="g.isActive" (click)="toggleGateway(g)">
+                        <i [class]="g.isActive ? 'ri-toggle-fill' : 'ri-toggle-line'"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="gateways.length === 0 && !isLoading" class="empty-state">
+            <div class="empty-icon"><i class="ri-bank-card-2-line"></i></div>
+            <h4>No gateways found</h4>
+            <p>Setup your first payment integration to start receiving orders!</p>
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div *ngIf="isLoading" class="loading-state">
+            <div class="skeleton-row" *ngFor="let i of [1,2,3]"></div>
+        </div>
+    </div>
+</div>

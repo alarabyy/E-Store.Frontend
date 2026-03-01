@@ -1,0 +1,38 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+import { ApiResponse } from '../../../../components/models/api-response.model';
+import { FAQ, CreateFAQRequest, UpdateFAQRequest } from '../models/faq.models';
+import { PagedResponse } from '../../../../components/models/pagination.models';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class FaqDashboardService {
+    private dashboardApiUrl = `${environment.apiUrl}/faqs-dashboard`;
+    private http = inject(HttpClient);
+
+    getDashboardFaqs(page: number = 1, pageSize: number = 10): Observable<PagedResponse<FAQ>> {
+        const params = new HttpParams()
+            .set('page', page.toString())
+            .set('pageSize', pageSize.toString());
+        return this.http.get<PagedResponse<FAQ>>(`${this.dashboardApiUrl}/list`, { params });
+    }
+
+    createFaq(faq: CreateFAQRequest): Observable<ApiResponse<number>> {
+        return this.http.post<ApiResponse<number>>(`${this.dashboardApiUrl}/create`, faq);
+    }
+
+    updateFaq(id: number, faq: UpdateFAQRequest): Observable<ApiResponse<void>> {
+        return this.http.put<ApiResponse<void>>(`${this.dashboardApiUrl}/${id}/edit`, faq);
+    }
+
+    deleteFaq(id: number): Observable<ApiResponse<void>> {
+        return this.http.delete<ApiResponse<void>>(`${this.dashboardApiUrl}/${id}/delete`);
+    }
+
+    toggleFaqStatus(id: number): Observable<ApiResponse<void>> {
+        return this.http.patch<ApiResponse<void>>(`${this.dashboardApiUrl}/${id}/toggle-status`, {});
+    }
+}

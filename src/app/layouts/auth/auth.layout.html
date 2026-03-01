@@ -1,0 +1,52 @@
+<div class="auth-layout">
+    <!-- Branding Sidebar -->
+    <aside class="auth-sidebar">
+        <div class="sidebar-bg">
+            <div class="glass-orb orb-1"></div>
+            <div class="glass-orb orb-2"></div>
+            <div class="grid-pattern"></div>
+        </div>
+
+        <div class="sidebar-content">
+            <div class="brand-header animate-fade-in">
+                <!-- Removed app-logo -->
+                <h1 class="brand-name">E-Store</h1>
+            </div>
+
+            <div class="brand-message animate-slide-up">
+                <h2>
+                    Elevate Your<br>
+                    <span class="text-gradient">Mega Lifestyle.</span>
+                </h2>
+                <p>Join the global shopping revolution. Millions of premium products, one brand-neutral Mega Store,
+                    infinite possibilities. Experience retail like never before.</p>
+            </div>
+
+            <div class="sidebar-visual animate-fade-in">
+                <div class="tech-card-showcase">
+                    <div class="card card-1"><i class="ri-smartphone-line"></i></div>
+                    <div class="card card-2"><i class="ri-laptop-line"></i></div>
+                    <div class="card card-3"><i class="ri-cpu-line"></i></div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>© 2026 E-Store. Your Ultimate Global Shopping Destination.</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Form Area -->
+    <main class="auth-main">
+        <a routerLink="/" class="back-home-btn animate-fade-in">
+            <i class="ri-arrow-left-line"></i>
+            <span>Back to Home</span>
+        </a>
+
+        <div class="auth-wrapper">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+
+    <app-scroll-to-top></app-scroll-to-top>
+</div>

@@ -1,0 +1,89 @@
+<div class="dashboard-container fade-in">
+    <div class="header">
+        <div class="title-section">
+            <h1>Categories</h1>
+            <p>Manage your product categories and hierarchy</p>
+        </div>
+        <a routerLink="create" class="btn-primary">
+            <i class="ri-add-line"></i> Add Category
+        </a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-info">
+                <span class="label">Total</span>
+                <span class="value">{{ categories.length }}</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active">✅</div>
+            <div class="stat-info">
+                <span class="label">Active</span>
+                <span class="value">{{ getActiveCount() }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unified Card Grid -->
+    <div class="categories-grid" *ngIf="!isLoading && categories.length > 0">
+        <div *ngFor="let category of categories" class="category-card" [class.inactive]="!category.isActive">
+            <div class="card-image-wrapper">
+                <img [src]="getImageUrl(category.imageUrl)" [alt]="category.name" class="card-img">
+                <div class="card-badges">
+                    <span class="badge status" [class.active]="category.isActive">
+                        {{ category.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                    <span class="badge order" title="Display Order">
+                        <i class="ri-sort-asc"></i> {{ category.displayOrder }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <div class="card-header-info">
+                    <h3 class="card-title">{{ category.name }}</h3>
+                    <code class="slug-badge">{{ category.slug }}</code>
+                </div>
+
+                <p class="card-description">
+                    {{ category.description | slice:0:100 }}{{ category.description.length > 100 ? '...' : '' }}
+                </p>
+
+                <div class="card-metadata" *ngIf="category.parentCategoryName">
+                    <span class="parent-chip">
+                        <i class="ri-node-tree"></i> {{ category.parentCategoryName }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <div class="main-actions">
+                    <a [routerLink]="['edit', category.id]" class="btn-action edit" title="Edit Category">
+                        <i class="ri-edit-2-line"></i> Edit
+                    </a>
+                    <button (click)="toggleStatus(category)" class="btn-action status-toggle"
+                        [title]="category.isActive ? 'Deactivate' : 'Activate'">
+                        <i [class]="category.isActive ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+                        Status
+                    </button>
+                </div>
+                <button (click)="deleteCategory(category.id)" class="btn-action delete" title="Delete Category">
+                    <i class="ri-delete-bin-6-line"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="categories.length === 0 && !isLoading" class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>No categories found</h3>
+        <p>Start by adding your first category to organize products.</p>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+        <div class="spinner"></div>
+    </div>
+</div>

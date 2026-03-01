@@ -1,0 +1,326 @@
+:host {
+    display: block;
+    background-color: #ffffff;
+    min-height: 100vh;
+}
+
+.profile-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 120px 2rem 5rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #111827;
+}
+
+/* ── Loading & Errors ── */
+.profile-loading,
+.profile-error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    text-align: center;
+}
+
+.minimal-spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #f3f4f6;
+    border-top-color: #4f46e5;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-container i {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+/* ── Header Section ── */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 3rem;
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
+
+.profile-id-section {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+.avatar-container {
+    width: 140px;
+    height: 140px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #f9fafb;
+    border: 1px solid #f3f4f6;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #9ca3af;
+        background: #f3f4f6;
+    }
+}
+
+.profile-headline {
+    .name-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+
+        @media (max-width: 768px) {
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.025em;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #f3f4f6;
+            color: #4b5563;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+    }
+
+    .job-title {
+        font-size: 1.125rem;
+        color: #6b7280;
+        margin: 0 0 1rem;
+    }
+
+    .quick-meta {
+        display: flex;
+        gap: 1.5rem;
+        color: #9ca3af;
+        font-size: 0.875rem;
+
+        @media (max-width: 768px) {
+            justify-content: center;
+        }
+
+        span {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+    }
+}
+
+/* ── Grid Layout ── */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 4rem;
+
+    @media (max-width: 992px) {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+}
+
+/* ── Cards & Sections ── */
+h3 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin-bottom: 1.5rem;
+}
+
+.details-card,
+.content-card {
+    margin-bottom: 3rem;
+}
+
+.details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+        margin-bottom: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #9ca3af;
+        }
+
+        .value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #374151;
+        }
+    }
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        border: 1px solid #f3f4f6;
+        color: #6b7280;
+        font-size: 1.2rem;
+        transition: all 0.2s;
+
+        &:hover {
+            color: #4f46e5;
+            border-color: #4f46e5;
+            background: #f5f3ff;
+            transform: translateY(-2px);
+        }
+    }
+}
+
+.not-found-text {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* ── Main Content Area ── */
+.bio-text {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #4b5563;
+    margin: 0;
+
+    &.empty {
+        color: #9ca3af;
+        font-style: italic;
+    }
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+
+    @media (max-width: 576px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-box {
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid #f3f4f6;
+    text-align: center;
+
+    .stat-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .status-active {
+        color: #10b981;
+    }
+}
+
+/* ── Buttons ── */
+.btn-outline {
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        border-color: #4f46e5;
+        color: #4f46e5;
+        background: #f5f3ff;
+        transform: translateY(-1px);
+    }
+}

@@ -1,0 +1,164 @@
+<div class="overview fade-in">
+
+    <!-- Header -->
+    <div class="overview-header">
+        <div>
+            <h1>Control Panel</h1>
+            <p class="subtitle">System Overview</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="card-icon blue">
+                <i class="ri-user-3-line"></i>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Total Users</span>
+                <span class="card-value">{{ stats.totalUsers }}</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="card-icon green">
+                <i class="ri-mail-check-line"></i>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Verified Emails</span>
+                <span class="card-value">{{ stats.verifiedEmails }}</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="card-icon indigo">
+                <i class="ri-shield-check-line"></i>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Active Users</span>
+                <span class="card-value">{{ stats.activeUsers }}</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="card-icon amber">
+                <i class="ri-folders-line"></i>
+            </div>
+            <div class="card-info">
+                <span class="card-label">Categories</span>
+                <span class="card-value">{{ stats.totalCategories }}</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Cards -->
+    <div class="section-title">
+        <i class="ri-navigation-line"></i>
+        Quick Navigation
+    </div>
+
+    <div class="nav-grid">
+        <a routerLink="/dashboard/users" class="nav-card">
+            <div class="hover-bg blue-bg"></div>
+            <div class="nav-icon blue"><i class="ri-group-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Users</span>
+                <span class="nav-desc">Manage accounts</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/categories" class="nav-card">
+            <div class="hover-bg amber-bg"></div>
+            <div class="nav-icon amber"><i class="ri-folders-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Categories</span>
+                <span class="nav-desc">Organize catalog</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/collections" class="nav-card">
+            <div class="hover-bg pink-bg"></div>
+            <div class="nav-icon pink"><i class="ri-layout-grid-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Collections</span>
+                <span class="nav-desc">Product groupings</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/products" class="nav-card">
+            <div class="hover-bg purple-bg"></div>
+            <div class="nav-icon purple"><i class="ri-box-3-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Products</span>
+                <span class="nav-desc">Inventory list</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/product-attributes" class="nav-card">
+            <div class="hover-bg slate-bg"></div>
+            <div class="nav-icon slate"><i class="ri-list-settings-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Attributes</span>
+                <span class="nav-desc">Product traits</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/product-reviews" class="nav-card">
+            <div class="hover-bg orange-bg"></div>
+            <div class="nav-icon orange"><i class="ri-star-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Reviews</span>
+                <span class="nav-desc">Customer feedback</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/faqs" class="nav-card">
+            <div class="hover-bg teal-bg"></div>
+            <div class="nav-icon teal"><i class="ri-question-answer-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">FAQs</span>
+                <span class="nav-desc">Help center</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/support-tickets" class="nav-card">
+            <div class="hover-bg rose-bg"></div>
+            <div class="nav-icon rose"><i class="ri-customer-service-2-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Support</span>
+                <span class="nav-desc">Customer inquiries</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/rules" class="nav-card">
+            <div class="hover-bg indigo-bg"></div>
+            <div class="nav-icon indigo"><i class="ri-shield-keyhole-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Rules</span>
+                <span class="nav-desc">Logic config</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+
+        <a routerLink="/dashboard/store-settings" class="nav-card">
+            <div class="hover-bg emerald-bg"></div>
+            <div class="nav-icon emerald"><i class="ri-settings-4-line"></i></div>
+            <div class="nav-text">
+                <span class="nav-title">Settings</span>
+                <span class="nav-desc">Store options</span>
+            </div>
+            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+        </a>
+    </div>
+
+</div>

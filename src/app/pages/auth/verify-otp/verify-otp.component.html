@@ -1,0 +1,41 @@
+<div class="auth-card animate-slide-up">
+    <div class="auth-header">
+        <h1>Two-Factor Verification</h1>
+        <p>Enter the code sent to your email</p>
+        <div class="email-badge" *ngIf="email">{{ email }}</div>
+    </div>
+
+    <!-- Error Alert -->
+    <div *ngIf="errorMessage" class="error-alert">
+        <i class="ri-error-warning-line"></i>
+        <span>{{ errorMessage }}</span>
+    </div>
+
+    <form [formGroup]="otpForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+            <label for="code">Verification Code</label>
+            <div class="input-wrapper" [class.error]="otpForm.get('code')?.invalid && otpForm.get('code')?.touched">
+                <i class="ri-shield-key-line input-icon"></i>
+                <input type="text" id="code" formControlName="code" class="form-input otp-input" placeholder="000000"
+                    maxlength="6">
+            </div>
+            <div *ngIf="otpForm.get('code')?.invalid && otpForm.get('code')?.touched" class="error-msg">
+                Code is required
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block" [disabled]="isLoading || otpForm.invalid">
+            <span *ngIf="!isLoading">Verify</span>
+            <div *ngIf="isLoading" class="spinner"></div>
+        </button>
+    </form>
+
+    <div class="auth-footer">
+        <p>Didn't receive the code?
+            <button type="button" class="btn-link" (click)="resendCode()">Resend</button>
+        </p>
+        <a routerLink="/auth/login" class="link-secondary mt-2 d-block">
+            <i class="ri-arrow-left-line"></i> Back to Login
+        </a>
+    </div>
+</div>

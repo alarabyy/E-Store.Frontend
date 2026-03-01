@@ -1,0 +1,122 @@
+<div class="dashboard-container fade-in">
+    <div class="header">
+        <h1>Users Management</h1>
+        <div class="search-box">
+            <i class="ri-search-line search-icon"></i>
+            <input [formControl]="searchControl" type="text" placeholder="Search users..." class="search-input">
+        </div>
+    </div>
+
+    <!-- Users Cards Grid -->
+    <div class="cards-grid">
+        <div *ngFor="let user of users" class="user-card">
+            <div class="card-top">
+                <div class="user-header">
+                    <div class="avatar">{{ (user.firstName && user.firstName.length > 0) ? user.firstName.charAt(0) :
+                        'U' }}</div>
+                    <div class="user-identity">
+                        <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+                        <span class="username">@{{ user.username }}</span>
+                    </div>
+                </div>
+                <div class="status-indicator">
+                    <span class="badge status-badge" [class.locked]="user.lockoutEnabled">
+                        {{ user.lockoutEnabled ? 'Locked' : 'Active' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="info-item">
+                    <i class="ri-mail-line icon"></i>
+                    <span>{{ user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="ri-shield-user-line icon"></i>
+                    <span class="badge role-badge">{{ user.role || 'User' }}</span>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button class="btn-action edit" (click)="openEditModal(user)" title="Manage Roles/Permissions">
+                    <i class="ri-settings-3-line"></i> Manage
+                </button>
+                <button class="btn-action delete" (click)="deleteUser(user.id)" title="Delete User">
+                    <i class="ri-delete-bin-line"></i> Remove
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="users.length === 0 && !isLoading" class="empty-state-card">
+            <div class="icon">🔍</div>
+            <h3>No users found</h3>
+            <p>Try adjusting your search criteria.</p>
+        </div>
+    </div>
+
+
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+        <button class="btn-page" [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+            <i class="ri-arrow-left-s-line"></i>
+        </button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages }} ({{ totalCount }} users)</span>
+        <button class="btn-page" [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">
+            <i class="ri-arrow-right-s-line"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Edit Modal (keeping logic, updating styles via SCSS) -->
+<div class="modal-backdrop" *ngIf="showModal && selectedUser">
+    <div class="modal-content animate-scale-up">
+        <div class="modal-header">
+            <div class="modal-title-group">
+                <h2>Manage User</h2>
+                <span class="subtitle">{{ selectedUser.username }}</span>
+            </div>
+            <button class="close-btn" (click)="closeModal()"><i class="ri-close-line"></i></button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn" [class.active]="activeTab === 'roles'" (click)="activeTab = 'roles'">Roles</button>
+            <button class="tab-btn" [class.active]="activeTab === 'permissions'"
+                (click)="activeTab = 'permissions'">Permissions</button>
+        </div>
+
+        <div class="tab-content" *ngIf="activeTab === 'roles'">
+            <form [formGroup]="roleForm" (ngSubmit)="updateRole()">
+                <div class="form-group">
+                    <label>Assign Role</label>
+                    <div class="select-wrapper">
+                        <select formControlName="roleName" class="form-input">
+                            <option value="">Select a role</option>
+                            <option *ngFor="let role of availableRoles" [value]="role.name">{{ role.name }}</option>
+                        </select>
+                        <i class="ri-arrow-down-s-line arrow"></i>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary" [disabled]="roleForm.invalid">Update Role</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tab-content" *ngIf="activeTab === 'permissions'">
+            <form [formGroup]="permissionsForm" (ngSubmit)="updatePermissions()">
+                <div class="form-group">
+                    <label>Direct Permissions (comma separated)</label>
+                    <textarea formControlName="permissions" class="form-input" rows="4"
+                        placeholder="e.g. Read, Write.Article, Delete"></textarea>
+                    <small>Separate multiple permissions with commas.</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary" [disabled]="permissionsForm.invalid">Update
+                        Permissions</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

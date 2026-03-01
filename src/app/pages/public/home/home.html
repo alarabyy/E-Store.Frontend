@@ -1,0 +1,403 @@
+<div class="home-wrapper" [class.loading]="isLoading">
+
+    <!-- ══════════════════════════════════════════════════════════
+         FLASH OFFER TOAST — Slides in from right on page load
+    ══════════════════════════════════════════════════════════ -->
+    <div class="flash-toast" *ngIf="showFlashToast && flashOffer" [class.show]="flashToastVisible"
+        (click)="goToFlashOffer()">
+        <div class="flash-toast-glow"></div>
+        <button class="flash-close" (click)="dismissFlashToast($event)">
+            <i class="ri-close-line"></i>
+        </button>
+        <div class="flash-icon-wrap">
+            <i class="ri-fire-fill"></i>
+        </div>
+        <div class="flash-content">
+            <span class="flash-label">🔥 Exclusive Offer</span>
+            <h4 class="flash-title">{{ flashOffer.title }}</h4>
+            <p class="flash-desc">{{ flashOffer.desc }}</p>
+            <div class="flash-price" *ngIf="flashOffer.priceNow">
+                <span class="flash-now">{{ flashOffer.priceNow | number:'1.0-0' }} EGP</span>
+                <span class="flash-was" *ngIf="flashOffer.originalPrice">{{ flashOffer.originalPrice |
+                    number:'1.0-0' }} EGP</span>
+            </div>
+        </div>
+        <div class="flash-cta-arrow">
+            <i class="ri-arrow-right-line"></i>
+        </div>
+        <div class="flash-progress">
+            <div class="flash-progress-fill" [class.running]="flashToastVisible"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         HERO SECTION — Split layout with animated blobs
+    ══════════════════════════════════════════════════════════ -->
+    <header class="hero-split">
+        <!-- Decorative blobs -->
+        <div class="blobs">
+            <div class="blob b1"></div>
+            <div class="blob b2"></div>
+            <div class="blob b3"></div>
+        </div>
+
+        <div class="hero-inner" *ngIf="(settings$ | async) as settings; else staticHero">
+            <!-- LEFT: Text -->
+            <div class="hero-text">
+                <div class="trending-tag">
+                    <span class="live-dot"></span>
+                    {{ $any(settings).catchPhrase || 'New: Spring 2026 Collection' }}
+                </div>
+
+                <h1 class="hero-heading">
+                    {{ $any(settings).addresses?.[0] || 'Beauty in Every' }}
+                    <span class="shimmer-text">Detail</span>
+                </h1>
+
+                <p class="hero-sub">
+                    {{ $any(settings).aboutSection || 'Smart choices for modern furniture combining art and
+                    functionality to suit your refined taste.' }}
+                </p>
+
+                <div class="hero-cta">
+                    <a routerLink="/catalog" class="btn-primary-hero">
+                        Explore Now <i class="ri-arrow-right-up-line"></i>
+                    </a>
+                    <a routerLink="/catalog" class="btn-ghost-hero">
+                        View Collections
+                    </a>
+                </div>
+
+                <!-- Trust counters -->
+                <div class="hero-trust">
+                    <div class="trust-num" *ngFor="let s of stats">
+                        <strong>{{ s.value }}</strong>
+                        <span>{{ s.label }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Floating gallery -->
+            <div class="hero-visual">
+                <div class="card-stack">
+                    <div class="card-main">
+                        <img [src]="($any(settings).storeLogoUrl || 'assets/images/image1.png') | url" alt="Hero">
+                        <div class="price-float">
+                            <i class="ri-price-tag-3-fill"></i>
+                            <div>
+                                <strong>Italian Sofa Set</strong>
+                                <small>5 Colors Available</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-mini">
+                        <img [src]="($any(settings).storeSecondaryLogoUrl || 'assets/images/image1.png') | url"
+                            alt="Decor">
+                    </div>
+                    <div class="badge-float award">
+                        <i class="ri-award-fill"></i>
+                        <span>10 Years Warranty</span>
+                    </div>
+                    <div class="badge-float delivery">
+                        <i class="ri-truck-fill"></i>
+                        <span>Free Delivery</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Static fallback -->
+        <ng-template #staticHero>
+            <div class="hero-inner">
+                <div class="hero-text">
+                    <div class="trending-tag">
+                        <span class="live-dot"></span>
+                        New: Spring 2026 Collection Arrived
+                    </div>
+                    <h1 class="hero-heading">
+                        Beauty in Every
+                        <span class="shimmer-text">Detail</span>
+                    </h1>
+                    <p class="hero-sub">
+                        Smart choices for modern furniture combining art and functionality to suit your refined taste.
+                    </p>
+                    <div class="hero-cta">
+                        <a routerLink="/catalog" class="btn-primary-hero">
+                            Explore Now <i class="ri-arrow-right-up-line"></i>
+                        </a>
+                        <a routerLink="/catalog" class="btn-ghost-hero">
+                            View Collections
+                        </a>
+                    </div>
+                    <div class="hero-trust">
+                        <div class="trust-num" *ngFor="let s of stats">
+                            <strong>{{ s.value }}</strong>
+                            <span>{{ s.label }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="card-stack">
+                        <div class="card-main">
+                            <img src="assets/images/image1.png" alt="Hero">
+                            <div class="price-float">
+                                <i class="ri-price-tag-3-fill"></i>
+                                <div>
+                                    <strong>Italian Sofa Set</strong>
+                                    <small>5 Colors Available</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="badge-float award">
+                            <i class="ri-award-fill"></i>
+                            <span>10 Years Warranty</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </header>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         COLLECTIONS SLIDER — Premium Offer Showcase
+    ══════════════════════════════════════════════════════════ -->
+    <section class="collections-slider" id="offers" *ngIf="carouselOffers && carouselOffers.length > 0">
+
+        <!-- Section header -->
+        <div class="slider-header">
+            <div class="slider-header-inner">
+                <div class="slider-badge-wrap">
+                    <span class="slider-live-badge">
+                        <span class="live-pulse"></span>
+                        LIVE OFFERS
+                    </span>
+                    <span class="slider-count">{{ currentSlide + 1 }} / {{ carouselOffers.length }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide track -->
+        <div class="slides-track">
+            <div class="slide-item" *ngFor="let slide of carouselOffers; let i = index"
+                [class.active]="i === currentSlide">
+
+                <!-- Full-bleed background -->
+                <div class="slide-bg" [style.background]="slide.bg">
+                    <div class="slide-grain"></div>
+                    <div class="slide-radial"></div>
+                </div>
+
+                <!-- Content -->
+                <div class="slide-body">
+                    <div class="slide-text">
+                        <span class="slide-eyebrow">
+                            <i class="ri-flashlight-fill"></i> Exclusive Collection
+                        </span>
+
+                        <!-- Discount badge -->
+                        <div class="slide-discount-tag" *ngIf="slide.originalPrice && slide.priceNow">
+                            <i class="ri-discount-percent-fill"></i>
+                            <span>Save {{ ((slide.originalPrice - slide.priceNow) / slide.originalPrice * 100) |
+                                number:'1.0-0' }}%</span>
+                        </div>
+
+                        <h2 class="slide-title">{{ slide.title }}</h2>
+                        <p class="slide-desc">{{ slide.desc }}</p>
+
+                        <div class="slide-price-block" *ngIf="slide.priceNow">
+                            <div class="price-main">
+                                <span class="price-currency">EGP</span>
+                                <span class="price-value">{{ slide.priceNow | number:'1.0-0' }}</span>
+                            </div>
+                            <div class="price-original" *ngIf="slide.originalPrice">
+                                <span class="price-was-label">Was</span>
+                                <span class="price-was-value">{{ slide.originalPrice | number:'1.0-0' }} EGP</span>
+                            </div>
+                        </div>
+
+                        <!-- Feature pills -->
+                        <div class="slide-features">
+                            <span class="feature-pill"><i class="ri-truck-fill"></i> Free Shipping</span>
+                            <span class="feature-pill"><i class="ri-shield-check-fill"></i> Warranty</span>
+                            <span class="feature-pill"><i class="ri-time-fill"></i> Limited Time</span>
+                        </div>
+
+                        <a [routerLink]="['/collections', slide.slug]" class="slide-cta">
+                            <span>Shop This Collection</span>
+                            <i class="ri-arrow-right-line"></i>
+                        </a>
+                    </div>
+
+                    <div class="slide-image">
+                        <div class="slide-img-wrap">
+                            <!-- Offer tag on image -->
+                            <div class="img-offer-tag" *ngIf="slide.originalPrice && slide.priceNow">
+                                <span class="offer-percent">-{{ ((slide.originalPrice - slide.priceNow) /
+                                    slide.originalPrice * 100) | number:'1.0-0' }}%</span>
+                                <span class="offer-label">OFF</span>
+                            </div>
+                            <img [src]="slide.image | url" [alt]="slide.title">
+                            <div class="img-glow"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="slider-nav">
+            <button class="nav-arrow prev"
+                (click)="setSlide((currentSlide - 1 + carouselOffers.length) % carouselOffers.length)">
+                <i class="ri-arrow-left-s-line"></i>
+            </button>
+            <div class="dots">
+                <span class="dot" *ngFor="let s of carouselOffers; let i = index" [class.active]="i === currentSlide"
+                    (click)="setSlide(i)"></span>
+            </div>
+            <button class="nav-arrow next" (click)="setSlide((currentSlide + 1) % carouselOffers.length)">
+                <i class="ri-arrow-right-s-line"></i>
+            </button>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="slider-progress">
+            <div class="progress-fill" [style.width.%]="((currentSlide + 1) / carouselOffers.length) * 100"></div>
+        </div>
+    </section>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         FEATURED PRODUCTS — Categorized Showcase
+    ══════════════════════════════════════════════════════════ -->
+    <div class="main-products-container">
+        <!-- Trending Now Section -->
+        <section class="products-section">
+            <div class="section-head">
+                <div class="head-label"><i class="ri-fire-fill"></i> Trending Now</div>
+                <h2 class="section-h2">Most Requested</h2>
+                <p class="section-p">Handpicked top performers from across our store.</p>
+                <a routerLink="/catalog" class="see-all-link">
+                    Explore Catalog <i class="ri-arrow-right-line"></i>
+                </a>
+            </div>
+
+            <div class="products-grid-home">
+                <app-product-card *ngFor="let p of featuredProducts" [product]="p"
+                    [categoryName]="p.categoryName || p.category">
+                </app-product-card>
+            </div>
+        </section>
+
+        <!-- Dynamic Category Sections -->
+        <section class="products-section category-reveal" *ngFor="let cat of categories; let i = index">
+            <ng-container *ngIf="cat.products && cat.products.length > 0">
+                <div class="section-head">
+                    <div class="head-label category-tag">{{ cat.name }}</div>
+                    <h2 class="section-h2">{{ cat.name }} Collection</h2>
+                    <p class="section-p">Premium selection of {{ cat.name }} designed for your comfort.</p>
+                    <a routerLink="/catalog" [queryParams]="{category: cat.slug}" class="see-all-link">
+                        View All {{ cat.name }} <i class="ri-arrow-right-line"></i>
+                    </a>
+                </div>
+
+                <div class="products-grid-home">
+                    <app-product-card *ngFor="let p of cat.products.slice(0, 4)" [product]="p"
+                        [categoryName]="cat.name">
+                    </app-product-card>
+                </div>
+            </ng-container>
+        </section>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         STATS BANNER — Full-width gold strip
+    ══════════════════════════════════════════════════════════ -->
+    <section class="stats-banner">
+        <div class="stats-inner">
+            <div class="stat-item" *ngFor="let s of stats">
+                <div class="stat-icon-wrap">
+                    <i [class]="s.icon"></i>
+                </div>
+                <div class="stat-text">
+                    <strong>{{ s.value }}</strong>
+                    <span>{{ s.label }}</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         TESTIMONIALS — Premium dark card layout
+    ══════════════════════════════════════════════════════════ -->
+    <section class="testimonials-section">
+        <div class="section-head centered">
+            <div class="head-label light"><i class="ri-star-fill"></i> Happy Clients</div>
+            <h2 class="section-h2 light">What They Say About Us</h2>
+            <p class="section-p light">Real words from real customers who transformed their homes.</p>
+        </div>
+
+        <div class="testi-grid">
+            <div class="testi-card" *ngFor="let t of testimonials; let i = index">
+                <div class="testi-top">
+                    <div class="testi-avatar">{{ t.name.charAt(0) }}</div>
+                    <div>
+                        <h5>{{ t.name }}</h5>
+                        <div class="testi-stars">
+                            <i class="ri-star-fill" *ngFor="let s of [1,2,3,4,5]"></i>
+                        </div>
+                    </div>
+                    <i class="ri-double-quotes-r quote-icon"></i>
+                </div>
+                <p>"{{ t.comment }}"</p>
+                <div class="testi-verified">
+                    <i class="ri-verified-badge-fill"></i> Verified Purchase
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         NEWSLETTER — Immersive CTA
+    ══════════════════════════════════════════════════════════ -->
+    <section class="newsletter-section">
+        <div class="newsletter-inner">
+            <div class="nl-decoration">
+                <div class="nl-blob nl-b1"></div>
+                <div class="nl-blob nl-b2"></div>
+            </div>
+            <div class="nl-content">
+                <span class="nl-eyebrow"><i class="ri-shield-check-fill"></i> Privacy First</span>
+                <h2>
+                    Join the World of
+                    <span class="gold-text">Elite</span>
+                </h2>
+                <p>Get the annual decoration guide for free & a 10% discount on your first order.</p>
+
+                <div class="nl-form">
+                    <div class="nl-input-wrap">
+                        <i class="ri-mail-line"></i>
+                        <input type="email" #newsEmail placeholder="Your email address...">
+                    </div>
+                    <button class="nl-btn" (click)="subscribeNewsletter(newsEmail.value)">
+                        Join Now <i class="ri-arrow-right-line"></i>
+                    </button>
+                </div>
+
+                <div class="nl-footer">
+                    <span><i class="ri-history-line"></i> Best-in-class content only</span>
+                    <span class="nl-sep">·</span>
+                    <span><i class="ri-user-follow-line"></i> 20k+ Subscribers</span>
+                    <span class="nl-sep">·</span>
+                    <span><i class="ri-lock-line"></i> No spam ever</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loader -->
+    <app-loader [show]="isLoading"></app-loader>
+</div>

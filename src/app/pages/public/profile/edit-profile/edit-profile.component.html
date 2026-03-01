@@ -1,0 +1,81 @@
+<div class="edit-profile-page">
+    <header class="edit-header">
+        <a routerLink="/profile" class="back-link">
+            <i class="ri-arrow-left-line"></i> <span>Back to Profile</span>
+        </a>
+        <h1>Account Settings</h1>
+        <p>Manage your professional identity and public profile details.</p>
+    </header>
+
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="edit-form">
+        <!-- Visual Assets -->
+        <section class="edit-section visual-assets">
+            <h3>Visual Identity</h3>
+            <div class="visual-grid">
+                <!-- Cover Selection -->
+                <div class="field-item full-width">
+                    <label>Cover Image</label>
+                    <div class="cover-dropzone"
+                        [style.backgroundImage]="coverPreview ? 'url(' + coverPreview + ')' : 'none'">
+                        <div class="dropzone-overlay">
+                            <label for="coverInput" class="btn-minimal">
+                                <i class="ri-image-add-line"></i> Update Cover
+                            </label>
+                            <input type="file" id="coverInput" (change)="onCoverChange($event)" hidden accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar Selection -->
+                <div class="field-item avatar-picker">
+                    <label>Profile Image</label>
+                    <div class="avatar-current">
+                        <img [src]="avatarPreview || 'assets/images/default-avatar.png'" alt="Avatar">
+                        <label for="avatarInput" class="avatar-edit-badge">
+                            <i class="ri-pencil-line"></i>
+                        </label>
+                        <input type="file" id="avatarInput" (change)="onAvatarChange($event)" hidden accept="image/*">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Identity Section -->
+        <section class="edit-section">
+            <h3>Basic Information</h3>
+            <div class="field-grid">
+                <div class="field-item">
+                    <label>First Name</label>
+                    <input type="text" formControlName="firstName" placeholder="First Name">
+                </div>
+                <div class="field-item">
+                    <label>Last Name</label>
+                    <input type="text" formControlName="lastName" placeholder="Last Name">
+                </div>
+                <div class="field-item">
+                    <label>Job Title</label>
+                    <input type="text" formControlName="jobTitle" placeholder="e.g. Senior Designer">
+                </div>
+                <div class="field-item">
+                    <label>Phone Number</label>
+                    <input type="text" formControlName="phoneNumber" placeholder="+00 000 000 000">
+                </div>
+            </div>
+            <div class="field-item full-width">
+                <label>Professional Bio</label>
+                <textarea formControlName="bio" rows="4" placeholder="Tell the world about yourself..."></textarea>
+            </div>
+        </section>
+
+
+        <!-- Actions -->
+        <div class="edit-actions">
+            <button type="button" routerLink="/profile" class="btn-text">Discard Changes</button>
+            <button type="submit" class="btn-primary" [disabled]="isSaving || profileForm.invalid">
+                <span *ngIf="!isSaving">Save Profile</span>
+                <div class="minimal-spinner small" *ngIf="isSaving"></div>
+            </button>
+        </div>
+    </form>
+</div>

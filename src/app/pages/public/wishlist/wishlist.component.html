@@ -1,0 +1,70 @@
+<div class="wishlist-page">
+    <div class="wishlist-container">
+        <header class="page-header">
+            <h1><i class="ri-heart-line"></i> Favorite Products</h1>
+            <p>Keep your favorite items to return to them at any time</p>
+        </header>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="wishlistService.itemCount === 0">
+            <i class="ri-heart-pulse-line icon-lg"></i>
+            <h2>Your wishlist is empty</h2>
+            <p>You haven't added any products to your wishlist yet. Browse the store and collect the products you love!
+            </p>
+            <a routerLink="/catalog" class="btn-primary">
+                Browse Catalog <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+
+        <!-- Wishlist Content -->
+        <div class="wishlist-grid" *ngIf="wishlistService.itemCount > 0">
+            <div class="product-card" *ngFor="let item of wishlistService.items()">
+
+                <div class="p-actions-top">
+                    <button class="action-btn active" title="Remove from Wishlist"
+                        (click)="wishlistService.toggleWishlist(item)">
+                        <i class="ri-heart-fill"></i>
+                    </button>
+                    <button class="action-btn" title="Quick View" [routerLink]="['/product', item.slug || item.id]">
+                        <i class="ri-eye-line"></i>
+                    </button>
+                </div>
+
+                <div class="p-image" [routerLink]="['/product', item.slug || item.id]">
+                    <img [src]="item.image | url" [alt]="item.name" loading="lazy">
+                    <div class="img-overlay" (click)="$event.stopPropagation()">
+                        <button class="btn-quick-add" (click)="moveToCart(item)">
+                            <i class="ri-shopping-cart-2-line"></i>
+                            <span>Move to Cart</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-info">
+                    <div class="p-category" *ngIf="item.categoryName">{{ item.categoryName }}</div>
+                    <div class="p-category" *ngIf="!item.categoryName">Saved Item</div>
+
+                    <h4 [routerLink]="['/product', item.slug || item.id]">{{item.name}}</h4>
+
+                    <div class="p-rating" *ngIf="item.averageRating !== undefined">
+                        <div class="stars">
+                            <i class="ri-star-fill" *ngFor="let star of [1,2,3,4,5]"
+                                [style.color]="star <= item.averageRating ? '#f59e0b' : '#cbd5e1'"></i>
+                        </div>
+                        <span class="rating-num">{{item.averageRating | number:'1.1-1'}}</span>
+                    </div>
+
+                    <div class="p-footer">
+                        <div class="p-price">
+                            <span class="current">{{item.price | number:'1.0-0'}} <small>EGP</small></span>
+                        </div>
+                        <button class="btn-details" [routerLink]="['/product', item.slug || item.id]"
+                            title="View Details">
+                            <i class="ri-arrow-right-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

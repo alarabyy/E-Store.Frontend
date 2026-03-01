@@ -1,0 +1,89 @@
+<div class="fade-in">
+    <div class="section-actions" style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+        <button (click)="openModal('add')" class="btn btn-primary">
+            <i class="ri-add-line"></i> Add Item
+        </button>
+    </div>
+
+    <div class="items-grid">
+        <div *ngFor="let item of items" class="item-card">
+            <div class="item-image">
+                <img [src]="(item.imageUrl || 'assets/images/placeholder.png') | url" [alt]="item.title">
+                <span class="status-badge" [class.active]="item.isActive">{{ item.isActive ? 'Active' : 'Inactive'
+                    }}</span>
+            </div>
+            <div class="item-info">
+                <h3>{{ item.title }}</h3>
+                <div class="item-meta">
+                    <span>Order: {{ item.displayOrder }}</span>
+                </div>
+            </div>
+            <div class="item-actions">
+                <button class="btn-icon" (click)="openModal('edit', item)"><i class="ri-edit-line"></i></button>
+                <button class="btn-icon btn-danger" (click)="deleteItem(item.id)"><i
+                        class="ri-delete-bin-line"></i></button>
+            </div>
+        </div>
+        <div class="empty-state" *ngIf="items.length === 0">
+            <i class="ri-shopping-bag-line"></i>
+            <p>No items added yet</p>
+        </div>
+    </div>
+
+    <!-- Item Modal -->
+    <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ modalMode === 'add' ? 'Add New' : 'Edit' }} Item</h2>
+                <button class="btn-close" (click)="closeModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <form [formGroup]="modalForm" (ngSubmit)="saveItem()" class="modal-body">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" formControlName="title" [class.invalid]="isInvalid('title')">
+                </div>
+
+                <div class="form-group">
+                    <label>Link URL</label>
+                    <input type="text" formControlName="linkUrl" placeholder="https://...">
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Display Order</label>
+                        <input type="number" formControlName="displayOrder">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" formControlName="isActive">
+                            <span class="checkmark"></span>
+                            Visible to users
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group upload-section">
+                    <label>Image</label>
+                    <div class="upload-preview" [class.has-image]="imagePreview" (click)="fileInput.click()">
+                        <img *ngIf="imagePreview" [src]="imagePreview | url">
+                        <div *ngIf="!imagePreview" class="upload-placeholder">
+                            <i class="ri-upload-cloud-2-line"></i>
+                            <span>Click to upload image</span>
+                        </div>
+                    </div>
+                    <input #fileInput type="file" style="display: none" (change)="onFileSelected($event)"
+                        accept="image/*">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+                        <i class="ri-save-line" *ngIf="!isSaving"></i>
+                        <span class="spinner" *ngIf="isSaving"></span>
+                        {{ isSaving ? 'Saving...' : 'Save Item' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

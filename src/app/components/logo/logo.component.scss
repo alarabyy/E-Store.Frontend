@@ -1,0 +1,86 @@
+:host {
+    display: inline-block;
+}
+
+$primary: #6366f1;
+$dark: #0f172a;
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+
+    .logo-text {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        font-family: 'Outfit', 'Inter', sans-serif;
+        color: $dark;
+        display: flex;
+        align-items: center;
+        user-select: none;
+        transition: all 0.3s ease;
+
+        .logo-accent {
+            background: linear-gradient(135deg, $primary, #818cf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: 1px;
+        }
+    }
+
+    /* Sizes Configuration */
+    &.small {
+        .logo-text {
+            font-size: 1.25rem;
+        }
+    }
+
+    &.medium {
+        .logo-text {
+            font-size: 1.75rem;
+        }
+    }
+
+    &.large {
+        .logo-text {
+            font-size: 2.5rem;
+        }
+    }
+
+    &.xl {
+        .logo-text {
+            font-size: 3.5rem;
+        }
+    }
+
+    /* Effects */
+    &.glow-effect {
+        .logo-text {
+            text-shadow: 0 0 20px rgba($primary, 0.3);
+        }
+
+        &:hover {
+            transform: scale(1.02);
+
+            .logo-text {
+                filter: brightness(1.1);
+            }
+        }
+    }
+
+    /* Light Mode (for dark backgrounds) */
+    &.light {
+        .logo-text {
+            color: white;
+
+            .logo-accent {
+                background: linear-gradient(135deg, #fff, #e2e8f0);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+        }
+    }
+}

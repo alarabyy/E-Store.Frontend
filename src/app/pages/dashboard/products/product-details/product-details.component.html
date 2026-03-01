@@ -1,0 +1,285 @@
+<div class="details-container fade-in" *ngIf="product && !isLoading">
+    <!-- Header/Back Nav -->
+    <div class="details-header">
+        <button class="btn-back" routerLink="/dashboard/products">
+            <i class="ri-arrow-left-line"></i>
+            <span>Back to Products</span>
+        </button>
+        <div class="header-actions">
+            <span class="status-badge" [class.active]="product.isActive">
+                {{ product.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            <span class="featured-badge" *ngIf="product.isFeatured">
+                <i class="ri-star-fill"></i> Featured
+            </span>
+        </div>
+    </div>
+
+    <div class="details-content">
+        <!-- Main Info Row -->
+        <div class="main-row">
+            <!-- Left: Image Gallery -->
+            <div class="gallery-section">
+                <div class="main-image-wrapper">
+                    <img [src]="(activeImage || 'assets/no-img.png') | url" [alt]="product.name" class="main-img">
+                    <div class="luxe-badge" *ngIf="hasDiscount()">SALE EDITION</div>
+                </div>
+                <div class="thumbnails"
+                    *ngIf="product.images.length > 1 || (product.variants && product.variants.length > 1)">
+                    <div class="thumb" *ngFor="let img of product.images" [class.active]="activeImage === img.imageUrl"
+                        (click)="setActiveImage(img.imageUrl)">
+                        <img [src]="img.imageUrl | url" [alt]="product.name">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Basic Info -->
+            <div class="info-section">
+                <div class="meta-top">
+                    <span class="cat-tag">{{ product.categoryName }}</span>
+                    <span class="stock-indicator"
+                        [class.low]="(selectedVariant?.stockQuantity ?? 0) < 10 && (selectedVariant?.stockQuantity ?? 0) > 0"
+                        [class.out]="(selectedVariant?.stockQuantity ?? 0) === 0">
+                        <i class="ri-checkbox-circle-line"></i>
+                        {{ (selectedVariant?.stockQuantity ?? 0) > 0 ? (selectedVariant?.stockQuantity) + ' in stock' :
+                        'Out of Stock' }}
+                    </span>
+                </div>
+
+                <h1 class="product-name">{{ product.name }}</h1>
+                <div class="sku-line" *ngIf="selectedVariant">
+                    <code>SKU: {{ selectedVariant.sku }}</code>
+                </div>
+
+                <div class="price-box-luxe">
+                    <div class="price-current">
+                        <span class="currency">$</span>
+                        <span class="amount">{{ getDisplayPrice() | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="price-original" *ngIf="getOriginalPrice()">
+                        <span class="old-val">${{ getOriginalPrice() | number:'1.2-2' }}</span>
+                        <span class="save-tag">SAVE {{ ((getOriginalPrice()! - getDisplayPrice()) / getOriginalPrice()!
+                            * 100) | number:'1.0-0' }}%</span>
+                    </div>
+                </div>
+
+                <!-- Variant Selector (Amazon Style) -->
+                <div class="variants-selector" *ngIf="product.variants && product.variants.length > 0">
+                    <h3 class="selector-title">Select Variant: <span>{{ selectedVariant?.name }}</span></h3>
+                    <div class="variant-chips">
+                        <div class="v-chip" *ngFor="let v of product.variants"
+                            [class.active]="selectedVariant?.id === v.id" (click)="selectVariant(v)">
+                            <div class="v-thumb" *ngIf="v.imageUrl">
+                                <img [src]="v.imageUrl | url" [alt]="v.name">
+                            </div>
+                            <div class="v-info">
+                                <span class="v-name">{{ v.name }}</span>
+                                <span class="v-price">${{ (v.salePrice || v.price) | number:'1.0-0' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="ri-shield-user-line"></i>
+                        <div class="stat-info">
+                            <span class="val">{{ product.averageRating | number:'1.1-1' }}</span>
+                            <span class="label">{{ product.reviewCount }} Reviews</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="ri-eye-line"></i>
+                        <div class="stat-info">
+                            <span class="val">{{ product.viewCount | number }}</span>
+                            <span class="label">Total Views</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="ri-shopping-cart-2-line"></i>
+                        <div class="stat-info">
+                            <span class="val">{{ product.totalSold | number }}</span>
+                            <span class="label">Total Sold</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="ri-stack-line"></i>
+                        <div class="stat-info">
+                            <span class="val">{{ product.variants.length }}</span>
+                            <span class="label">Variants</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box" *ngIf="product.summary">
+                    <h3>About this product</h3>
+                    <p>{{ product.summary }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Tabs/Sections -->
+        <div class="details-sections">
+            <!-- Description -->
+            <div class="section-card">
+                <div class="section-header">
+                    <i class="ri-file-text-line"></i>
+                    <h2>Full Description</h2>
+                </div>
+                <div class="section-body">
+                    <p class="description-text">{{ product.description }}</p>
+                </div>
+            </div>
+
+            <!-- Attributes -->
+            <div class="section-card" *ngIf="product.attributes.length > 0">
+                <div class="section-header">
+                    <i class="ri-equalizer-line"></i>
+                    <h2>Specifications & Attributes</h2>
+                </div>
+                <div class="section-body">
+                    <div class="attributes-list">
+                        <div class="attr-item" *ngFor="let attr of product.attributes">
+                            <span class="attr-label">{{ attr.attributeName }}</span>
+                            <span class="attr-val">{{ attr.value }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Variants Inventory Table -->
+            <div class="section-card" *ngIf="product.variants && product.variants.length > 0">
+                <div class="section-header">
+                    <i class="ri-list-check-2"></i>
+                    <h2>Variants Inventory Overview</h2>
+                </div>
+                <div class="section-body">
+                    <div class="table-responsive">
+                        <table class="variants-inventory">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Variant Name</th>
+                                    <th>SKU</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let v of product.variants"
+                                    [class.active-row]="selectedVariant?.id === v.id">
+                                    <td class="cell-img">
+                                        <div class="v-mini-img">
+                                            <img [src]="(v.imageUrl || 'assets/no-img.png') | url" [alt]="v.name">
+                                        </div>
+                                    </td>
+                                    <td class="cell-name">{{ v.name }}</td>
+                                    <td class="cell-sku"><code>{{ v.sku }}</code></td>
+                                    <td class="cell-price">
+                                        <span class="v-curr-price">${{ (v.salePrice || v.price) | number:'1.2-2'
+                                            }}</span>
+                                        <span class="v-old-price" *ngIf="v.salePrice && v.salePrice < v.price">${{
+                                            v.price | number:'1.2-2' }}</span>
+                                    </td>
+                                    <td class="cell-stock">
+                                        <span class="stock-badge" [class.out]="v.stockQuantity === 0">
+                                            {{ v.stockQuantity }} items
+                                        </span>
+                                    </td>
+                                    <td class="cell-status">
+                                        <span class="status-dot" [class.active]="v.isActive"></span>
+                                        {{ v.isActive ? 'Active' : 'Inactive' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketing & Promotions -->
+            <div class="section-card" *ngIf="hasDiscount()">
+                <div class="section-header">
+                    <i class="ri-percent-line"></i>
+                    <h2>Marketing & Promotions</h2>
+                </div>
+                <div class="section-body promo-grid">
+                    <div class="promo-item">
+                        <span class="label">Primary Discount</span>
+                        <p>{{ product.discountPercentage ? (product.discountPercentage + '% OFF') : 'Variant Specific'
+                            }}</p>
+                    </div>
+                    <div class="promo-item">
+                        <span class="label">Promotion Valid From</span>
+                        <p>{{ product.discountStartDate ? (product.discountStartDate | date:'mediumDate') : 'Indefinite'
+                            }}</p>
+                    </div>
+                    <div class="promo-item">
+                        <span class="label">Promotion Ends On</span>
+                        <p>{{ product.discountEndDate ? (product.discountEndDate | date:'mediumDate') : 'Indefinite' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO Metadata -->
+            <div class="section-card">
+                <div class="section-header">
+                    <i class="ri-search-eye-line"></i>
+                    <h2>SEO & Metadata</h2>
+                </div>
+                <div class="section-body SEO-grid">
+                    <div class="seo-item">
+                        <span class="label">Meta Title</span>
+                        <p>{{ product.metaTitle || 'Not defined' }}</p>
+                    </div>
+                    <div class="seo-item">
+                        <span class="label">Meta Description</span>
+                        <p>{{ product.metaDescription || 'Not defined' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="section-card meta-section">
+                <div class="section-header">
+                    <i class="ri-database-2-line"></i>
+                    <h2>System Information</h2>
+                </div>
+                <div class="section-body system-grid">
+                    <div class="sys-item">
+                        <span class="label">Internal Database ID</span>
+                        <code>{{ product.id }}</code>
+                    </div>
+                    <div class="sys-item">
+                        <span class="label">SEO Slug</span>
+                        <code>{{ product.slug }}</code>
+                    </div>
+                    <div class="sys-item">
+                        <span class="label">Registered At</span>
+                        <p>{{ product.createdAt | date:'medium' }}</p>
+                    </div>
+                    <div class="sys-item">
+                        <span class="label">Last Database Update</span>
+                        <p>{{ product.updatedAt ? (product.updatedAt | date:'medium') : 'Never' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading product details...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-state" *ngIf="error && !isLoading">
+    <i class="ri-error-warning-line"></i>
+    <h2>Oops!</h2>
+    <p>{{ error }}</p>
+    <button class="btn-primary" routerLink="/dashboard/products">Return to Catalog</button>
+</div>

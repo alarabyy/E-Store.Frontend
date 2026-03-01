@@ -1,0 +1,173 @@
+<form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" id="settingsForm" class="settings-content fade-in">
+    <section class="settings-section">
+        <div class="section-header">
+            <i class="ri-store-2-line"></i>
+            <h2>Brand Identity</h2>
+        </div>
+        <div class="section-body grid-2">
+            <div class="form-group">
+                <label for="storeName">Store Name <span class="required">*</span></label>
+                <input id="storeName" type="text" formControlName="storeName" [class.invalid]="isInvalid('storeName')"
+                    placeholder="Your Brand Name">
+            </div>
+            <div class="form-group">
+                <label for="catchPhrase">Catchphrase / Tagline</label>
+                <input id="catchPhrase" type="text" formControlName="catchPhrase" placeholder="Your business slogan">
+            </div>
+        </div>
+        <div class="section-body grid-2">
+            <div class="form-group upload-section">
+                <label>Main Store Logo</label>
+                <div class="upload-preview" [class.has-image]="logoPreview" (click)="logoInput.click()">
+                    <img *ngIf="logoPreview" [src]="logoPreview | url" alt="Store Logo">
+                    <div *ngIf="!logoPreview" class="upload-placeholder">
+                        <i class="ri-image-add-line"></i>
+                        <span>Upload Logo</span>
+                    </div>
+                </div>
+                <input #logoInput type="file" style="display: none" (change)="onFileSelected($event, 'logo')"
+                    accept="image/*">
+            </div>
+
+            <div class="form-group upload-section">
+                <label>Secondary Logo (Dark Background)</label>
+                <div class="upload-preview" [class.has-image]="secondaryLogoPreview" (click)="secondaryInput.click()">
+                    <img *ngIf="secondaryLogoPreview" [src]="secondaryLogoPreview | url" alt="Secondary Logo">
+                    <div *ngIf="!secondaryLogoPreview" class="upload-placeholder">
+                        <i class="ri-image-add-line"></i>
+                        <span>Upload Logo</span>
+                    </div>
+                </div>
+                <input #secondaryInput type="file" style="display: none"
+                    (change)="onFileSelected($event, 'secondaryLogo')" accept="image/*">
+            </div>
+
+            <div class="form-group upload-section">
+                <label>Store Favicon (Browser Icon)</label>
+                <div class="upload-preview icon-preview" [class.has-image]="faviconPreview"
+                    (click)="faviconInput.click()">
+                    <img *ngIf="faviconPreview" [src]="faviconPreview | url" alt="Favicon">
+                    <div *ngIf="!faviconPreview" class="upload-placeholder">
+                        <i class="ri-bookmark-3-line"></i>
+                        <span>Upload Icon</span>
+                    </div>
+                </div>
+                <input #faviconInput type="file" style="display: none" (change)="onFileSelected($event, 'favicon')"
+                    accept="image/*">
+            </div>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <div class="section-header">
+            <i class="ri-information-line"></i>
+            <h2>About Us</h2>
+        </div>
+        <div class="section-body">
+            <div class="form-group">
+                <label for="aboutSection">Store Description / Story</label>
+                <textarea id="aboutSection" formControlName="aboutSection" rows="5"
+                    placeholder="Tell your customers about your brand..."></textarea>
+            </div>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <div class="section-header">
+            <i class="ri-contacts-line"></i>
+            <h2>Contact & SEO</h2>
+        </div>
+        <div class="section-body grid-2">
+            <div class="form-group">
+                <label>Public Emails</label>
+                <div formArrayName="contactEmails" class="array-container">
+                    <div *ngFor="let email of contactEmails.controls; let i = index" class="array-item">
+                        <input [formControlName]="i" type="email" placeholder="email@example.com">
+                        <button type="button" class="btn-icon delete" (click)="removeEmail(i)"
+                            *ngIf="contactEmails.length > 1">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-text-add" (click)="addEmail()">
+                        <i class="ri-add-line"></i> Add Email
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Support Phone Numbers</label>
+                <div formArrayName="contactPhoneNumbers" class="array-container">
+                    <div *ngFor="let phone of contactPhoneNumbers.controls; let i = index" class="array-item">
+                        <input [formControlName]="i" type="text" placeholder="+20 ...">
+                        <button type="button" class="btn-icon delete" (click)="removePhone(i)"
+                            *ngIf="contactPhoneNumbers.length > 1">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-text-add" (click)="addPhone()">
+                        <i class="ri-add-line"></i> Add Phone
+                    </button>
+                </div>
+            </div>
+            <div class="form-group span-2">
+                <label>Physical Addresses</label>
+                <div formArrayName="addresses" class="array-container">
+                    <div *ngFor="let addr of addresses.controls; let i = index" class="array-item">
+                        <textarea [formControlName]="i" rows="2" placeholder="Street, Building, City..."></textarea>
+                        <button type="button" class="btn-icon delete" (click)="removeAddress(i)"
+                            *ngIf="addresses.length > 1">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-text-add" (click)="addAddress()">
+                        <i class="ri-add-line"></i> Add Address
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <div class="section-header">
+            <i class="ri-share-line"></i>
+            <h2>Social Connections</h2>
+        </div>
+        <div class="section-body grid-2">
+            <div class="form-group">
+                <label>Facebook</label>
+                <div class="input-with-icon">
+                    <i class="ri-facebook-fill icon-fb"></i>
+                    <input type="text" formControlName="facebookUrl">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Instagram</label>
+                <div class="input-with-icon">
+                    <i class="ri-instagram-line icon-ig"></i>
+                    <input type="text" formControlName="instagramUrl">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Twitter/X</label>
+                <div class="input-with-icon">
+                    <i class="ri-twitter-x-fill icon-tw"></i>
+                    <input type="text" formControlName="twitterUrl">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>LinkedIn</label>
+                <div class="input-with-icon">
+                    <i class="ri-linkedin-fill icon-li"></i>
+                    <input type="text" formControlName="linkedInUrl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="form-actions" style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+        <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+            <i class="ri-save-line" *ngIf="!isSaving"></i>
+            <span class="spinner" *ngIf="isSaving"></span>
+            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+        </button>
+    </div>
+</form>

@@ -1,0 +1,99 @@
+<footer class="footer">
+    <!-- Elements Background -->
+    <div class="footer-bg-elements">
+        <div class="glow-circle c1"></div>
+        <div class="glow-circle c2"></div>
+    </div>
+
+    <div class="footer-container">
+        <!-- Top Section -->
+        <div class="footer-grid">
+            <!-- Brand Column -->
+            <div class="footer-col brand-col">
+                <div class="motto-container">
+                    <span class="brand-name">{{ (storeService.settings$ | async)?.storeName || 'Elite Store' }}</span>
+                    <span class="system-motto">{{ (storeService.settings$ | async)?.catchPhrase || 'The Address of
+                        Luxury' }}</span>
+                </div>
+                <p class="brand-desc">
+                    {{ (storeService.settings$ | async)?.aboutSection || 'Your first destination for the finest modern
+                    furniture and luxury handmade carpets. We design your home with the spirit of art and by the hands
+                    of decoration experts.' }}
+                </p>
+                <div class="social-links">
+                    <a *ngIf="(storeService.settings$ | async)?.facebookUrl"
+                        [href]="(storeService.settings$ | async)?.facebookUrl" target="_blank" class="social-icon"
+                        title="Facebook"><i class="ri-facebook-fill"></i></a>
+                    <a *ngIf="(storeService.settings$ | async)?.instagramUrl"
+                        [href]="(storeService.settings$ | async)?.instagramUrl" target="_blank" class="social-icon"
+                        title="Instagram"><i class="ri-instagram-line"></i></a>
+                    <a *ngIf="(storeService.settings$ | async)?.twitterUrl"
+                        [href]="(storeService.settings$ | async)?.twitterUrl" target="_blank" class="social-icon"
+                        title="X"><i class="ri-twitter-x-line"></i></a>
+                    <a *ngIf="(storeService.settings$ | async)?.linkedInUrl"
+                        [href]="(storeService.settings$ | async)?.linkedInUrl" target="_blank" class="social-icon"
+                        title="LinkedIn"><i class="ri-linkedin-fill"></i></a>
+                </div>
+            </div>
+
+            <!-- Shop categories -->
+            <div class="footer-col">
+                <h3>Browse Catalog</h3>
+                <ul class="footer-nav">
+                    <li *ngFor="let cat of (storeService.categories$ | async | slice:0:5)">
+                        <i class="ri-arrow-right-s-line"></i>
+                        <a [routerLink]="['/catalog']" [fragment]="cat.slug">{{ cat.name }}</a>
+                    </li>
+                    <li *ngIf="!(storeService.categories$ | async)?.length">
+                        <i class="ri-arrow-right-s-line"></i><a routerLink="/catalog">View All Products</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-col">
+                <h3>Quick Navigation</h3>
+                <ul class="footer-nav">
+                    <li><i class="ri-arrow-right-s-line"></i><a routerLink="/">Home Page</a></li>
+                    <li><i class="ri-arrow-right-s-line"></i><a routerLink="/catalog">Explore Catalog</a></li>
+                    <li><i class="ri-arrow-right-s-line"></i><a routerLink="/cart">Shopping Cart</a></li>
+                    <li><i class="ri-arrow-right-s-line"></i><a routerLink="/wishlist">My Wishlist</a></li>
+                    <li><i class="ri-arrow-right-s-line"></i><a routerLink="/profile">User Profile</a></li>
+                    <li><i class="ri-arrow-right-s-line"></i><a routerLink="/support">Support Center</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact info -->
+            <div class="footer-col">
+                <h3>Direct Contact</h3>
+                <ul class="footer-nav">
+                    <li *ngIf="(storeService.settings$ | async)?.addresses?.length">
+                        <i class="ri-map-pin-2-fill"></i><span>{{ (storeService.settings$ | async)?.addresses?.[0]
+                            }}</span>
+                    </li>
+                    <li *ngIf="(storeService.settings$ | async)?.contactPhoneNumbers?.length">
+                        <i class="ri-phone-fill"></i><span>{{ (storeService.settings$ | async)?.contactPhoneNumbers?.[0]
+                            }}</span>
+                    </li>
+                    <li *ngIf="(storeService.settings$ | async)?.contactEmails?.length">
+                        <i class="ri-mail-send-fill"></i><span>{{ (storeService.settings$ | async)?.contactEmails?.[0]
+                            }}</span>
+                    </li>
+                    <li><i class="ri-time-fill"></i><span>Available to serve you 24/7</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="footer-bottom">
+            <div class="copyright">
+                &copy; {{ currentYear }} <strong>{{ (storeService.settings$ | async)?.storeName || 'Elite Store'
+                    }}</strong>. All rights reserved.
+            </div>
+            <div class="legal-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms & Conditions</a>
+            </div>
+        </div>
+    </div>
+</footer>

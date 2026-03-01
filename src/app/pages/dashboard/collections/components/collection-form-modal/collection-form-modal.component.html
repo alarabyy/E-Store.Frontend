@@ -1,0 +1,139 @@
+<div class="modal-backdrop" *ngIf="show" (click)="close.emit()">
+    <div class="modal-content animate-scale-up" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="title-grp">
+                <h2>{{ isEditing ? 'Edit Collection' : 'New Collection' }}</h2>
+                <p>Define collection details and SEO metadata</p>
+            </div>
+            <button class="close-btn" (click)="close.emit()"><i class="ri-close-line"></i></button>
+        </div>
+
+        <form [formGroup]="collectionForm" (ngSubmit)="onSubmit()">
+            <div class="modal-body scrollable professional-form">
+                <!-- Group 1: Identity -->
+                <div class="form-section-luxe">
+                    <div class="section-label">
+                        <i class="ri-fingerprint-line"></i>
+                        <span>Identity & Identification</span>
+                    </div>
+
+                    <div class="form-grid-luxe">
+                        <div class="form-group-luxe full">
+                            <label>Collection Name</label>
+                            <input type="text" formControlName="name" placeholder="e.g. Modern Living Series">
+                            <span class="help-text">Visible title for customers</span>
+                        </div>
+
+                        <div class="form-group-luxe half">
+                            <label>Slug (URL)</label>
+                            <div class="slug-input-wrapper">
+                                <span class="prefix">/</span>
+                                <input type="text" formControlName="slug" placeholder="modern-living">
+                            </div>
+                        </div>
+
+                        <div class="form-group-luxe half">
+                            <label>Display Order</label>
+                            <input type="number" formControlName="displayOrder" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2: Visuals & Pricing -->
+                <div class="form-section-luxe">
+                    <div class="section-label">
+                        <i class="ri-image-2-line"></i>
+                        <span>Presentation & Value</span>
+                    </div>
+
+                    <div class="form-group-luxe full">
+                        <label>Collection Banner</label>
+                        <div class="premium-upload" (click)="fileInput.click()">
+                            <input type="file" #fileInput (change)="onFileSelected($event)" hidden accept="image/*">
+
+                            <div class="upload-art" *ngIf="!previewUrl">
+                                <div class="icon-circle"><i class="ri-upload-cloud-2-line"></i></div>
+                                <strong>Select Banner Image</strong>
+                                <p>Optimum ratio 2:1 (e.g. 1920x960px)</p>
+                            </div>
+
+                            <div class="preview-layer" *ngIf="previewUrl">
+                                <img [src]="previewUrl | url" alt="Preview">
+                                <div class="edit-hint"><i class="ri-edit-2-line"></i> Replace Image</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-luxe">
+                        <div class="form-group-luxe half">
+                            <label>Sale Price (EGP)</label>
+                            <div class="price-input">
+                                <span class="currency">$</span>
+                                <input type="number" formControlName="priceNow" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="form-group-luxe half">
+                            <label>Original Price</label>
+                            <div class="price-input">
+                                <span class="currency">$</span>
+                                <input type="number" formControlName="originalPrice" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 3: Details -->
+                <div class="form-section-luxe">
+                    <div class="section-label">
+                        <i class="ri-text-snippet"></i>
+                        <span>Content & Visibility</span>
+                    </div>
+
+                    <div class="form-group-luxe full">
+                        <label>Strategic Description</label>
+                        <textarea formControlName="description" rows="4"
+                            placeholder="Tell the story of this collection..."></textarea>
+                    </div>
+
+                    <div class="toggle-status-card">
+                        <div class="status-info">
+                            <strong>Visibility Status</strong>
+                            <span>Should this collection be live on the storefront?</span>
+                        </div>
+                        <label class="switch-luxe">
+                            <input type="checkbox" formControlName="isActive">
+                            <span class="slider-luxe"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Group 4: SEO -->
+                <div class="form-section-luxe seo-box">
+                    <div class="section-label">
+                        <i class="ri-search-eye-line"></i>
+                        <span>SEO Optimization</span>
+                    </div>
+
+                    <div class="form-group-luxe full">
+                        <label>Meta SEO Title</label>
+                        <input type="text" formControlName="metaTitle" placeholder="Search engine title...">
+                    </div>
+
+                    <div class="form-group-luxe full">
+                        <label>Meta SEO Description</label>
+                        <textarea formControlName="metaDescription" rows="3"
+                            placeholder="Snippet for search results..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="close.emit()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="isSaving">
+                    <span *ngIf="!isSaving">{{ isEditing ? 'Save Changes' : 'Create Collection' }}</span>
+                    <span *ngIf="isSaving">Saving...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

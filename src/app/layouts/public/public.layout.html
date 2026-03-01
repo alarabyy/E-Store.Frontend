@@ -1,0 +1,14 @@
+<app-navbar></app-navbar>
+
+<main class="content">
+    <router-outlet></router-outlet>
+</main>
+
+<app-footer></app-footer>
+
+<app-scroll-to-top></app-scroll-to-top>
+
+<!-- Floating Admin Dashboard Button -->
+<a *ngIf="authService.isAdmin()" routerLink="/dashboard" class="floating-admin-btn" title="Dashboard">
+    ⚙️
+</a>

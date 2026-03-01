@@ -1,0 +1,112 @@
+<nav class="navbar" [class.scrolled]="isScrolled" [class.hidden]="isNavHidden" [class.mobile-open]="isMobileMenuOpen()">
+    <!-- Global Promo Ticker -->
+    <div class="promo-ticker">
+        <div class="ticker-track">
+            <span *ngFor="let offer of offers">
+                💫 {{ offer.title }}: Use code <span class="hc">{{ offer.code }}</span> for special discount
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                🚚 Free shipping on furniture &nbsp;&nbsp;&nbsp;&nbsp;
+                ✨ Elite Store - The Address of Luxury &nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <!-- Duplicate -->
+            <span *ngFor="let offer of offers">
+                💫 {{ offer.title }}: Use code <span class="hc">{{ offer.code }}</span> for special discount
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                🚚 Free shipping on furniture &nbsp;&nbsp;&nbsp;&nbsp;
+                ✨ Elite Store - The Address of Luxury &nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+        </div>
+    </div>
+
+    <div class="nav-container">
+        <a routerLink="/" class="logo-text">
+            <ng-container *ngIf="storeService.settings$ | async as settings; else defaultName">
+                <span>{{ settings.storeName }}<span class="dot">.</span></span>
+            </ng-container>
+            <ng-template #defaultName>
+                <span>Elite Store<span class="dot">.</span></span>
+            </ng-template>
+        </a>
+
+        <!-- Mobile Toggle Button (Animated) -->
+        <button class="menu-toggle" [class.active]="isMobileMenuOpen()" (click)="toggleMobileMenu()"
+            aria-label="Toggle Menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+
+        <!-- Nav Links -->
+        <div class="nav-links" [class.show]="isMobileMenuOpen()">
+            <!-- Links -->
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item"
+                (click)="isMobileMenuOpen.set(false)">
+                <i class="ri-home-4-line"></i> Home
+            </a>
+
+            <a routerLink="/catalog" routerLinkActive="active" class="nav-item" (click)="isMobileMenuOpen.set(false)">
+                <i class="ri-book-open-line"></i> Catalog
+            </a>
+
+            <a routerLink="/support" routerLinkActive="active" class="nav-item" (click)="isMobileMenuOpen.set(false)">
+                <i class="ri-customer-service-2-line"></i> Support
+            </a>
+
+            <div class="divider-v"></div>
+
+            <!-- Wishlist -->
+            <a routerLink="/wishlist" routerLinkActive="active" class="nav-item wishlist-link"
+                (click)="isMobileMenuOpen.set(false)">
+                <i class="ri-heart-line"></i>
+                <span class="wishlist-text">Wishlist</span>
+                <span class="wishlist-badge" *ngIf="wishlistService.itemCount > 0">{{ wishlistService.itemCount
+                    }}</span>
+            </a>
+
+            <!-- Shopping Cart -->
+            <a routerLink="/cart" routerLinkActive="active" class="nav-item cart-link"
+                (click)="isMobileMenuOpen.set(false)">
+                <i class="ri-shopping-cart-2-line"></i>
+                <span class="cart-text">Cart</span>
+                <span class="cart-badge" *ngIf="cartService.itemCount > 0">{{ cartService.itemCount }}</span>
+            </a>
+
+            <!-- Divider -->
+            <div class="divider-v"></div>
+
+            <!-- Auth Buttons -->
+            <ng-container *ngIf="!(authService.currentUser$ | async); else loggedInTpl">
+                <a routerLink="/auth/login" class="nav-btn-login" (click)="isMobileMenuOpen.set(false)">
+                    Login
+                </a>
+                <a routerLink="/auth/register" class="nav-btn-register" (click)="isMobileMenuOpen.set(false)">
+                    Register
+                </a>
+            </ng-container>
+
+            <ng-template #loggedInTpl>
+                <div class="user-actions">
+                    <a routerLink="/profile" class="nav-item profile-link" (click)="isMobileMenuOpen.set(false)">
+                        <i class="ri-user-3-line"></i> Profile
+                    </a>
+                    <a routerLink="/dashboard" class="nav-item dashboard-link" (click)="isMobileMenuOpen.set(false)">
+                        <i class="ri-dashboard-line"></i> Dashboard
+                    </a>
+                    <button (click)="authService.logout()" class="nav-item logout-btn">
+                        <i class="ri-logout-box-line"></i> Logout
+                    </button>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+
+    <!-- Category Bar (Second Row) -->
+    <div class="category-bar">
+        <div class="cat-container">
+            <ng-container *ngFor="let cat of storeService.categories$ | async">
+                <a [routerLink]="['/categories', cat.slug]" class="cat-link">{{ cat.name }}</a>
+            </ng-container>
+            <a routerLink="/catalog" class="cat-link special">Exclusive Offers 🔥</a>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,27 @@
+<div class="support-page fade-in">
+    <!-- Header -->
+    <header class="support-header">
+        <div class="container">
+            <h1>Customer Success Center</h1>
+            <p>We are here to help you grow. Choose how you want to connect.</p>
+        </div>
+    </header>
+
+    <div class="container main-content">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn" [class.active]="activeTab === 'ticket'" (click)="activeTab = 'ticket'">
+                <i class="ri-ticket-2-line"></i> Submit Ticket
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'faq'" (click)="activeTab = 'faq'">
+                <i class="ri-question-line"></i> FAQ
+            </button>
+        </div>
+
+        <!-- Ticket View -->
+        <app-support-tickets *ngIf="activeTab === 'ticket'"></app-support-tickets>
+
+        <!-- FAQ View -->
+        <app-support-faq *ngIf="activeTab === 'faq'" (switchToTicket)="activeTab = 'ticket'"></app-support-faq>
+    </div>
+</div>

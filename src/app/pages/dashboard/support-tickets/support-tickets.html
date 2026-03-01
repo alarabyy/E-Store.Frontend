@@ -1,0 +1,166 @@
+<div class="dashboard-container fade-in">
+    <div class="header">
+        <div class="header-content">
+            <h1>Support Tickets</h1>
+            <p class="subtitle">Manage and track all user support requests</p>
+        </div>
+        <div class="search-box">
+            <i class="ri-search-line search-icon"></i>
+            <input type="text" [(ngModel)]="pagination.search" (keyup.enter)="onSearch()" class="search-input"
+                placeholder="Search by subject, email or name...">
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ri-customer-service-2-line"></i>
+            </div>
+            <div class="stat-info">
+                <span class="label">Total Tickets</span>
+                <span class="value">{{totalCount}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="cards-grid" [class.loading]="loading">
+        <div *ngFor="let ticket of tickets" class="ticket-card"
+            [class.high-priority]="ticket.priority === Priority.High || ticket.priority === Priority.Critical">
+            <div class="card-header">
+                <div class="user-info">
+                    <div class="avatar">{{ ticket.fullName ? ticket.fullName.charAt(0).toUpperCase() : 'U' }}</div>
+                    <div class="info">
+                        <h3>{{ticket.fullName}}</h3>
+                        <span class="email">{{ticket.email}}</span>
+                    </div>
+                </div>
+                <div class="priority-badge" [ngClass]="getPriorityClass(ticket.priority)">
+                    {{getPriorityName(ticket.priority)}}
+                </div>
+            </div>
+
+            <div class="card-body">
+                <h4 class="ticket-subject">{{ticket.subject}}</h4>
+
+                <div class="meta-row">
+                    <span class="category-badge">{{getCategoryName(ticket.category)}}</span>
+                    <span class="date">{{ticket.createdAt | date:'mediumDate'}}</span>
+                </div>
+
+                <div class="status-indicator" [ngClass]="getStatusClass(ticket.status)">
+                    <span class="dot"></span>
+                    {{getStatusName(ticket.status)}}
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn-action view" (click)="onViewDetails(ticket)">
+                    <i class="ri-eye-line"></i> View Details
+                </button>
+                <button class="btn-action delete" (click)="onDelete(ticket.id)" [disabled]="actionLoading">
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loading && tickets.length === 0">
+            <div class="empty-icon">
+                <i class="ri-ticket-line"></i>
+            </div>
+            <h3>No tickets found</h3>
+            <p>Try adjusting your search or filters</p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" *ngIf="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Details Side Modal -->
+    <div class="modal-backdrop" *ngIf="selectedTicket" (click)="closeDetails()">
+        <div class="side-modal animate-slide-in" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div class="title-group">
+                    <h3>Ticket Details</h3>
+                    <span class="id-badge">#{{selectedTicket.id}}</span>
+                </div>
+                <button class="close-btn" (click)="closeDetails()">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="detail-section">
+                    <h4>Ticket Information</h4>
+                    <div class="detail-item">
+                        <label>Subject</label>
+                        <p class="highlight-text">{{selectedTicket.subject}}</p>
+                    </div>
+                    <div class="detail-item">
+                        <label>Requester</label>
+                        <p>{{selectedTicket.fullName}} <span class="sub-text">({{selectedTicket.email}})</span></p>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-item">
+                            <label>Category</label>
+                            <span class="category-badge">{{getCategoryName(selectedTicket.category)}}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Priority</label>
+                            <span class="priority-badge" [ngClass]="getPriorityClass(selectedTicket.priority)">
+                                {{getPriorityName(selectedTicket.priority)}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Message</h4>
+                    <div class="message-box">
+                        <div class="message-content">{{selectedTicket.message}}</div>
+                        <div class="message-meta">
+                            Submitted on {{selectedTicket.createdAt | date:'fullDate'}} at {{selectedTicket.createdAt |
+                            date:'shortTime'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Management</h4>
+                    <div class="detail-item">
+                        <label>Current Status</label>
+                        <div class="status-control">
+                            <select class="status-select" [ngModel]="selectedTicket.status"
+                                (ngModelChange)="onUpdateStatus(selectedTicket.id, $event)" [disabled]="actionLoading">
+                                <option *ngFor="let opt of statusOptions" [value]="opt.value">{{opt.label}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-delete-full" (click)="onDelete(selectedTicket.id)">
+                    <i class="ri-delete-bin-line"></i> Delete Ticket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+        <button class="btn-page" [disabled]="pagination.page === 1" (click)="changePage(pagination.page - 1)">
+            <i class="ri-arrow-left-s-line"></i>
+        </button>
+        <div class="pages">
+            <button *ngFor="let p of [].constructor(totalPages); let i = index" class="btn-page"
+                [class.active]="pagination.page === i + 1" (click)="changePage(i + 1)">
+                {{i + 1}}
+            </button>
+        </div>
+        <button class="btn-page" [disabled]="pagination.page === totalPages" (click)="changePage(pagination.page + 1)">
+            <i class="ri-arrow-right-s-line"></i>
+        </button>
+    </div>
+</div>

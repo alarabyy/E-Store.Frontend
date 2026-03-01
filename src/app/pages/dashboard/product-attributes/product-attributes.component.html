@@ -1,0 +1,151 @@
+<div class="dashboard-container fade-in">
+    <div class="header">
+        <div class="header-content">
+            <h1>Product Attributes</h1>
+            <p class="subtitle">Manage filterable attributes per category</p>
+        </div>
+        <button class="btn-primary" (click)="openCreateModal()">
+            <i class="ri-add-line"></i> <span>New Attribute</span>
+        </button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs" *ngIf="categories.length > 0">
+        <button *ngFor="let cat of categories" class="cat-tab" [class.active]="selectedCategoryId === cat.id"
+            (click)="onCategoryChange(cat.id)">
+            {{ cat.name }}
+        </button>
+    </div>
+
+    <!-- Attributes Grid -->
+    <div class="attributes-container">
+        <div class="attributes-grid" *ngIf="attributes.length > 0">
+            <div class="attribute-card fade-in" *ngFor="let attr of attributes; let i = index"
+                [style.animation-delay]="(i * 0.05) + 's'">
+                <div class="card-glass-overlay"></div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <div class="id-badge">#{{ attr.id }}</div>
+                        <div class="actions">
+                            <button class="action-btn edit" (click)="openEditModal(attr)" title="Edit">
+                                <i class="ri-edit-2-line"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="deleteAttribute(attr.id)" title="Delete">
+                                <i class="ri-delete-bin-7-line"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="attr-info">
+                            <div class="icon-wrapper">
+                                <i class="ri-price-tag-3-fill"></i>
+                            </div>
+                            <h3>{{ attr.name }}</h3>
+                        </div>
+
+                        <div class="categories-box">
+                            <div class="box-label">Linked Categories</div>
+                            <div class="tags-flex">
+                                <span class="mini-tag" *ngFor="let name of (attr.categoryNames || [])">{{ name }}</span>
+                                <span class="mini-tag" *ngIf="!attr.categoryNames?.length">{{ getCategoryNames(attr)
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-state" *ngIf="attributes.length === 0">
+            <div class="empty-icon"><i class="ri-price-tag-3-line"></i></div>
+            <h3>No attributes for this category</h3>
+            <p>Create the first attribute to enable product filtering</p>
+            <button class="btn-primary" (click)="openCreateModal()">Add Attribute</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content animate-scale-up" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="title-group">
+                <h2>{{ isEditing ? 'Edit Attribute' : 'New Attribute' }}</h2>
+                <p class="subtitle">Define a filterable property for one or more categories</p>
+            </div>
+            <button class="close-btn" (click)="closeModal()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <form [formGroup]="attrForm" (ngSubmit)="onSubmit()">
+            <div class="modal-body">
+
+                <!-- Attribute Name -->
+                <div class="form-group">
+                    <label>Attribute Name</label>
+                    <input type="text" formControlName="name" class="form-input"
+                        placeholder="e.g. Color, Size, Material">
+                    <div class="error-msg"
+                        *ngIf="attrForm.get('name')?.touched && attrForm.get('name')?.errors?.['required']">
+                        Name is required
+                    </div>
+                </div>
+
+                <!-- Multi-Category Tag Input -->
+                <div class="form-group">
+                    <label>
+                        Categories
+                        <span class="label-hint">Pick one or more</span>
+                    </label>
+
+                    <div class="category-picker">
+                        <!-- Selected tags -->
+                        <div class="tags-container" (click)="openDropdown()">
+                            <span class="tag" *ngFor="let cat of selectedCategories">
+                                {{ cat.name }}
+                                <button type="button" class="tag-remove"
+                                    (click)="$event.stopPropagation(); removeCategory(cat.id)">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </span>
+                            <input type="text" class="tag-input" [(ngModel)]="searchText"
+                                [ngModelOptions]="{standalone: true}"
+                                placeholder="{{ selectedCategories.length === 0 ? 'Search or select categories...' : '' }}"
+                                (input)="onSearchInput()" (focus)="openDropdown()" autocomplete="off" />
+                        </div>
+
+                        <!-- Dropdown suggestions -->
+                        <div class="suggestions-dropdown"
+                            *ngIf="dropdownOpen && (filteredCategories.length > 0 || searchText.trim())">
+                            <div class="suggestion-item" *ngFor="let cat of filteredCategories"
+                                (mousedown)="addCategory(cat)">
+                                <i class="ri-folder-2-line"></i>
+                                <span>{{ cat.name }}</span>
+                            </div>
+                            <div class="suggestion-empty" *ngIf="filteredCategories.length === 0 && searchText.trim()">
+                                <i class="ri-search-line"></i>
+                                No categories match "{{ searchText }}"
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="helper-text" *ngIf="selectedCategories.length === 0">
+                        At least one category is required
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn-primary"
+                    [disabled]="attrForm.invalid || selectedCategories.length === 0">
+                    {{ isEditing ? 'Save Changes' : 'Create Attribute' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

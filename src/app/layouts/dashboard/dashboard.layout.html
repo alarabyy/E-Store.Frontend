@@ -1,0 +1,143 @@
+<div class="dashboard-container" [class.collapsed]="isSidebarCollapsed()" [class.mobile-open]="isMobileSidebarOpen()">
+    <div class="mobile-backdrop" *ngIf="isMobileSidebarOpen()" (click)="closeMobileSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-wrapper" *ngIf="!isSidebarCollapsed()">
+                <app-logo size="small"></app-logo>
+            </div>
+            <div class="logo-mini" *ngIf="isSidebarCollapsed()">E.</div>
+            <button class="toggle-btn" (click)="toggleSidebar()">
+                ☰
+            </button>
+
+            <button class="close-mobile-btn" (click)="closeMobileSidebar()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-group">
+                <div class="group-label">Main</div>
+                <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+                    class="nav-item" (click)="closeMobileSidebar()">
+                    <span class="icon">📊</span>
+                    <span class="label">Control Panel</span>
+                </a>
+
+                <a routerLink="/dashboard/products-analytics" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">📈</span>
+                    <span class="label">Products Analytics</span>
+                </a>
+
+                <a routerLink="/dashboard/users" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">👥</span>
+                    <span class="label">Users</span>
+                </a>
+                <a routerLink="/dashboard/rules" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">🛡️</span>
+                    <span class="label">Rules</span>
+                </a>
+
+                <a routerLink="/dashboard/support-tickets" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">🎫</span>
+                    <span class="label">Support Tickets</span>
+                </a>
+
+
+                <a routerLink="/dashboard/faqs" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">❓</span>
+                    <span class="label">FAQs</span>
+                </a>
+
+                <a routerLink="/dashboard/newsletter" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">📧</span>
+                    <span class="label">Newsletter</span>
+                </a>
+
+
+
+                <a routerLink="/dashboard/categories" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">📁</span>
+                    <span class="label">Categories</span>
+                </a>
+
+                <a routerLink="/dashboard/collections" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">📚</span>
+                    <span class="label">Collections</span>
+                </a>
+
+
+
+
+                <a routerLink="/dashboard/products" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">📦</span>
+                    <span class="label">Products</span>
+                </a>
+
+                <a routerLink="/dashboard/product-attributes" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">🏷️</span>
+                    <span class="label">Attributes</span>
+                </a>
+
+                <a routerLink="/dashboard/product-reviews" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">⭐</span>
+                    <span class="label">Reviews</span>
+                </a>
+
+                <a routerLink="/dashboard/store-settings" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">⚙️</span>
+                    <span class="label">Store Settings</span>
+                </a>
+
+                <a routerLink="/dashboard/payments" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <span class="icon">💳</span>
+                    <span class="label">Payments</span>
+                </a>
+
+
+
+                <a routerLink="/" class="nav-item home-link" (click)="closeMobileSidebar()">
+                    <span class="icon">🏠</span>
+                    <span class="label">Back to Site</span>
+                </a>
+
+            </div>
+
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="avatar">AD</div>
+                <div class="user-info">
+                    <div class="name">Admin User</div>
+                    <div class="role">System Administrator</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        <app-admin-navbar (menuClick)="toggleMobileSidebar()"></app-admin-navbar>
+
+        <main class="content-area">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

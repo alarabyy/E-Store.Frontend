@@ -1,0 +1,601 @@
+<div class="dashboard-container fade-in">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>Products</h1>
+            <p class="subtitle">Manage your store's product catalog</p>
+        </div>
+        <div class="header-actions">
+            <span class="total-badge">{{ totalCount }} Products</span>
+            <button class="btn-primary" (click)="openCreateModal()">
+                <i class="ri-add-line"></i> <span>New Product</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+        <div class="search-box">
+            <i class="ri-search-line"></i>
+            <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search products..."
+                class="search-input">
+            <button class="search-btn" (click)="onSearch()">Search</button>
+        </div>
+        <div class="cat-filters">
+            <button class="cat-chip" [class.active]="selectedCategoryId === null"
+                (click)="onCategoryFilter(null)">All</button>
+            <button *ngFor="let cat of categories" class="cat-chip" [class.active]="selectedCategoryId === cat.id"
+                (click)="onCategoryFilter(cat.id)">{{ cat.name }}</button>
+        </div>
+    </div>
+
+    <!-- Products Display -->
+    <div class="products-container" *ngIf="!isLoading && products.length > 0">
+
+        <!-- Desktop List View -->
+        <div class="products-list-view">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th class="col-img">Product</th>
+                        <th class="col-name">Name</th>
+                        <th class="col-cat">Category</th>
+                        <th class="col-price">Price</th>
+                        <th class="col-stock">Stock</th>
+                        <th class="col-stats">Stats</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let product of products" [class.inactive]="!product.isActive">
+                        <td class="col-img">
+                            <div class="product-img-wrapper"
+                                (click)="product.images && product.images.length > 0 && openGallery(product)">
+                                <img *ngIf="product.images && product.images.length > 0"
+                                    [src]="product.images[0].imageUrl | url" [alt]="product.name">
+                                <div *ngIf="!product.images || product.images.length === 0" class="no-image-mini"><i
+                                        class="ri-image-line"></i>
+                                </div>
+                                <div class="image-count-overlay" *ngIf="product.images && product.images.length > 1">
+                                    <i class="ri-image-2-line"></i>
+                                    <span>{{ product.images.length }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="col-name">
+                            <div class="name-group">
+                                <span class="p-name">
+                                    {{ product.name }}
+                                    <i class="ri-star-fill featured-star" *ngIf="product.isFeatured"
+                                        title="Featured Product"></i>
+                                </span>
+                                <span class="p-summary" *ngIf="product.summary">{{ product.summary }}</span>
+                                <span class="p-slug">{{ product.slug }}</span>
+                            </div>
+                        </td>
+                        <td class="col-cat"><span class="table-tag">{{ product.categoryName }}</span></td>
+                        <td class="col-price">
+                            <div class="price-group">
+                                <div class="price-val">
+                                    <div class="price-main">
+                                        <span class="p-price">${{ product.minPrice | number:'1.2-2' }}</span>
+                                        <span class="p-original" *ngIf="hasPriceDiscount(product)">
+                                            {{ getOriginalPriceRange(product) }}
+                                        </span>
+                                    </div>
+                                    <span class="discount-badge" *ngIf="product.discountPercentage">
+                                        -{{ product.discountPercentage }}%
+                                    </span>
+                                </div>
+                                <span class="p-range" *ngIf="product.maxPrice > product.minPrice">up to ${{
+                                    product.maxPrice | number:'1.2-2' }}</span>
+                            </div>
+                        </td>
+                        <td class="col-stock">
+                            <div class="stock-info"
+                                [class.low-stock]="getTotalStock(product) < 10 && getTotalStock(product) > 0"
+                                [class.out-of-stock]="getTotalStock(product) === 0">
+                                <span class="stock-num">{{ getTotalStock(product) }}</span>
+                                <span class="stock-label">Items</span>
+                            </div>
+                        </td>
+                        <td class="col-stats">
+                            <div class="stats-group">
+                                <span title="Rating"><i class="ri-star-fill"></i> {{ product.averageRating |
+                                    number:'1.1-1' }} ({{ product.reviewCount }})</span>
+                                <span title="Views"><i class="ri-eye-line"></i> {{ product.viewCount }}</span>
+                                <span title="Sold"><i class="ri-shopping-cart-2-line"></i> {{ product.totalSold
+                                    }}</span>
+                            </div>
+                        </td>
+                        <td class="col-actions">
+                            <div class="actions-group">
+                                <button title="View Details" class="icon-btn details"
+                                    [routerLink]="['/dashboard/products', product.slug]" [state]="{ product: product }">
+                                    <i class="ri-eye-line"></i>
+                                </button>
+                                <button title="View Gallery" class="icon-btn gallery" (click)="openGallery(product)"
+                                    *ngIf="product.images && product.images.length > 0">
+                                    <i class="ri-gallery-line"></i>
+                                </button>
+                                <button title="Add Variant" class="icon-btn variant"
+                                    (click)="openAddVariantModal(product)">
+                                    <i class="ri-add-box-line"></i>
+                                </button>
+                                <button title="Edit" class="icon-btn edit" (click)="openEditModal(product)"><i
+                                        class="ri-edit-line"></i></button>
+                                <button title="Delete" class="icon-btn delete" (click)="deleteProduct(product.id)"><i
+                                        class="ri-delete-bin-line"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile/Tablet Card View (Existing Grid with slight updates) -->
+        <div class="products-grid">
+            <div *ngFor="let product of products" class="product-card" [class.inactive]="!product.isActive">
+
+                <div class="card-image">
+                    <img *ngIf="product.images && product.images.length > 0" [src]="product.images[0].imageUrl | url"
+                        [alt]="product.name" class="product-img">
+                    <div *ngIf="!product.images || product.images.length === 0" class="no-image">
+                        <i class="ri-image-line"></i>
+                    </div>
+
+                    <div class="gallery-trigger" *ngIf="product.images && product.images.length > 0"
+                        (click)="openGallery(product)">
+                        <i class="ri-camera-lens-line"></i>
+                        <span>{{ product.images.length }} Photos</span>
+                    </div>
+
+                    <div class="card-badges">
+                        <span class="badge featured" *ngIf="product.isFeatured"><i class="ri-star-fill"></i></span>
+                        <span class="badge inactive-badge" *ngIf="!product.isActive">Inactive</span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-top">
+                        <span class="category-tag">{{ product.categoryName }}</span>
+                        <div class="stock-badge" [class.out]="getTotalStock(product) === 0">
+                            {{ getTotalStock(product) > 0 ? getTotalStock(product) + ' in stock' : 'Out of Stock' }}
+                        </div>
+                    </div>
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-summary" *ngIf="product.summary">{{ product.summary }}</p>
+
+                    <div class="product-meta">
+                        <div class="price-row">
+                            <div class="price-main">
+                                <span class="price">${{ product.minPrice | number:'1.2-2' }}</span>
+                                <span class="original-price" *ngIf="hasPriceDiscount(product)">
+                                    {{ getOriginalPriceRange(product) }}
+                                </span>
+                            </div>
+                            <span class="discount-tag" *ngIf="product.discountPercentage">-{{ product.discountPercentage
+                                }}%</span>
+                        </div>
+                        <div class="stats-grid">
+                            <span class="stat"><i class="ri-star-fill"></i> {{ product.averageRating | number:'1.1-1'
+                                }}</span>
+                            <span class="stat"><i class="ri-eye-line"></i> {{ product.viewCount }}</span>
+                            <span class="stat"><i class="ri-shopping-cart-2-line"></i> {{ product.totalSold }}
+                                sold</span>
+                            <span class="stat"><i class="ri-stack-line"></i> {{ product.variants.length }} var</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <button class="btn-action details" [routerLink]="['/dashboard/products', product.slug]"
+                        [state]="{ product: product }" title="View Details">
+                        <i class="ri-eye-line"></i>
+                        <span>Details</span>
+                    </button>
+                    <button class="btn-action variant" (click)="openAddVariantModal(product)" title="Add Variant">
+                        <i class="ri-add-box-line"></i>
+                    </button>
+                    <button class="btn-action edit" (click)="openEditModal(product)">
+                        <i class="ri-edit-line"></i>
+                    </button>
+                    <button class="btn-action delete" (click)="deleteProduct(product.id)">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && products.length === 0" class="empty-state">
+        <div class="empty-icon"><i class="ri-box-3-line"></i></div>
+        <h3>No products found</h3>
+        <p>Start building your catalog by adding the first product</p>
+        <button class="btn-primary" (click)="openCreateModal()">Add Product</button>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+        <button class="btn-page" [disabled]="page === 1" (click)="onPageChange(page - 1)"><i
+                class="ri-arrow-left-s-line"></i></button>
+        <span class="page-info">Page {{ page }} of {{ totalPages }}</span>
+        <button class="btn-page" [disabled]="page === totalPages" (click)="onPageChange(page + 1)"><i
+                class="ri-arrow-right-s-line"></i></button>
+    </div>
+</div>
+
+<!-- ===== IMAGE GALLERY MODAL ===== -->
+<div class="gallery-modal" *ngIf="galleryProduct" (click)="closeGallery()">
+    <div class="gallery-content" (click)="$event.stopPropagation()">
+        <div class="gallery-header">
+            <div class="title-grp">
+                <h3>{{ galleryProduct.name }}</h3>
+                <p>{{ galleryProduct.images.length }} Photos</p>
+            </div>
+            <button class="gallery-close" (click)="closeGallery()"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="gallery-body scrollable">
+            <div class="gallery-grid">
+                <div *ngFor="let image of galleryProduct.images" class="gallery-item">
+                    <img [src]="image.imageUrl | url" [alt]="galleryProduct.name">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PRODUCT MODAL ===== -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content animate-scale-up large-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="title-group">
+                <h2>{{ isEditing ? 'Edit Product' : 'New Product' }}</h2>
+                <p class="subtitle">Fill in all product details</p>
+            </div>
+            <button class="close-btn" (click)="closeModal()"><i class="ri-close-line"></i></button>
+        </div>
+
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+            <div class="modal-body scrollable">
+
+                <!-- BASIC INFO -->
+                <div class="section-title"><i class="ri-information-line"></i> Basic Information</div>
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label>Product Name *</label>
+                        <input type="text" formControlName="name" class="form-input" placeholder="Product name"
+                            [class.invalid-input]="productForm.get('name')?.touched && productForm.get('name')?.invalid">
+                        <div class="error-msg"
+                            *ngIf="productForm.get('name')?.touched && productForm.get('name')?.errors?.['required']">
+                            <i class="ri-error-warning-line"></i> Product name is required
+                        </div>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Slug *</label>
+                        <input type="text" formControlName="slug" class="form-input" placeholder="auto-generated"
+                            [class.invalid-input]="productForm.get('slug')?.touched && productForm.get('slug')?.invalid">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Category *</label>
+                        <select formControlName="categoryId" class="form-input"
+                            [class.invalid-input]="productForm.get('categoryId')?.touched && productForm.get('categoryId')?.invalid">
+                            <option [ngValue]="null" disabled>Select Category</option>
+                            <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+                        </select>
+                        <div class="error-msg"
+                            *ngIf="productForm.get('categoryId')?.touched && productForm.get('categoryId')?.errors?.['required']">
+                            <i class="ri-error-warning-line"></i> Category selection is required
+                        </div>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Variant Type</label>
+                        <select formControlName="variantType" class="form-input">
+                            <option *ngFor="let vt of variantTypes" [value]="vt">{{ vt }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea formControlName="description" class="form-input" rows="4"
+                        placeholder="Full product description..."
+                        [class.invalid-input]="productForm.get('description')?.touched && productForm.get('description')?.invalid"></textarea>
+                    <div class="error-msg"
+                        *ngIf="productForm.get('description')?.touched && productForm.get('description')?.errors?.['required']">
+                        <i class="ri-error-warning-line"></i> Full description is required
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Short Summary</label>
+                    <input type="text" formControlName="summary" class="form-input"
+                        placeholder="One-line product summary">
+                </div>
+
+                <div class="form-row checkboxes">
+                    <label class="check-item">
+                        <input type="checkbox" formControlName="isFeatured">
+                        <span class="checkmark"></span>
+                        <span>Featured Product</span>
+                    </label>
+                    <label class="check-item" *ngIf="isEditing">
+                        <input type="checkbox" formControlName="isActive">
+                        <span class="checkmark"></span>
+                        <span>Active</span>
+                    </label>
+                </div>
+
+                <!-- IMAGES -->
+                <div class="image-upload-wrapper">
+                    <div class="image-grid">
+                        <!-- Existing Images (Edit mode) -->
+                        <div *ngFor="let url of existingImageUrls" class="image-item existing">
+                            <img [src]="url | url" alt="Product image">
+                            <div class="image-overlay">
+                                <button type="button" class="remove-btn" (click)="removeExistingImage(url)"
+                                    title="Remove">
+                                    <i class="ri-delete-bin-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- New Selected Images Previews -->
+                        <div *ngFor="let preview of (isEditing ? newImagePreviews : imagePreviews); let i = index"
+                            class="image-item new">
+                            <img [src]="preview" alt="New image preview">
+                            <div class="image-overlay">
+                                <button type="button" class="remove-btn"
+                                    (click)="removeNewSelectedImage(i, isEditing ? 'edit' : 'create')" title="Remove">
+                                    <i class="ri-delete-bin-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Add Button -->
+                        <div class="add-image-card">
+                            <input type="file" multiple accept="image/*" class="hidden-input" id="multi-upload"
+                                (change)="isEditing ? onNewImagesChange($event) : onImagesChange($event)">
+                            <label for="multi-upload" class="upload-label">
+                                <i class="ri-image-add-line"></i>
+                                <span>Add Image</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DISCOUNT -->
+                <div class="section-title"><i class="ri-percent-line"></i> Discount (Optional)</div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Discount %</label>
+                        <input type="number" formControlName="discountPercentage" class="form-input"
+                            placeholder="e.g. 15" min="0" max="100">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Start Date</label>
+                        <input type="date" formControlName="discountStartDate" class="form-input">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>End Date</label>
+                        <input type="date" formControlName="discountEndDate" class="form-input">
+                    </div>
+                </div>
+
+                <!-- SEO -->
+                <div class="section-title"><i class="ri-seo-line"></i> SEO (Optional)</div>
+                <div class="form-group">
+                    <label>Meta Title</label>
+                    <input type="text" formControlName="metaTitle" class="form-input" placeholder="SEO title">
+                </div>
+                <div class="form-group">
+                    <label>Meta Description</label>
+                    <textarea formControlName="metaDescription" class="form-input" rows="3"
+                        placeholder="SEO description..."></textarea>
+                </div>
+
+                <!-- ATTRIBUTES -->
+                <div class="section-title" *ngIf="attributes.length > 0"><i class="ri-list-settings-line"></i> Product
+                    Attributes</div>
+                <div formArrayName="attributes" class="attributes-grid" *ngIf="attributes.length > 0">
+                    <div *ngFor="let attr of attributes.controls; let i = index" [formGroupName]="i" class="attr-item">
+                        <label>{{ attr.get('attributeName')?.value }}</label>
+                        <input type="text" formControlName="value" class="form-input"
+                            [placeholder]="'Enter ' + attr.get('attributeName')?.value">
+                        <div class="error-msg" *ngIf="attr.get('value')?.touched && attr.get('value')?.invalid">Value is
+                            required</div>
+                    </div>
+                </div>
+
+                <!-- SINGLE VARIANT (For Creation) -->
+                <div *ngIf="!isEditing">
+                    <div class="section-title variants-title">
+                        <span><i class="ri-stack-line"></i> Initial Variant</span>
+                    </div>
+
+                    <div formGroupName="variant" class="variant-card">
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label>Variant Name *</label>
+                                <input type="text" formControlName="name" class="form-input"
+                                    placeholder="e.g. Standard / Black"
+                                    [class.invalid-input]="variant.get('name')?.touched && variant.get('name')?.invalid">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>SKU *</label>
+                                <input type="text" formControlName="sku" class="form-input" placeholder="SKU-001"
+                                    [class.invalid-input]="variant.get('sku')?.touched && variant.get('sku')?.invalid">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label>Price *</label>
+                                <input type="number" formControlName="price" class="form-input" placeholder="0.00"
+                                    min="0" step="0.01"
+                                    [class.invalid-input]="variant.get('price')?.touched && variant.get('price')?.invalid">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>Sale Price</label>
+                                <input type="number" formControlName="salePrice" class="form-input" placeholder="0.00"
+                                    min="0" step="0.01">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>Stock Qty *</label>
+                                <input type="number" formControlName="stockQuantity" class="form-input" placeholder="0"
+                                    min="0"
+                                    [class.invalid-input]="variant.get('stockQuantity')?.touched && variant.get('stockQuantity')?.invalid">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Variant Image</label>
+                            <div class="variant-image-upload">
+                                <div class="variant-image-card"
+                                    *ngIf="variant.get('_preview')?.value; else uploadPlaceholder">
+                                    <img [src]="variant.get('_preview')?.value" alt="Variant preview">
+                                    <div class="variant-image-overlay">
+                                        <button type="button" class="remove-variant-img"
+                                            (click)="removeVariantImage(false)">
+                                            <i class="ri-delete-bin-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <ng-template #uploadPlaceholder>
+                                    <div class="variant-upload-box">
+                                        <input type="file" accept="image/*" class="variant-file-input"
+                                            (change)="onVariantImageChange($event, false)">
+                                        <i class="ri-image-add-line"></i>
+                                        <span>Add Photo</span>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-note" *ngIf="isEditing">
+                    <i class="ri-information-line"></i>
+                    <span>Variants are managed separately via the "Add Variant" action for existing products.</span>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="isSaving">
+                    <span *ngIf="!isSaving">{{ isEditing ? 'Save Changes' : 'Create Product' }}</span>
+                    <span *ngIf="isSaving"><i class="ri-loader-4-line spin"></i> Saving...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== ADD VARIANT MODAL ===== -->
+<div class="modal-backdrop" *ngIf="showVariantModal" (click)="closeVariantModal()">
+    <div class="modal-content animate-scale-up" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="title-group">
+                <h2>Add New Variant</h2>
+                <p class="subtitle" *ngIf="productToManageVariants">{{ productToManageVariants.name }}</p>
+            </div>
+            <button class="close-btn" (click)="closeVariantModal()"><i class="ri-close-line"></i></button>
+        </div>
+
+        <form [formGroup]="variantForm" (ngSubmit)="onVariantSubmit()">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label>Variant Name *</label>
+                        <input type="text" formControlName="name" class="form-input" placeholder="e.g. Blue / XL"
+                            [class.invalid-input]="variantForm.get('name')?.touched && variantForm.get('name')?.invalid">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>SKU *</label>
+                        <input type="text" formControlName="sku" class="form-input" placeholder="SKU-001"
+                            [class.invalid-input]="variantForm.get('sku')?.touched && variantForm.get('sku')?.invalid">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Price *</label>
+                        <input type="number" formControlName="price" class="form-input" placeholder="0.00" min="0"
+                            step="0.01"
+                            [class.invalid-input]="variantForm.get('price')?.touched && variantForm.get('price')?.invalid">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Sale Price</label>
+                        <input type="number" formControlName="salePrice" class="form-input" placeholder="0.00" min="0"
+                            step="0.01">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Stock Qty *</label>
+                        <input type="number" formControlName="stockQuantity" class="form-input" placeholder="0" min="0"
+                            [class.invalid-input]="variantForm.get('stockQuantity')?.touched && variantForm.get('stockQuantity')?.invalid">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Variant Image</label>
+                    <div class="variant-image-upload">
+                        <div class="variant-image-card"
+                            *ngIf="variantForm.get('_preview')?.value; else uploadPlaceholderNew">
+                            <img [src]="variantForm.get('_preview')?.value" alt="Variant preview">
+                            <div class="variant-image-overlay">
+                                <button type="button" class="remove-variant-img" (click)="removeVariantImage(true)">
+                                    <i class="ri-delete-bin-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <ng-template #uploadPlaceholderNew>
+                            <div class="variant-upload-box">
+                                <input type="file" accept="image/*" class="variant-file-input"
+                                    (change)="onVariantImageChange($event, true)">
+                                <i class="ri-image-add-line"></i>
+                                <span>Add Photo</span>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeVariantModal()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="isSaving">
+                    <span *ngIf="!isSaving">Add Variant</span>
+                    <span *ngIf="isSaving"><i class="ri-loader-4-line spin"></i> Adding...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== POST-CREATE PROMPT MODAL ===== -->
+<div class="modal-backdrop prompt-backdrop" *ngIf="showPostCreatePrompt">
+    <div class="modal-content prompt-content animate-scale-up">
+        <div class="prompt-body text-center">
+            <div class="success-icon">
+                <i class="ri-checkbox-circle-fill"></i>
+            </div>
+            <h3>Product Created!</h3>
+            <p>The product <strong>{{ newlyCreatedProduct?.name }}</strong> has been added successfully.</p>
+            <p class="question">Would you like to add more variants for this product now?</p>
+
+            <div class="prompt-actions">
+                <button type="button" class="btn-outline" (click)="handlePostCreateChoice(false)">
+                    No, I'm Done
+                </button>
+                <button type="button" class="btn-confirm" (click)="handlePostCreateChoice(true)">
+                    <i class="ri-confirm-line"></i> Yes, Add Variants
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

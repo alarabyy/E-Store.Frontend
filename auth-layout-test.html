@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Layout Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+        }
+
+        .auth-layout {
+            display: flex;
+            min-height: 100vh;
+            background: #ffffff;
+            flex-direction: row;
+            position: relative;
+        }
+
+        .auth-sidebar {
+            flex: 0 0 45%;
+            max-width: 600px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+            padding: 4rem;
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .auth-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 3rem;
+            background: #ffffff;
+            overflow-y: auto;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 480px;
+            margin: auto;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 3.5rem;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .auth-layout {
+                flex-direction: column;
+            }
+
+            .auth-sidebar {
+                flex: 0 0 auto;
+                max-width: 100%;
+                width: 100%;
+                padding: 3rem 2rem;
+                border-right: none;
+                border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-layout">
+        <!-- Sidebar -->
+        <aside class="auth-sidebar">
+            <h1>E-Store</h1>
+            <h2>Elevate Your<br><span style="color: #2563eb;">Mega Lifestyle.</span></h2>
+            <p>Join the global shopping revolution. Millions of premium products, one brand-neutral Mega Store, infinite
+                possibilities.</p>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="auth-main">
+            <div class="auth-wrapper">
+                <div class="auth-card">
+                    <h1>Welcome Back</h1>
+                    <p>Login to your personalized portal for the world's best brand deals.</p>
+                    <form style="margin-top: 2rem;">
+                        <input type="email" placeholder="Email"
+                            style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid #f1f5f9; border-radius: 12px;">
+                        <input type="password" placeholder="Password"
+                            style="width: 100%; padding: 1rem; margin-bottom: 1rem; border: 2px solid #f1f5f9; border-radius: 12px;">
+                        <button type="submit"
+                            style="width: 100%; padding: 1rem; background: #0f172a; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;">Log
+                            In</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

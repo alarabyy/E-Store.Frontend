@@ -1,0 +1,16 @@
+<div class="faq-view">
+    <app-loader [show]="isLoading" text="Fetching FAQs..."></app-loader>
+
+    <div *ngIf="!isLoading && faqs.length === 0" class="empty-state">
+        <p>No FAQs found at the moment.</p>
+    </div>
+
+    <div *ngIf="!isLoading && faqs.length > 0" class="faq-grid">
+        <div *ngFor="let item of faqs" class="faq-card">
+            <h4><i class="ri-question-fill"></i> {{ item.question }}</h4>
+            <p>{{ item.answer }}</p>
+        </div>
+    </div>
+
+
+</div>

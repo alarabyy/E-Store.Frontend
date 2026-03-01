@@ -1,0 +1,130 @@
+$primary: #4f46e5;
+$primary-dark: #4338ca;
+$light-bg: #f8fafc;
+$text: #334155;
+$border: #e2e8f0;
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.support-page {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: $text;
+    background: white;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* Header */
+.support-header {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+    padding: 5rem 0 4rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, transparent 60%);
+        animation: spin 30s linear infinite;
+        z-index: 0;
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 1rem;
+        letter-spacing: -1.5px;
+        background: linear-gradient(to right, #1e293b, #4f46e5);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    p {
+        font-size: 1.25rem;
+        color: #64748b;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: -2.5rem auto 3rem;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 99px;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+    width: fit-content;
+    position: relative;
+    z-index: 10;
+    border: 1px solid $border;
+
+    .tab-btn {
+        background: transparent;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 99px;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+
+        &:hover {
+            background: $light-bg;
+            color: #1e293b;
+        }
+
+        &.active {
+            background: $primary;
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        i {
+            font-size: 1.2rem;
+        }
+    }
+}
+
+.main-content {
+    padding-bottom: 5rem;
+}

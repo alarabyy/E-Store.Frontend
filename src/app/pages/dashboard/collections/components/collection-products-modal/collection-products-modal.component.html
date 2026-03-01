@@ -1,0 +1,178 @@
+<div class="modal-backdrop" *ngIf="show" (click)="close.emit()">
+    <div class="modal-content animate-scale-up product-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="title-grp">
+                <h2>Manage Collection Products</h2>
+                <p>Collection: <strong>{{ collection?.name }}</strong></p>
+            </div>
+            <button class="close-btn" (click)="close.emit()"><i class="ri-close-line"></i></button>
+        </div>
+
+        <div class="modal-body search-body">
+            <div class="search-section">
+                <div class="search-filters">
+                    <div class="search-box">
+                        <i class="ri-search-line"></i>
+                        <input type="text" [(ngModel)]="productSearchTerm" (input)="onSearch()"
+                            placeholder="Search products by name...">
+                    </div>
+                    <div class="filter-box">
+                        <select [(ngModel)]="selectedCategoryId" (change)="onSearch()" class="filter-select">
+                            <option [ngValue]="null">All Categories</option>
+                            <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+                        </select>
+                    </div>
+                    <div class="view-controls">
+                        <button class="view-btn" [class.active]="productViewMode === 'list'"
+                            (click)="productViewMode = 'list'" title="List View">
+                            <i class="ri-list-check-2"></i>
+                        </button>
+                        <button class="view-btn" [class.active]="productViewMode === 'grid'"
+                            (click)="productViewMode = 'grid'" title="Grid View">
+                            <i class="ri-grid-fill"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="selection-toolbar">
+                    <div class="tabs-luxe">
+                        <button class="tab-btn" [class.active]="productTab === 'all'" (click)="productTab = 'all'">
+                            All Products <span class="badge">{{ allProducts.length }}</span>
+                        </button>
+                        <button class="tab-btn" [class.active]="productTab === 'selected'"
+                            (click)="productTab = 'selected'">
+                            Selected <span class="badge">{{ selectedProductIds.length }}</span>
+                        </button>
+                    </div>
+
+                    <div class="action-btns">
+                        <button class="btn-ghost" (click)="selectAllVisible()" title="Select all visible products">
+                            <i class="ri-checkbox-multiple-line"></i> Select Page
+                        </button>
+                        <button class="btn-ghost danger" (click)="clearSelection()" title="Clear all selections">
+                            <i class="ri-delete-back-2-line"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="products-selection-list scrollable" [class.grid-mode]="productViewMode === 'grid'">
+                <div *ngIf="isProductsLoading" class="mini-loading">
+                    <div class="spinner-small"></div>
+                    <span>Searching products...</span>
+                </div>
+
+                <div *ngIf="!isProductsLoading && displayedProducts.length === 0" class="mini-empty">
+                    <i class="ri-search-eye-line"></i>
+                    <span>{{ productTab === 'selected' ? 'No products selected yet' : 'No products found' }}</span>
+                </div>
+
+                <!-- LIST MODE -->
+                <ng-container *ngIf="!isProductsLoading && productViewMode === 'list'">
+                    <div *ngFor="let product of displayedProducts" class="product-selection-item"
+                        [class.selected]="isProductSelected(product.id)"
+                        [class.expanded]="isProductExpanded(product.id)" (click)="toggleProduct(product.id)">
+
+                        <div class="item-main">
+                            <div class="item-check">
+                                <i
+                                    [class]="isProductSelected(product.id) ? 'ri-checkbox-fill' : 'ri-checkbox-blank-line'"></i>
+                            </div>
+
+                            <div class="item-img">
+                                <img [src]="(product.images && product.images.length > 0) ? (product.images[0].imageUrl | url) : 'https://placehold.co/100x100/f1f5f9/64748b?text=No+Img'"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/100x100/f1f5f9/64748b?text=?'"
+                                    alt="">
+                                <div class="img-badge" *ngIf="product.discountPercentage">
+                                    -{{ product.discountPercentage }}%
+                                </div>
+                            </div>
+
+                            <div class="item-info">
+                                <div class="info-top">
+                                    <span class="p-category">{{ product.categoryName }}</span>
+                                    <div class="p-rating" *ngIf="product.averageRating > 0">
+                                        <i class="ri-star-fill"></i>
+                                        <span>{{ product.averageRating | number:'1.1-1' }}</span>
+                                    </div>
+                                </div>
+                                <span class="p-name">{{ product.name }}</span>
+                                <div class="info-bottom">
+                                    <div class="p-price">
+                                        <span *ngIf="product.minPrice === product.maxPrice">${{ product.minPrice |
+                                            number:'1.2-2' }}</span>
+                                        <span *ngIf="product.minPrice !== product.maxPrice">${{ product.minPrice |
+                                            number:'1.0-0' }} - ${{ product.maxPrice | number:'1.2-2' }}</span>
+                                    </div>
+                                    <div class="p-stock"
+                                        [class.out]="product.variants && product.variants.length > 0 && product.variants[0].stockQuantity <= 0">
+                                        <i class="ri-stack-line"></i>
+                                        <span>{{ product.variants && product.variants.length > 0 ?
+                                            product.variants[0].stockQuantity : 0 }} in stock</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn-expand" (click)="toggleProductDetails(product.id, $event)">
+                                <i
+                                    [class]="isProductExpanded(product.id) ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
+                            </button>
+                        </div>
+
+                        <div class="item-details animate-fade-in" *ngIf="isProductExpanded(product.id)"
+                            (click)="$event.stopPropagation()">
+                            <div class="details-grid">
+                                <div class="detail-group" *ngIf="product.summary">
+                                    <label>Summary</label>
+                                    <p>{{ product.summary }}</p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Description</label>
+                                    <p>{{ product.description || 'No description available' }}</p>
+                                </div>
+                                <div class="detail-meta">
+                                    <span><i class="ri-time-line"></i> Added: {{ product.createdAt | date:'short'
+                                        }}</span>
+                                    <span><i class="ri-eye-line"></i> Views: {{ product.viewCount }}</span>
+                                    <span><i class="ri-shopping-bag-line"></i> Sold: {{ product.totalSold }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- GRID MODE -->
+                <ng-container *ngIf="!isProductsLoading && productViewMode === 'grid'">
+                    <div *ngFor="let product of displayedProducts" class="grid-card"
+                        [class.selected]="isProductSelected(product.id)" (click)="toggleProduct(product.id)">
+                        <div class="card-check">
+                            <i
+                                [class]="isProductSelected(product.id) ? 'ri-checkbox-fill' : 'ri-checkbox-blank-line'"></i>
+                        </div>
+                        <div class="card-img">
+                            <img [src]="(product.images && product.images.length > 0) ? (product.images[0].imageUrl | url) : 'https://placehold.co/150x150/f1f5f9/64748b?text=No+Img'"
+                                onerror="this.onerror=null;this.src='https://placehold.co/150x150/f1f5f9/64748b?text=?'"
+                                alt="">
+                            <div class="card-badge" *ngIf="product.discountPercentage">
+                                -{{ product.discountPercentage }}%
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <span class="c-cat">{{ product.categoryName }}</span>
+                            <span class="c-name" [title]="product.name">{{ product.name }}</span>
+                            <span class="c-price">${{ product.minPrice | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="close.emit()">Cancel</button>
+            <button type="button" class="btn-primary" (click)="saveProductAssociations()" [disabled]="isSaving">
+                <span *ngIf="!isSaving">Save Selection</span>
+                <span *ngIf="isSaving">Updating...</span>
+            </button>
+        </div>
+    </div>
+</div>

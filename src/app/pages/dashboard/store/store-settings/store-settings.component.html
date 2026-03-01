@@ -1,0 +1,33 @@
+<div class="settings-container">
+    <header class="settings-header">
+        <div>
+            <h1>Store Dashboard</h1>
+            <p class="subtitle">Customize your store identity and homepage content</p>
+        </div>
+    </header>
+
+    <div class="settings-tabs">
+        <button [class.active]="activeTab === 'general'" (click)="setTab('general')">General Info</button>
+        <button [class.active]="activeTab === 'banners'" (click)="setTab('banners')">Home Banners</button>
+        <button [class.active]="activeTab === 'offers'" (click)="setTab('offers')">Exclusive Offers</button>
+        <button [class.active]="activeTab === 'items'" (click)="setTab('items')">Shop By Items</button>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="settings-content">
+        <app-general-info *ngIf="activeTab === 'general'" [settings]="settingsResponse?.settings || null">
+        </app-general-info>
+
+        <app-home-banners *ngIf="activeTab === 'banners'" [banners]="settingsResponse?.homeBanners || []"
+            (refresh)="loadSettings()">
+        </app-home-banners>
+
+        <app-exclusive-offers *ngIf="activeTab === 'offers'" [offers]="settingsResponse?.exclusiveOffers || []"
+            (refresh)="loadSettings()">
+        </app-exclusive-offers>
+
+        <app-shop-by-items *ngIf="activeTab === 'items'" [items]="settingsResponse?.shopByItems || []"
+            (refresh)="loadSettings()">
+        </app-shop-by-items>
+    </div>
+</div>

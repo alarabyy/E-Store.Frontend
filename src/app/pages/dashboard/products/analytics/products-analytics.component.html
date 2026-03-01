@@ -1,0 +1,133 @@
+<div class="analytics-container">
+    <div class="header-section">
+        <div class="title-row">
+            <h1>Products Analytics</h1>
+            <button class="refresh-btn" (click)="loadAnalytics()" [class.spinning]="isLoading">
+                🔄
+            </button>
+        </div>
+        <p>Real-time performance metrics and inventory distribution.</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid" *ngIf="analytics">
+        <div class="stat-card glass total">
+            <div class="card-icon">📦</div>
+            <div class="card-content">
+                <h3>Total Inventory</h3>
+                <p class="value">{{ analytics.totalProducts }}</p>
+                <span class="trend">Global Count</span>
+            </div>
+        </div>
+
+        <div class="stat-card glass active">
+            <div class="card-icon">🟢</div>
+            <div class="card-content">
+                <h3>Active Listings</h3>
+                <p class="value">{{ analytics.activeProducts }}</p>
+                <span class="trend">Visible to Users</span>
+            </div>
+        </div>
+
+        <div class="stat-card glass featured">
+            <div class="card-icon">💎</div>
+            <div class="card-content">
+                <h3>Highlights</h3>
+                <p class="value">{{ analytics.featuredProducts }}</p>
+                <span class="trend">Featured Items</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Visuals -->
+    <div class="visuals-section" *ngIf="analytics">
+        <!-- Category Doughnut Chart -->
+        <div class="chart-container glass">
+            <div class="chart-header">
+                <h3>Inventory Distribution</h3>
+                <span class="tag">By Categories</span>
+            </div>
+
+            <div class="chart-body">
+                <div class="doughnut-wrapper">
+                    <div class="doughnut" [style.background]="categoryChartGradient">
+                        <div class="hole">
+                            <div class="center-text">
+                                <span class="number">{{ analytics.productsByCategory.length }}</span>
+                                <span class="label">Categories</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend-list">
+                    <div class="legend-item" *ngFor="let cat of analytics.productsByCategory; let i = index">
+                        <span class="dot" [style.background]="getCategoryColor(i)"></span>
+                        <span class="name">{{ cat.categoryName }}</span>
+                        <span class="value">{{ cat.productCount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Grids -->
+        <div class="metrics-column">
+            <!-- Top Selling -->
+            <div class="metric-card glass">
+                <div class="card-header">
+                    <h3>🔥 Top Performers</h3>
+                    <span class="list-count">{{ analytics.topSellingProducts.length }} Products</span>
+                </div>
+                <div class="mini-list">
+                    <div class="mini-item" *ngFor="let p of analytics.topSellingProducts">
+                        <div class="p-img">
+                            <img [src]="getImageUrl(p.imageUrl)" alt="">
+                        </div>
+                        <div class="p-info">
+                            <span class="p-name">{{ p.name }}</span>
+                            <span class="p-stat">{{ p.value }} Sold</span>
+                        </div>
+                        <div class="p-rank">#{{ analytics.topSellingProducts.indexOf(p) + 1 }}</div>
+                    </div>
+                    <div class="empty" *ngIf="analytics.topSellingProducts.length === 0">No data available</div>
+                </div>
+            </div>
+
+            <!-- Most Viewed -->
+            <div class="metric-card glass">
+                <div class="card-header">
+                    <h3>👁️ Most Engaged</h3>
+                    <span class="list-count">{{ analytics.mostViewedProducts.length }} Active</span>
+                </div>
+                <div class="mini-list">
+                    <div class="mini-item" *ngFor="let p of analytics.mostViewedProducts">
+                        <div class="p-img">
+                            <img [src]="getImageUrl(p.imageUrl)" alt="">
+                        </div>
+                        <div class="p-info">
+                            <span class="p-name">{{ p.name }}</span>
+                            <span class="p-stat">{{ p.value }} Views</span>
+                        </div>
+                        <div class="p-rank">#{{ analytics.mostViewedProducts.indexOf(p) + 1 }}</div>
+                    </div>
+                    <div class="empty" *ngIf="analytics.mostViewedProducts.length === 0">No engagement yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Section -->
+    <div class="ratings-row glass" *ngIf="analytics && analytics.topRatedProducts.length > 0">
+        <h3>⭐ Top Customer Ratings</h3>
+        <div class="rating-grid">
+            <div class="rating-box" *ngFor="let p of analytics.topRatedProducts">
+                <img [src]="getImageUrl(p.imageUrl)" alt="">
+                <div class="rank-badge">{{ p.value }}</div>
+                <span class="p-name">{{ p.name }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <app-loader [show]="isLoading"></app-loader>
+</div>

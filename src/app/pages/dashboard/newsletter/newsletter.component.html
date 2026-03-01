@@ -1,0 +1,132 @@
+<div class="dashboard-container fade-in">
+    <div class="header">
+        <div class="title-group">
+            <h1>Newsletter Subscriptions</h1>
+            <p class="subtitle">Manage your audience and marketing outreach</p>
+        </div>
+        <div class="actions">
+            <div class="search-box">
+                <i class="ri-search-line search-icon"></i>
+                <input type="text" placeholder="Search subscribers..." class="search-input">
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon subscribers">
+                <i class="ri-group-line"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Total Subscriptions</h3>
+                <p class="value">{{ totalSubscriptions }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="ri-checkbox-circle-line"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Active</h3>
+                <p class="value">{{ totalActive }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon growth">
+                <i class="ri-line-chart-line"></i>
+            </div>
+            <div class="stat-details">
+                <h3>New This Week</h3>
+                <p class="value">+{{ weeklyGrowth }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon unsubscribed">
+                <i class="ri-close-circle-line"></i>
+            </div>
+            <div class="stat-details">
+                <h3>Unsubscribed</h3>
+                <p class="value">{{ totalUnsubscribed }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscribers List Table -->
+    <div class="table-card shadow-sm">
+        <div class="card-header">
+            <h3>Subscribers List</h3>
+        </div>
+        <div class="table-responsive desktop-view">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Email Address</th>
+                        <th>Status</th>
+                        <th>Joined Date</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let sub of subscriptions">
+                        <td>
+                            <div class="email-cell">
+                                <div class="icon"><i class="ri-mail-fill"></i></div>
+                                <span>{{ sub.email }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" [class.active]="sub.isActive">
+                                {{ sub.isActive ? 'Subscribed' : 'Unsubscribed' }}
+                            </span>
+                        </td>
+                        <td>{{ sub.subscribedAt | date:'mediumDate' }}</td>
+                        <td class="text-right">
+                            <div class="action-buttons">
+                                <button class="btn-icon delete" title="Unsubscribe" (click)="onUnsubscribe(sub)"
+                                    [disabled]="!sub.isActive">
+                                    <i class="ri-close-circle-line"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards View -->
+        <div class="mobile-cards-view">
+            <div class="sub-mobile-card" *ngFor="let sub of subscriptions">
+                <div class="card-top">
+                    <div class="email-group">
+                        <div class="email-icon"><i class="ri-mail-line"></i></div>
+                        <div class="details">
+                            <span class="email-text">{{ sub.email }}</span>
+                            <span class="date-text">Joined {{ sub.subscribedAt | date:'mediumDate' }}</span>
+                        </div>
+                    </div>
+                    <button class="btn-icon delete" (click)="onUnsubscribe(sub)" [disabled]="!sub.isActive">
+                        <i class="ri-close-circle-line"></i>
+                    </button>
+                </div>
+                <div class="card-bottom">
+                    <span class="badge" [class.active]="sub.isActive">
+                        {{ sub.isActive ? 'Subscribed' : 'Unsubscribed' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="subscriptions.length === 0 && !isLoading" class="empty-state">
+            <div class="empty-icon"><i class="ri-mail-open-line"></i></div>
+            <h4>No subscribers found</h4>
+            <p>Your newsletter audience is waiting to be built!</p>
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div *ngIf="isLoading" class="loading-state">
+            <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+        </div>
+    </div>
+</div>

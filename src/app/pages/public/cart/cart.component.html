@@ -1,0 +1,433 @@
+<div class="cart-page">
+    <app-loader [show]="isLoading"></app-loader>
+
+    <div class="cart-container" *ngIf="!isLoading">
+        <!-- Header -->
+        <div class="cart-header">
+            <div class="cart-header-left">
+                <h1><i class="ri-shopping-bag-3-line"></i> Shopping Cart</h1>
+                <p *ngIf="cartService.itemCount > 0">
+                    {{ cartService.itemCount }} item{{ cartService.itemCount !== 1 ? 's' : '' }} in your cart
+                </p>
+                <p *ngIf="cartService.itemCount === 0">Your cart is empty</p>
+            </div>
+            <div class="cart-header-actions" *ngIf="cartService.itemCount > 0">
+                <button class="btn-clear-cart" (click)="clearCart()" title="Clear all items">
+                    <i class="ri-delete-bin-2-line"></i> Clear Cart
+                </button>
+            </div>
+        </div>
+
+        <!-- Cart Content -->
+        <div class="cart-content" *ngIf="cartService.itemCount > 0">
+
+            <!-- Items List -->
+            <div class="cart-items">
+                <div class="cart-item" *ngFor="let item of cartService.items()">
+                    <div class="item-image">
+                        <img [src]="item.image | url" [alt]="item.name" loading="lazy">
+                    </div>
+                    <div class="item-details">
+                        <h3>{{ item.name }}</h3>
+                        <p class="item-variant" *ngIf="$any(item).variantName">
+                            <i class="ri-price-tag-3-line"></i> {{ $any(item).variantName }}
+                        </p>
+                        <p class="item-price">{{ item.price | number:'1.0-0' }} EGP <span>/ unit</span></p>
+                    </div>
+                    <div class="item-quantity">
+                        <button (click)="decreaseQuantity(item)" class="qty-btn" [disabled]="item.quantity <= 0">
+                            <i class="ri-subtract-line"></i>
+                        </button>
+                        <span class="qty">{{ item.quantity }}</span>
+                        <button (click)="increaseQuantity(item)" class="qty-btn">
+                            <i class="ri-add-line"></i>
+                        </button>
+                    </div>
+                    <div class="item-total">
+                        <p class="total-price">{{ item.price * item.quantity | number:'1.0-0' }} EGP</p>
+                    </div>
+                    <button (click)="removeItem(item)" class="remove-btn" title="Remove item">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="cart-summary">
+                <div class="summary-header">
+                    <i class="ri-receipt-line"></i>
+                    <h2>Order Summary</h2>
+                </div>
+
+                <div class="summary-items-preview">
+                    <div class="preview-item" *ngFor="let item of cartService.items() | slice:0:3">
+                        <img [src]="item.image | url" [alt]="item.name">
+                        <span class="preview-qty">×{{ item.quantity }}</span>
+                    </div>
+                    <div class="preview-more" *ngIf="cartService.itemCount > 3">
+                        +{{ cartService.itemCount - 3 }} more
+                    </div>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-row">
+                    <span><i class="ri-shopping-bag-line"></i> Subtotal</span>
+                    <span>{{ cartService.totalPrice | number:'1.0-0' }} EGP</span>
+                </div>
+                <div class="summary-row">
+                    <span><i class="ri-truck-line"></i> Shipping</span>
+                    <span class="free-badge">FREE</span>
+                </div>
+                <div class="summary-row">
+                    <span><i class="ri-shield-check-line"></i> Tax</span>
+                    <span>Included</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-row total">
+                    <span>Grand Total</span>
+                    <span class="grand-total-price">{{ grandTotal | number:'1.0-0' }} EGP</span>
+                </div>
+
+                <button class="checkout-btn" (click)="openCheckout()">
+                    <i class="ri-secure-payment-line"></i>
+                    Proceed to Checkout
+                    <i class="ri-arrow-right-line"></i>
+                </button>
+
+                <button class="continue-btn" routerLink="/catalog">
+                    <i class="ri-arrow-left-line"></i>
+                    Continue Shopping
+                </button>
+
+                <!-- Trust Badges -->
+                <div class="trust-badges">
+                    <span><i class="ri-lock-2-line"></i> Secure Payment</span>
+                    <span><i class="ri-shield-check-line"></i> Buyer Protected</span>
+                    <span><i class="ri-truck-line"></i> Free Delivery</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Cart State -->
+        <div class="empty-cart" *ngIf="cartService.itemCount === 0">
+            <div class="empty-cart-visual">
+                <i class="ri-shopping-bag-line"></i>
+                <div class="empty-glow"></div>
+            </div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added anything yet. Explore our collections and find something you love.</p>
+            <div class="empty-actions">
+                <button class="shop-now-btn" routerLink="/catalog">
+                    <i class="ri-store-2-line"></i> Explore Catalog
+                </button>
+                <button class="shop-now-btn secondary" routerLink="/">
+                    <i class="ri-home-4-line"></i> Go Home
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     CHECKOUT MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="checkout-overlay" *ngIf="showCheckoutModal" (click)="closeCheckout()">
+    <div class="checkout-modal" (click)="$event.stopPropagation()">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="ri-secure-payment-line"></i>
+                <h2>Secure Checkout</h2>
+            </div>
+            <button class="modal-close" (click)="closeCheckout()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="checkout-steps" *ngIf="currentStep < 4">
+            <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+                <div class="step-circle"><i class="ri-map-pin-line"></i></div>
+                <span>Shipping</span>
+            </div>
+            <div class="step-line" [class.done]="currentStep > 1"></div>
+            <div class="step" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
+                <div class="step-circle"><i class="ri-file-list-3-line"></i></div>
+                <span>Billing</span>
+            </div>
+            <div class="step-line" [class.done]="currentStep > 2"></div>
+            <div class="step" [class.active]="currentStep >= 3" [class.done]="currentStep > 3">
+                <div class="step-circle"><i class="ri-bank-card-line"></i></div>
+                <span>Payment</span>
+            </div>
+        </div>
+
+        <div class="modal-body">
+
+            <!-- ── STEP 1: Shipping Address ── -->
+            <div class="form-section" *ngIf="currentStep === 1">
+                <h3 class="section-label"><i class="ri-map-pin-2-line"></i> Shipping Address</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" [(ngModel)]="shippingAddress.firstName" placeholder="John">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" [(ngModel)]="shippingAddress.lastName" placeholder="Doe">
+                    </div>
+                    <div class="form-group full">
+                        <label>Street Address *</label>
+                        <input type="text" [(ngModel)]="shippingAddress.streetAddress" placeholder="123 Main St">
+                    </div>
+                    <div class="form-group full">
+                        <label>Apartment / Suite (optional)</label>
+                        <input type="text" [(ngModel)]="shippingAddress.apartmentSuite" placeholder="Apt 4B">
+                    </div>
+                    <div class="form-group">
+                        <label>City *</label>
+                        <input type="text" [(ngModel)]="shippingAddress.city" placeholder="Cairo">
+                    </div>
+                    <div class="form-group">
+                        <label>State / Governorate *</label>
+                        <input type="text" [(ngModel)]="shippingAddress.state" placeholder="Cairo">
+                    </div>
+                    <div class="form-group">
+                        <label>ZIP / Postal Code</label>
+                        <input type="text" [(ngModel)]="shippingAddress.zipCode" placeholder="11511">
+                    </div>
+                    <div class="form-group">
+                        <label>Country *</label>
+                        <input type="text" [(ngModel)]="shippingAddress.country" placeholder="Egypt">
+                    </div>
+                    <div class="form-group full">
+                        <label>Phone Number *</label>
+                        <input type="tel" [(ngModel)]="shippingAddress.phoneNumber" placeholder="+20 10 0000 0000">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── STEP 2: Billing Address ── -->
+            <div class="form-section" *ngIf="currentStep === 2">
+                <h3 class="section-label"><i class="ri-file-list-3-line"></i> Billing Address</h3>
+                <div class="same-as-shipping">
+                    <label class="toggle-label">
+                        <input type="checkbox" [(ngModel)]="sameAsShipping">
+                        <span class="toggle-text">Same as shipping address</span>
+                    </label>
+                </div>
+                <div class="form-grid" *ngIf="!sameAsShipping">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" [(ngModel)]="billingAddress.firstName" placeholder="John">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" [(ngModel)]="billingAddress.lastName" placeholder="Doe">
+                    </div>
+                    <div class="form-group full">
+                        <label>Street Address *</label>
+                        <input type="text" [(ngModel)]="billingAddress.streetAddress" placeholder="123 Main St">
+                    </div>
+                    <div class="form-group">
+                        <label>City *</label>
+                        <input type="text" [(ngModel)]="billingAddress.city" placeholder="Cairo">
+                    </div>
+                    <div class="form-group">
+                        <label>State *</label>
+                        <input type="text" [(ngModel)]="billingAddress.state" placeholder="Cairo">
+                    </div>
+                    <div class="form-group">
+                        <label>Country *</label>
+                        <input type="text" [(ngModel)]="billingAddress.country" placeholder="Egypt">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" [(ngModel)]="billingAddress.phoneNumber" placeholder="+20 10 0000 0000">
+                    </div>
+                </div>
+                <div class="same-address-confirmed" *ngIf="sameAsShipping">
+                    <i class="ri-checkbox-circle-line"></i>
+                    <p>Billing address is the same as shipping address</p>
+                    <small>{{ shippingAddress.streetAddress }}, {{ shippingAddress.city }}, {{ shippingAddress.country
+                        }}</small>
+                </div>
+            </div>
+
+            <!-- ── STEP 3: Order Review & Payment ── -->
+            <div class="form-section" *ngIf="currentStep === 3">
+                <h3 class="section-label"><i class="ri-bank-card-line"></i> Review & Confirm Order</h3>
+
+                <div class="order-review">
+                    <!-- Items -->
+                    <div class="review-items">
+                        <div class="review-item" *ngFor="let item of cartService.items()">
+                            <img [src]="item.image | url" [alt]="item.name">
+                            <div class="review-item-info">
+                                <span class="ri-name">{{ item.name }}</span>
+                                <span class="ri-qty">×{{ item.quantity }}</span>
+                            </div>
+                            <span class="ri-price">{{ item.price * item.quantity | number:'1.0-0' }} EGP</span>
+                        </div>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="review-totals">
+                        <div class="rt-row">
+                            <span>Subtotal</span>
+                            <span>{{ cartService.totalPrice | number:'1.0-0' }} EGP</span>
+                        </div>
+                        <div class="rt-row">
+                            <span>Shipping</span>
+                            <span class="free-text">FREE</span>
+                        </div>
+                        <div class="rt-divider"></div>
+                        <div class="rt-row grand">
+                            <span>Total to Pay</span>
+                            <span>{{ grandTotal | number:'1.0-0' }} EGP</span>
+                        </div>
+                    </div>
+
+                    <!-- Currency -->
+                    <div class="currency-select">
+                        <label><i class="ri-currency-line"></i> Currency</label>
+                        <select [(ngModel)]="selectedCurrency">
+                            <option value="EGP">EGP — Egyptian Pound</option>
+                            <option value="USD">USD — US Dollar</option>
+                            <option value="EUR">EUR — Euro</option>
+                            <option value="SAR">SAR — Saudi Riyal</option>
+                            <option value="AED">AED — UAE Dirham</option>
+                        </select>
+                    </div>
+
+                    <!-- ── Payment Method ── -->
+                    <div class="payment-method-wrap">
+                        <h4 class="pm-title"><i class="ri-bank-card-line"></i> Secure Payment Method</h4>
+
+                        <div class="visual-card" [class.gold]="selectedCurrency === 'EGP'">
+                            <div class="vc-chip"></div>
+                            <div class="vc-logo"><i class="ri-visa-line"></i></div>
+                            <div class="vc-number">
+                                {{ creditCard.number || '•••• •••• •••• ••••' }}
+                            </div>
+                            <div class="vc-bottom">
+                                <div class="vc-name">
+                                    <label>Card Holder</label>
+                                    <span>{{ creditCard.name || 'Your Name' }}</span>
+                                </div>
+                                <div class="vc-expiry">
+                                    <label>Expires</label>
+                                    <span>{{ creditCard.expiry || 'MM/YY' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-form">
+                            <div class="form-group full">
+                                <label>Cardholder Name</label>
+                                <input type="text" [(ngModel)]="creditCard.name" placeholder="John Doe">
+                            </div>
+                            <div class="form-group full">
+                                <label>Card Number</label>
+                                <div class="input-with-icon">
+                                    <i class="ri-bank-card-line"></i>
+                                    <input type="text" [(ngModel)]="creditCard.number" placeholder="4242 •••• •••• ••••"
+                                        maxlength="19">
+                                </div>
+                            </div>
+                            <div class="form-row-multi">
+                                <div class="form-group">
+                                    <label>Expiry (MM/YY)</label>
+                                    <input type="text" [(ngModel)]="creditCard.expiry" placeholder="12/28"
+                                        maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>CVV</label>
+                                    <input type="password" [(ngModel)]="creditCard.cvv" placeholder="•••" maxlength="4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address Recap -->
+                    <div class="recap-address">
+                        <div class="recap-block">
+                            <h4><i class="ri-map-pin-line"></i> Ships to</h4>
+                            <p>{{ shippingAddress.firstName }} {{ shippingAddress.lastName }}</p>
+                            <p>{{ shippingAddress.streetAddress }}<span *ngIf="shippingAddress.apartmentSuite">, {{
+                                    shippingAddress.apartmentSuite }}</span></p>
+                            <p>{{ shippingAddress.city }}, {{ shippingAddress.state }}, {{ shippingAddress.country }}
+                            </p>
+                            <p>📞 {{ shippingAddress.phoneNumber }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Security Notice -->
+                    <div class="security-notice">
+                        <i class="ri-lock-2-line"></i>
+                        <span>Your payment is processed securely. We never store card details.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── STEP 4: Success ── -->
+            <div class="success-section" *ngIf="currentStep === 4 && checkoutSuccess">
+                <div class="success-animation">
+                    <div class="success-circle">
+                        <i class="ri-checkbox-circle-line"></i>
+                    </div>
+                </div>
+                <h2>Order Placed Successfully! 🎉</h2>
+                <p>Thank you for your order. We'll start preparing it right away.</p>
+                <div class="success-details">
+                    <div class="detail-row">
+                        <span>Order Number</span>
+                        <strong>#{{ checkoutSuccess.orderNumber }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Payment Gateway</span>
+                        <strong>{{ checkoutSuccess.gatewayUsed || 'Standard' }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Status</span>
+                        <strong class="status-badge">{{ checkoutSuccess.status }}</strong>
+                    </div>
+                    <div class="detail-row" *ngIf="checkoutSuccess.externalTransactionId">
+                        <span>Transaction ID</span>
+                        <strong>{{ checkoutSuccess.externalTransactionId }}</strong>
+                    </div>
+                </div>
+                <button class="btn-continue-shop" (click)="closeCheckout()" routerLink="/catalog">
+                    <i class="ri-store-2-line"></i> Continue Shopping
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Footer with Actions -->
+        <div class="modal-footer" *ngIf="currentStep < 4">
+            <button class="btn-back" (click)="prevStep()" *ngIf="currentStep > 1">
+                <i class="ri-arrow-left-line"></i> Back
+            </button>
+            <div class="footer-spacer" *ngIf="currentStep === 1"></div>
+
+            <!-- Steps 1 & 2: Next -->
+            <button class="btn-next" (click)="nextStep()" *ngIf="currentStep < 3">
+                Continue <i class="ri-arrow-right-line"></i>
+            </button>
+
+            <!-- Step 3: Place Order -->
+            <button class="btn-place-order" (click)="placeOrder()" *ngIf="currentStep === 3" [disabled]="isCheckingOut">
+                <span *ngIf="!isCheckingOut">
+                    <i class="ri-secure-payment-line"></i> Place Order
+                </span>
+                <span *ngIf="isCheckingOut">
+                    <i class="ri-loader-4-line spin"></i> Processing...
+                </span>
+            </button>
+        </div>
+    </div>
+</div>

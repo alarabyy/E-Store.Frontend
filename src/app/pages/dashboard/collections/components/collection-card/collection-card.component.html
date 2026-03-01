@@ -1,0 +1,50 @@
+<div class="collection-card" [class.inactive]="!collection.isActive">
+    <div class="card-image">
+        <img [src]="collection.imageUrl | url" [alt]="collection.name"
+            onerror="this.onerror=null;this.src='https://placehold.co/600x400/f1f5f9/64748b?text=Image+Not+Found'">
+
+        <div class="card-overlay">
+            <div class="badge primary" *ngIf="collection.products && collection.products.length > 0">
+                {{ collection.products.length }} Products
+            </div>
+            <div class="badge promo"
+                *ngIf="collection.priceNow && collection.originalPrice && collection.priceNow < collection.originalPrice">
+                SALE
+            </div>
+            <div class="badge inactive" *ngIf="!collection.isActive">Inactive</div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="body-header">
+            <h3 class="name">{{ collection.name }}</h3>
+            <span class="order-tag">#{{ collection.displayOrder }}</span>
+        </div>
+        <p class="slug">/{{ collection.slug }}</p>
+        <div class="price-display" *ngIf="collection.priceNow">
+            <span class="curr">${{ collection.priceNow | number:'1.2-2' }}</span>
+            <span class="old" *ngIf="collection.originalPrice && collection.originalPrice > collection.priceNow">
+                ${{ collection.originalPrice | number:'1.2-2' }}
+            </span>
+        </div>
+        <p class="desc">{{ collection.description || 'No description provided' }}</p>
+
+        <div class="card-actions">
+            <button class="btn-action products" (click)="manageProducts.emit(collection)" title="Manage Products">
+                <i class="ri-links-line"></i> Manage Products
+            </button>
+            <div class="right-actions">
+                <a [routerLink]="['/collections', collection.slug]" target="_blank" class="btn-icon preview"
+                    title="View on Storefront">
+                    <i class="ri-external-link-line"></i>
+                </a>
+                <button class="btn-icon edit" (click)="$event.stopPropagation(); edit.emit(collection)" title="Edit">
+                    <i class="ri-edit-line"></i>
+                </button>
+                <button class="btn-icon delete" (click)="$event.stopPropagation(); delete.emit(collection.id)"
+                    title="Delete">
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
