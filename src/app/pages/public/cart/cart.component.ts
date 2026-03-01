@@ -37,6 +37,7 @@ export class CartComponent implements OnInit {
     isCheckingOut = false;
     checkoutSuccess: any = null;
     currentStep = 1; // 1: Shipping, 2: Billing, 3: Payment
+    showErrors = false;
 
     shippingAddress: AddressForm = this.emptyAddress();
     billingAddress: AddressForm = this.emptyAddress();
@@ -116,9 +117,10 @@ export class CartComponent implements OnInit {
     }
 
     nextStep() {
+        this.showErrors = true;
         if (this.currentStep === 1) {
             if (!this.validateAddress(this.shippingAddress)) {
-                this.toastService.error('Please fill in all required shipping fields');
+                this.toastService.error('Please fill in all required shipping fields correctly.');
                 return;
             }
             if (this.sameAsShipping) {
@@ -127,23 +129,86 @@ export class CartComponent implements OnInit {
         }
         if (this.currentStep === 2 && !this.sameAsShipping) {
             if (!this.validateAddress(this.billingAddress)) {
-                this.toastService.error('Please fill in all required billing fields');
+                this.toastService.error('Please fill in all required billing fields correctly.');
                 return;
             }
         }
+        this.showErrors = false;
         this.currentStep++;
     }
 
     prevStep() {
-        if (this.currentStep > 1) this.currentStep--;
+        if (this.currentStep > 1) {
+            this.currentStep--;
+            this.showErrors = false;
+        }
     }
 
-    private validateAddress(addr: AddressForm): boolean {
-        return !!(addr.firstName && addr.lastName && addr.streetAddress &&
-            addr.city && addr.state && addr.country && addr.phoneNumber);
+    validateAddress(addr: AddressForm): boolean {
+        const phoneRegex = /^[+0-9\s-]{8,20}$/;
+        return !!(
+            addr.firstName?.trim() &&
+            addr.lastName?.trim() &&
+            addr.streetAddress?.trim() &&
+            addr.city?.trim() &&
+            addr.state?.trim() &&
+            addr.country?.trim() &&
+            addr.phoneNumber?.trim() &&
+            phoneRegex.test(addr.phoneNumber.trim())
+        );
+    }
+
+    validateCard(): boolean {
+        const nr = this.creditCard.number.replace(/\s/g, '');
+        if (nr.length < 15 || nr.length > 16 || !/^\d+$/.test(nr)) return false;
+        if (!this.creditCard.name?.trim()) return false;
+        if (!/^\d{2}\/\d{2}$/.test(this.creditCard.expiry)) return false;
+        if (!/^\d{3,4}$/.test(this.creditCard.cvv)) return false;
+        return true;
+    }
+
+    formatCardNumber(event: any) {
+        let val = event.target.value.replace(/\D/g, '');
+        let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+        this.creditCard.number = formatted;
+        event.target.value = formatted;
+    }
+
+    formatExpiry(event: any) {
+        let val = event.target.value.replace(/\D/g, '');
+        if (val.length >= 2) {
+            val = val.substring(0, 2) + '/' + val.substring(2, 4);
+        }
+        this.creditCard.expiry = val;
+        event.target.value = val;
+    }
+
+    formatCVV(event: any) {
+        let val = event.target.value.replace(/\D/g, '');
+        this.creditCard.cvv = val;
+        event.target.value = val;
+    }
+
+    isInvalidCardNumber(): boolean {
+        const nr = this.creditCard.number.replace(/\s/g, '');
+        return nr.length < 15 || nr.length > 16 || !/^\d+$/.test(nr);
+    }
+
+    isInvalidExpiry(): boolean {
+        return !/^\d{2}\/\d{2}$/.test(this.creditCard.expiry);
+    }
+
+    isInvalidCVV(): boolean {
+        return !/^\d{3,4}$/.test(this.creditCard.cvv);
     }
 
     async placeOrder() {
+        this.showErrors = true;
+        if (!this.validateCard()) {
+            this.toastService.error('Please enter valid credit card details.');
+            return;
+        }
+
         const billing = this.sameAsShipping ? this.shippingAddress : this.billingAddress;
 
         this.isCheckingOut = true;

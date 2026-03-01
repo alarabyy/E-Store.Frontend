@@ -43,9 +43,12 @@
                 </span>
             </div>
             <div class="p-actions-bottom">
-                <button class="btn-quick-add" (click)="addToCart($event)" title="Add to Cart">
-                    <i class="ri-shopping-basket-line"></i>
-                    <span>Add to Cart</span>
+                <button class="btn-quick-add" [class.is-adding]="isAddingToCart" [class.is-added]="cartAdded"
+                    (click)="addToCart($event)" [disabled]="isAddingToCart || cartAdded" title="Add to Cart">
+                    <i class="ri-shopping-basket-line" *ngIf="!isAddingToCart && !cartAdded"></i>
+                    <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart"></i>
+                    <i class="ri-check-line" *ngIf="cartAdded"></i>
+                    <span>{{ cartAdded ? 'Added' : (isAddingToCart ? 'Adding' : 'Add to Cart') }}</span>
                 </button>
                 <button class="btn-details" [routerLink]="['/product', product.slug]" [state]="{ product: product }"
                     title="View Details">

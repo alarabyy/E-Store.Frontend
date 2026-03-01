@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,14 +9,15 @@ import { CategoryWithProductsDto } from './models/catalog.model';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { Product as PublicProduct } from './models/product.model';
 import { ProductCardComponent } from '../../../components/product-card/product-card.component';
-import { ToastService } from '../../../core/services/toast.service';
 import { LoaderComponent } from '../../../components/loader/loader.component';
+import { ToastService } from '../../../core/services/toast.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { AutoScrollDirective } from '../../../core/directives/auto-scroll.directive';
 
 @Component({
     selector: 'app-catalog',
     standalone: true,
-    imports: [CommonModule, RouterLink, UrlPipe, FormsModule, ProductCardComponent, LoaderComponent],
+    imports: [CommonModule, RouterLink, UrlPipe, FormsModule, ProductCardComponent, LoaderComponent, AutoScrollDirective],
     templateUrl: './catalog.component.html',
     styleUrls: ['./catalog.component.scss']
 })
@@ -26,6 +27,7 @@ export class CatalogComponent implements OnInit {
     productService = inject(ProductService);
     toastService = inject(ToastService);
     seoService = inject(SeoService);
+    private cdr = inject(ChangeDetectorRef);
 
     catalogSections: CategoryWithProductsDto[] = [];
     isLoading = true;
@@ -52,6 +54,17 @@ export class CatalogComponent implements OnInit {
     selectedProductForReview: PublicProduct | null = null;
     isSubmittingReview = false;
     newReview = { rating: 5, title: '', comment: '' };
+
+    // Quick View State
+    isQuickViewOpen = false;
+    isLoadingProduct = false;
+    quickViewProduct: PublicProduct | null = null;
+    activeImage: string = '';
+    quantity: number = 1;
+    selectedVariant: any = null;
+
+    // Skeletons
+    skeletonArray = [1, 2, 3, 4, 5, 6, 7, 8];
 
     ngOnInit() {
         this.seoService.setSeoData({
@@ -423,5 +436,99 @@ export class CatalogComponent implements OnInit {
                 }
             }
         });
+    }
+
+    // ── Quick View Methods ──────────────────────────────────────────────────
+    openQuickView(event: Event, product: PublicProduct) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.isQuickViewOpen = true;
+        this.isLoadingProduct = true;
+
+        this.productService.getProductBySlug(product.slug).subscribe({
+            next: (res) => {
+                if (res.isSuccess && res.data) {
+                    this.quickViewProduct = res.data;
+                    this.activeImage = res.data.imageUrl;
+                    if (res.data.variants && res.data.variants.length > 0) {
+                        this.selectedVariant = res.data.variants[0];
+                    }
+                }
+                this.isLoadingProduct = false;
+            },
+            error: () => {
+                this.isLoadingProduct = false;
+                this.toastService.error('Failed to load product details.');
+                this.closeQuickView();
+            }
+        });
+    }
+
+    closeQuickView() {
+        this.isQuickViewOpen = false;
+        this.isLoadingProduct = false;
+        this.quickViewProduct = null;
+        this.quantity = 1;
+        this.selectedVariant = null;
+    }
+
+    setActiveImage(img: string) {
+        this.activeImage = img;
+    }
+
+    selectVariant(variant: any) {
+        this.selectedVariant = variant;
+        if (variant.imageUrl) {
+            this.activeImage = variant.imageUrl;
+        }
+    }
+
+    addQuickToCart() {
+        if (!this.quickViewProduct) return;
+
+        this.cartService.addToCart({
+            id: this.quickViewProduct.id,
+            name: this.quickViewProduct.name,
+            price: this.selectedVariant ? (this.selectedVariant.salePrice || this.selectedVariant.price) : this.quickViewProduct.minPrice,
+            image: this.selectedVariant?.imageUrl || this.quickViewProduct.imageUrl,
+            variantId: this.selectedVariant?.id
+        }, this.quantity);
+        this.toastService.success('Added to cart!');
+        this.closeQuickView();
+    }
+
+    get originalPrice(): number | null {
+        if (!this.quickViewProduct) return null;
+        if (this.quickViewProduct.discountPercentage && this.quickViewProduct.discountPercentage > 0) {
+            return this.quickViewProduct.minPrice / (1 - this.quickViewProduct.discountPercentage / 100);
+        }
+        if (this.quickViewProduct.maxPrice > this.quickViewProduct.minPrice) {
+            return this.quickViewProduct.maxPrice;
+        }
+        return null;
+    }
+
+    scrollContainer(element: HTMLElement, direction: number) {
+        if (element && element.firstElementChild) {
+            const cardWidth = (element.firstElementChild as HTMLElement).offsetWidth;
+            const gap = 24; // Approx 1.5rem gap
+            const scrollAmount = (cardWidth + gap) * direction;
+            element.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+
+            // Force UI update after smooth scroll finishes
+            setTimeout(() => this.cdr.detectChanges(), 400);
+        }
+    }
+
+    canScrollLeft(element: HTMLElement): boolean {
+        if (!element) return false;
+        return element.scrollLeft > 0;
+    }
+
+    canScrollRight(element: HTMLElement): boolean {
+        if (!element) return false;
+        // The -1 accounts for sub-pixel rounding
+        return element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
     }
 }

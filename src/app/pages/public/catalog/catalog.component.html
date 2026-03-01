@@ -38,9 +38,48 @@
         </div>
     </header>
 
-    <!-- Loader -->
-    <app-loader [show]="isLoading"></app-loader>
+    <!-- ══════════════════════════════════════════════════════
+         SKELETON LOADER
+    ══════════════════════════════════════════════════════ -->
+    <div class="catalog-layout loading-state" *ngIf="isLoading" id="catalog-content">
+        <!-- Skeleton Pills -->
+        <div class="category-pills-wrapper">
+            <div class="filter-categories-scroll">
+                <div class="skel-pill" *ngFor="let i of [1,2,3,4,5,6]"></div>
+            </div>
+        </div>
 
+        <div class="skeleton-toolbar">
+            <div class="skel-box small"></div>
+            <div class="skel-box small"></div>
+        </div>
+
+        <div class="sections-wrap">
+            <section class="catalog-section">
+                <div class="section-head skeleton-head">
+                    <div class="skel-box skel-icon"></div>
+                    <div>
+                        <div class="skel-text title"></div>
+                        <div class="skel-text sub"></div>
+                    </div>
+                </div>
+                <div class="products-grid">
+                    <div class="skeleton-card" *ngFor="let i of skeletonArray">
+                        <div class="skel-img"></div>
+                        <div class="skel-content">
+                            <div class="skel-text cat"></div>
+                            <div class="skel-text title"></div>
+                            <div class="skel-text stars"></div>
+                            <div class="skel-footer">
+                                <div class="skel-text price"></div>
+                                <div class="skel-box btn"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
     <!-- ══════════════════════════════════════════════════════
          MAIN LAYOUT: Content Only
     ══════════════════════════════════════════════════════ -->
@@ -274,10 +313,22 @@
                     </div>
 
                     <!-- Products -->
-                    <div class="products-grid" [class.list-view]="viewMode === 'list'">
-                        <app-product-card *ngFor="let product of section.products; let pi = index" [product]="product"
-                            [categoryName]="section.name" [style.animation-delay]="(si * 0.08) + (pi * 0.05) + 's'">
-                        </app-product-card>
+                    <div class="carousel-container">
+                        <button class="nav-btn left" (click)="scrollContainer(catScroll, -1)"
+                            [class.disabled]="!canScrollLeft(catScroll)" *ngIf="viewMode !== 'list'">
+                            <i class="ri-arrow-left-s-line"></i>
+                        </button>
+                        <div class="products-grid" [class.list-view]="viewMode === 'list'"
+                            [class.scrollable]="viewMode !== 'list'" #catScroll appAutoScroll (scroll)="0">
+                            <app-product-card *ngFor="let product of section.products; let pi = index"
+                                [product]="product" [categoryName]="section.name"
+                                [style.animation-delay]="(si * 0.08) + (pi * 0.05) + 's'">
+                            </app-product-card>
+                        </div>
+                        <button class="nav-btn right" (click)="scrollContainer(catScroll, 1)"
+                            [class.disabled]="!canScrollRight(catScroll)" *ngIf="viewMode !== 'list'">
+                            <i class="ri-arrow-right-s-line"></i>
+                        </button>
                     </div>
 
                     <!-- Section Footer -->
@@ -421,14 +472,36 @@
                                 <a class="fp-item" *ngFor="let p of currentBookSpread.left"
                                     [routerLink]="['/product', p.slug]" [state]="{ product: p }">
                                     <div class="fp-img">
+                                        <div class="fp-discount" *ngIf="p.discountPercentage">{{ p.discountPercentage
+                                            }}% OFF</div>
                                         <img [src]="p.imageUrl | url" [alt]="p.name" loading="lazy">
                                         <div class="fp-price">{{ p.minPrice | number:'1.0-0' }} EGP</div>
+
+                                        <!-- Hover Actions for Flipbook -->
+                                        <div class="fp-hover-actions">
+                                            <button class="fp-action-btn" title="Quick View"
+                                                (click)="openQuickView($event, p)">
+                                                <i class="ri-eye-line"></i>
+                                            </button>
+                                            <button class="fp-action-btn" title="Wishlist"
+                                                (click)="toggleWishlist($event, p)"
+                                                [class.active]="wishlistService.isInWishlist(p.id)">
+                                                <i
+                                                    [class]="wishlistService.isInWishlist(p.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="fp-details">
                                         <p class="fp-cat">{{ getCategoryForProduct(p) }}</p>
                                         <h5>{{ p.name }}</h5>
-                                        <button class="fp-cart" (click)="$event.preventDefault(); addToCart($event, p)">
-                                            <i class="ri-shopping-bag-line"></i> Add
+                                        <div class="fp-stars">
+                                            <i class="ri-star-fill" *ngFor="let star of [1,2,3,4,5]"
+                                                [style.color]="star <= (p.averageRating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
+                                        </div>
+                                        <button class="fp-cart" (click)="addToCart($event, p)"
+                                            [disabled]="p.totalStock === 0">
+                                            <i class="ri-shopping-bag-line"></i> {{ p.totalStock > 0 ? 'Add to Cart' :
+                                            'Out of Stock' }}
                                         </button>
                                     </div>
                                 </a>
@@ -466,14 +539,36 @@
                                 <a class="fp-item" *ngFor="let p of currentBookSpread.right"
                                     [routerLink]="['/product', p.slug]" [state]="{ product: p }">
                                     <div class="fp-img">
+                                        <div class="fp-discount" *ngIf="p.discountPercentage">{{ p.discountPercentage
+                                            }}% OFF</div>
                                         <img [src]="p.imageUrl | url" [alt]="p.name" loading="lazy">
                                         <div class="fp-price">{{ p.minPrice | number:'1.0-0' }} EGP</div>
+
+                                        <!-- Hover Actions for Flipbook -->
+                                        <div class="fp-hover-actions">
+                                            <button class="fp-action-btn" title="Quick View"
+                                                (click)="openQuickView($event, p)">
+                                                <i class="ri-eye-line"></i>
+                                            </button>
+                                            <button class="fp-action-btn" title="Wishlist"
+                                                (click)="toggleWishlist($event, p)"
+                                                [class.active]="wishlistService.isInWishlist(p.id)">
+                                                <i
+                                                    [class]="wishlistService.isInWishlist(p.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="fp-details">
                                         <p class="fp-cat">{{ getCategoryForProduct(p) }}</p>
                                         <h5>{{ p.name }}</h5>
-                                        <button class="fp-cart" (click)="$event.preventDefault(); addToCart($event, p)">
-                                            <i class="ri-shopping-bag-line"></i> Add
+                                        <div class="fp-stars">
+                                            <i class="ri-star-fill" *ngFor="let star of [1,2,3,4,5]"
+                                                [style.color]="star <= (p.averageRating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
+                                        </div>
+                                        <button class="fp-cart" (click)="addToCart($event, p)"
+                                            [disabled]="p.totalStock === 0">
+                                            <i class="ri-shopping-bag-line"></i> {{ p.totalStock > 0 ? 'Add to Cart' :
+                                            'Out of Stock' }}
                                         </button>
                                     </div>
                                 </a>
@@ -554,6 +649,109 @@
         </div>
 
     </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         QUICK VIEW MODAL (Catalog Level)
+    ══════════════════════════════════════════════════════ -->
+    <div class="qv-host" *ngIf="isQuickViewOpen">
+        <div class="qv-overlay-backdrop" (click)="closeQuickView()"></div>
+        <div class="qv-modal" (click)="$event.stopPropagation()">
+            <button class="close-btn" (click)="closeQuickView()">
+                <i class="ri-close-line"></i>
+            </button>
+
+            <div class="qv-loading" *ngIf="isLoadingProduct">
+                <div class="loader"></div>
+                <p>Loading Product Details...</p>
+            </div>
+
+            <div class="qv-content" *ngIf="!isLoadingProduct && quickViewProduct">
+                <!-- Left: Gallery -->
+                <div class="qv-gallery">
+                    <div class="main-image">
+                        <img [src]="activeImage | url" [alt]="quickViewProduct.name">
+                    </div>
+                    <div class="thumbnails"
+                        *ngIf="quickViewProduct.imagesList && quickViewProduct.imagesList.length > 1">
+                        <div class="thumb" *ngFor="let img of quickViewProduct.imagesList"
+                            [class.active]="activeImage === img" (click)="setActiveImage(img)">
+                            <img [src]="img | url">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Details -->
+                <div class="qv-details">
+                    <div class="qv-header">
+                        <span class="qv-category-badge">{{ quickViewProduct.categoryName }}</span>
+                        <h2 class="qv-title">{{ quickViewProduct.name }}</h2>
+                        <div class="qv-rating-row">
+                            <div class="stars">
+                                <i class="ri-star-fill" *ngFor="let i of [1,2,3,4,5]"
+                                    [style.color]="i <= quickViewProduct.averageRating ? '#f59e0b' : '#e2e8f0'"></i>
+                            </div>
+                            <span class="count">({{ quickViewProduct.reviewCount }} reviews)</span>
+                            <span class="sold-count" *ngIf="quickViewProduct.totalSold > 0">
+                                <i class="ri-fire-line"></i> {{ quickViewProduct.totalSold }} sold
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="qv-price-box">
+                        <div class="price-main">
+                            <span class="current">
+                                {{ (selectedVariant ? (selectedVariant.salePrice || selectedVariant.price) :
+                                quickViewProduct.minPrice) | number:'1.0-0' }}
+                                <small>EGP</small>
+                            </span>
+                            <span class="old" *ngIf="selectedVariant?.salePrice || quickViewProduct.discountPercentage">
+                                {{ (selectedVariant?.salePrice ? selectedVariant.price : originalPrice) | number:'1.0-0'
+                                }}
+                            </span>
+                        </div>
+                        <div class="stock-status" [class.out]="quickViewProduct.totalStock === 0">
+                            <i
+                                [class]="quickViewProduct.totalStock > 0 ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'"></i>
+                            {{ quickViewProduct.totalStock > 0 ? 'In Stock' : 'Out of Stock' }}
+                        </div>
+                    </div>
+
+                    <p class="qv-summary">{{ quickViewProduct.summary || quickViewProduct.description }}</p>
+
+                    <!-- Variants -->
+                    <div class="qv-variants" *ngIf="quickViewProduct.variants && quickViewProduct.variants.length > 0">
+                        <label>Available Options</label>
+                        <div class="v-grid">
+                            <div class="v-pill" *ngFor="let v of quickViewProduct.variants"
+                                [class.active]="selectedVariant?.id === v.id" (click)="selectVariant(v)">
+                                <img [src]="v.imageUrl | url" *ngIf="v.imageUrl" class="v-img">
+                                <span>{{ v.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="qv-footer">
+                        <div class="qty-selector">
+                            <button (click)="quantity = quantity > 1 ? quantity - 1 : 1">-</button>
+                            <input type="number" [(ngModel)]="quantity" readonly>
+                            <button (click)="quantity = quantity + 1">+</button>
+                        </div>
+                        <button class="btn-add-main" (click)="addQuickToCart()"
+                            [disabled]="quickViewProduct.totalStock === 0">
+                            <i class="ri-shopping-basket-line"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+
+                    <a [routerLink]="['/product', quickViewProduct.slug]" (click)="closeQuickView()"
+                        class="full-details-link">
+                        View Full Product Details <i class="ri-arrow-right-line"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 </div>

@@ -175,14 +175,13 @@ $light: #e2e8f0;
 
     .filter-categories-scroll {
         display: flex;
-        gap: 10px;
-        overflow-x: auto;
+        flex-wrap: wrap;
+        gap: 12px;
         padding-bottom: 8px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        justify-content: flex-start;
 
-        &::-webkit-scrollbar {
-            display: none;
+        @media (max-width: 768px) {
+            gap: 8px;
         }
 
         .cat-pill {
@@ -809,11 +808,107 @@ $light: #e2e8f0;
     }
 }
 
-// ═══════ PRODUCTS GRID ═══════
+// ═══════ CAROUSEL & PRODUCTS GRID ═══════
+.carousel-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    .nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: $white;
+        border: 1px solid $light;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s;
+        color: $navy;
+
+        i {
+            font-size: 1.5rem;
+        }
+
+        &:hover {
+            background: $gold;
+            color: $white;
+            border-color: $gold;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        &.left {
+            left: -20px;
+        }
+
+        &.right {
+            right: -20px;
+        }
+
+        &.disabled {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) scale(0.8);
+        }
+
+        @media (max-width: 1024px) {
+            width: 36px;
+            height: 36px;
+            top: -40px;
+            transform: none;
+
+            &.left {
+                left: auto;
+                right: 50px;
+            }
+
+            &.right {
+                right: 0;
+            }
+        }
+    }
+}
+
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
+
+    &.scrollable {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        padding-bottom: 20px;
+        padding-top: 10px;
+        padding-left: 2px;
+        padding-right: 2px;
+        -webkit-overflow-scrolling: touch;
+        gap: 1.5rem;
+
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        app-product-card {
+            scroll-snap-align: start;
+            flex: 0 0 310px;
+
+            @media (max-width: 768px) {
+                flex: 0 0 72vw;
+            }
+        }
+    }
 
     &.list-view {
         grid-template-columns: 1fr;
@@ -2325,5 +2420,636 @@ $cvr-gold-d: $gold-shine;
             order: -1;
             margin-bottom: .5rem;
         }
+    }
+}
+
+// ═══════ HOVER ACTIONS IN FLIPBOOK ═══════
+.fp-item {
+    position: relative;
+    overflow: hidden;
+
+    .fp-discount {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: $navy;
+        color: $white;
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba($white, 0.2);
+    }
+
+    .fp-hover-actions {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transform: translateX(30px);
+        opacity: 0;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .fp-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba($white, 0.9);
+            color: $navy;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.25s;
+            backdrop-filter: blur(4px);
+
+            i {
+                font-size: 1.1rem;
+            }
+
+            &:hover,
+            &.active {
+                background: $gold;
+                color: $white;
+                transform: scale(1.1);
+            }
+        }
+    }
+
+    &:hover .fp-hover-actions {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .fp-stars {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 6px;
+
+        i {
+            font-size: 0.85rem;
+        }
+    }
+}
+
+// ═══════ QUICK VIEW MODAL ═══════
+.qv-host {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .qv-overlay-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba($navy, 0.6);
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .qv-modal {
+        position: relative;
+        width: 90%;
+        max-width: 950px;
+        background: $white;
+        border-radius: 24px;
+        display: flex;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+        animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        max-height: 90vh;
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba($navy, 0.05);
+            color: $navy;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+
+            &:hover {
+                background: #ef4444;
+                color: $white;
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            flex-direction: column;
+            overflow-y: auto;
+        }
+    }
+
+    .qv-loading {
+        padding: 4rem;
+        text-align: center;
+        width: 100%;
+        color: $mid;
+        font-weight: 600;
+    }
+
+    .qv-content {
+        display: flex;
+        width: 100%;
+
+        @media(max-width:768px) {
+            flex-direction: column;
+        }
+    }
+
+    .qv-gallery {
+        flex: 1;
+        background: #f8fafc;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        border-right: 1px solid $light;
+
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 16px;
+            overflow: hidden;
+            background: $white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid $light;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .thumbnails {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+
+            .thumb {
+                width: 60px;
+                height: 60px;
+                border-radius: 8px;
+                overflow: hidden;
+                cursor: pointer;
+                border: 2px solid transparent;
+                opacity: 0.6;
+                transition: all 0.25s;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                &:hover,
+                &.active {
+                    opacity: 1;
+                    border-color: $gold;
+                }
+            }
+        }
+    }
+
+    .qv-details {
+        flex: 1;
+        padding: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        overflow-y: auto;
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: $light;
+            border-radius: 5px;
+        }
+
+        .qv-category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba($gold, 0.1);
+            color: $gold-d;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .qv-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: $navy;
+            line-height: 1.1;
+            margin-top: 5px;
+        }
+
+        .qv-rating-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: $mid;
+
+            .stars {
+                display: flex;
+                gap: 2px;
+
+                i {
+                    font-size: 1.1rem;
+                }
+            }
+
+            .sold-count {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                color: #ef4444;
+                font-weight: 700;
+
+                i {
+                    font-size: 1.1rem;
+                }
+            }
+        }
+
+        .qv-price-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid $light;
+
+            .price-main {
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+
+                .current {
+                    font-size: 1.8rem;
+                    font-weight: 900;
+                    color: $navy;
+
+                    small {
+                        font-size: 1rem;
+                        color: $mid;
+                    }
+                }
+
+                .old {
+                    font-size: 1.1rem;
+                    color: $mid;
+                    text-decoration: line-through;
+                }
+            }
+
+            .stock-status {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: #10b981;
+                font-weight: 700;
+                font-size: 0.95rem;
+                background: rgba(16, 185, 129, 0.1);
+                padding: 6px 12px;
+                border-radius: 50px;
+
+                &.out {
+                    color: #ef4444;
+                    background: rgba(239, 68, 68, 0.1);
+                }
+            }
+        }
+
+        .qv-summary {
+            color: $mid;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .qv-variants {
+            label {
+                display: block;
+                font-weight: 700;
+                color: $navy;
+                margin-bottom: 10px;
+                font-size: 0.9rem;
+            }
+
+            .v-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+
+                .v-pill {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 14px;
+                    border: 1.5px solid $light;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    transition: all 0.25s;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    color: $navy;
+
+                    .v-img {
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                    }
+
+                    &:hover {
+                        border-color: $gold;
+                        background: rgba($gold, 0.05);
+                    }
+
+                    &.active {
+                        border-color: $gold;
+                        background: $gold;
+                        color: $white;
+                    }
+                }
+            }
+        }
+
+        .qv-footer {
+            display: flex;
+            gap: 1rem;
+            margin-top: auto;
+            padding-top: 1rem;
+
+            .qty-selector {
+                display: flex;
+                align-items: center;
+                background: #f8fafc;
+                border: 1.5px solid $light;
+                border-radius: 12px;
+
+                button {
+                    width: 40px;
+                    height: 48px;
+                    border: none;
+                    background: transparent;
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                    color: $navy;
+
+                    &:hover {
+                        color: $gold;
+                    }
+                }
+
+                input {
+                    width: 40px;
+                    text-align: center;
+                    border: none;
+                    background: transparent;
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    pointer-events: none;
+                }
+            }
+
+            .btn-add-main {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                border: none;
+                background: $navy;
+                color: $white;
+                border-radius: 12px;
+                font-size: 1.05rem;
+                font-weight: 800;
+                cursor: pointer;
+                transition: all 0.3s;
+
+                i {
+                    font-size: 1.3rem;
+                }
+
+                &:hover {
+                    background: $gold;
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 25px rgba($gold, 0.4);
+                }
+
+                &:disabled {
+                    background: $light;
+                    color: $mid;
+                    cursor: not-allowed;
+                    transform: none;
+                    box-shadow: none;
+                }
+            }
+        }
+
+        .full-details-link {
+            text-align: center;
+            color: $gold-d;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: color 0.2s;
+
+            &:hover {
+                color: $navy;
+            }
+        }
+    }
+}
+
+// ═══════ SKELETON LOADER ═══════
+.loading-state {
+    .skel-pill {
+        width: 100px;
+        height: 38px;
+        border-radius: 50px;
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: shimmerSkel 1.5s infinite linear;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .skeleton-toolbar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding: 12px 18px;
+        background: $white;
+        border-radius: 14px;
+        border: 1px solid $light;
+
+        .skel-box {
+            height: 24px;
+            width: 120px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmerSkel 1.5s infinite linear;
+        }
+    }
+
+    .skeleton-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border: none;
+
+        .skel-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+        }
+
+        .title {
+            width: 200px;
+            height: 24px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+
+        .sub {
+            width: 120px;
+            height: 16px;
+            border-radius: 4px;
+        }
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .skeleton-card {
+        background: $white;
+        border-radius: 20px;
+        padding: 12px;
+        border: 1px solid $light;
+
+        .skel-img {
+            width: 100%;
+            aspect-ratio: 4/5;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmerSkel 1.5s infinite linear;
+            margin-bottom: 1rem;
+        }
+
+        .skel-content {
+            padding: 0 10px;
+
+            .cat {
+                width: 60%;
+                height: 12px;
+                border-radius: 4px;
+                margin-bottom: 8px;
+            }
+
+            .title {
+                width: 90%;
+                height: 18px;
+                border-radius: 4px;
+                margin-bottom: 8px;
+            }
+
+            .stars {
+                width: 40%;
+                height: 14px;
+                border-radius: 4px;
+                margin-bottom: 1.5rem;
+            }
+
+            .skel-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .price {
+                width: 40%;
+                height: 20px;
+                border-radius: 4px;
+            }
+
+            .btn {
+                width: 36px;
+                height: 36px;
+                border-radius: 12px;
+            }
+        }
+
+        .skel-img,
+        .cat,
+        .title,
+        .stars,
+        .price,
+        .btn,
+        .skel-icon {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmerSkel 1.5s infinite linear;
+        }
+    }
+}
+
+@keyframes shimmerSkel {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes scaleUp {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }

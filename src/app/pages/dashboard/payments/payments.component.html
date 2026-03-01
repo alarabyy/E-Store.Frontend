@@ -8,7 +8,7 @@
             <button class="btn-secondary" (click)="onRefresh()" title="Refresh List">
                 <i class="ri-refresh-line"></i>
             </button>
-            <button class="btn-primary" (click)="onCreateGateway()">
+            <button class="btn-primary" (click)="openCreateModal()">
                 <i class="ri-add-line"></i>
                 Add New Gateway
             </button>
@@ -68,7 +68,7 @@
                         <td>
                             <div class="gateway-cell">
                                 <div class="icon"><i class="ri-bank-line"></i></div>
-                                <span>{{ g.name }}</span>
+                                <span>{{ getGatewayName(g.name) }}</span>
                             </div>
                         </td>
                         <td>
@@ -91,7 +91,10 @@
                         </td>
                         <td class="text-right">
                             <div class="action-buttons">
-                                <button class="btn-icon" title="Configure"><i class="ri-settings-4-line"></i></button>
+                                <button class="btn-icon" title="Edit Gateway" (click)="openEditModal(g)"><i
+                                        class="ri-edit-line"></i></button>
+                                <button class="btn-icon" title="Configure Credentials"
+                                    (click)="openCredentialsModal(g)"><i class="ri-key-2-line"></i></button>
                                 <button class="btn-icon-toggle" [class.active]="g.isActive" (click)="toggleGateway(g)"
                                     [title]="g.isActive ? 'Disable Gateway' : 'Enable Gateway'">
                                     <i [class]="g.isActive ? 'ri-toggle-fill' : 'ri-toggle-line'"></i>
@@ -110,7 +113,7 @@
                     <div class="name-group">
                         <div class="icon"><i class="ri-bank-line"></i></div>
                         <div class="details">
-                            <span class="name-text">{{ g.name }}</span>
+                            <span class="name-text">{{ getGatewayName(g.name) }}</span>
                             <span class="env-text">{{ g.environment === GatewayEnvironment.Production ? 'Production' :
                                 'Sandbox' }}</span>
                         </div>
@@ -143,6 +146,104 @@
         <!-- Loading Skeleton -->
         <div *ngIf="isLoading" class="loading-state">
             <div class="skeleton-row" *ngFor="let i of [1,2,3]"></div>
+        </div>
+    </div>
+
+    <!-- Gateway Create / Edit Modal -->
+    <div class="modal-overlay" *ngIf="isGatewayModalOpen" (click)="closeGatewayModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ editingGatewayId ? 'Edit Gateway' : 'Add New Gateway' }}</h2>
+                <button class="close-btn" (click)="closeGatewayModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="gatewayForm" (ngSubmit)="saveGateway()">
+                    <div class="form-group">
+                        <label>Gateway Name</label>
+                        <select formControlName="name" class="form-control">
+                            <option *ngFor="let g of gatewayTypes" [value]="g.id">{{ g.name }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <input type="number" formControlName="priority" class="form-control" min="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Weight</label>
+                            <input type="number" formControlName="weight" class="form-control" min="0" max="100" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Environment</label>
+                        <select formControlName="environment" class="form-control">
+                            <option [value]="GatewayEnvironment.Sandbox">Sandbox</option>
+                            <option [value]="GatewayEnvironment.Production">Production</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Supported Currencies (comma separated)</label>
+                        <input type="text" formControlName="supportedCurrencies" placeholder="USD, EUR"
+                            class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Supported Countries (comma separated)</label>
+                        <input type="text" formControlName="supportedCountries" placeholder="US, EG, GB"
+                            class="form-control" />
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost" (click)="closeGatewayModal()">Cancel</button>
+                        <button type="submit" class="btn-primary" [disabled]="gatewayForm.invalid">
+                            {{ editingGatewayId ? 'Update' : 'Create' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credentials Modal -->
+    <div class="modal-overlay" *ngIf="isCredentialsModalOpen" (click)="closeCredentialsModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Configure {{ credentialsGatewayName }}</h2>
+                <button class="close-btn" (click)="closeCredentialsModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="subtitle">Set up your private connection credentials. These will be securely stored.</p>
+                <form [formGroup]="credentialsForm" (ngSubmit)="saveCredentials()">
+                    <div formArrayName="credentialsList" class="credentials-list">
+                        <div *ngFor="let cred of credentialControls; let i=index" [formGroupName]="i"
+                            class="credential-row">
+                            <div class="form-group">
+                                <input type="text" formControlName="key" placeholder="Key (e.g. PublicKey)"
+                                    class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" formControlName="value" placeholder="Value" class="form-control" />
+                            </div>
+                            <button type="button" class="btn-remove" (click)="removeCredentialField(i)">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-add-cred" (click)="addCredentialField()">
+                        <i class="ri-add-line"></i> Add Credential Field
+                    </button>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost" (click)="closeCredentialsModal()">Cancel</button>
+                        <button type="submit" class="btn-primary" [disabled]="credentialsForm.invalid">Save
+                            Credentials</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

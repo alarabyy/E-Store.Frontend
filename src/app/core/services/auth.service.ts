@@ -140,6 +140,23 @@ export class AuthService {
         return this.currentUserSubject.value;
     }
 
+    isTokenExpired(): boolean {
+        const token = this.getToken();
+        if (!token) return true;
+
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
+            if (!payload.exp) return false;
+
+            const expirationDate = payload.exp * 1000;
+            return Date.now() >= expirationDate;
+        } catch (e) {
+            return true;
+        }
+    }
+
     getUserRole(): string {
         const token = this.getToken();
         if (!token) return '';

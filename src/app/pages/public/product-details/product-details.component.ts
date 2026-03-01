@@ -58,6 +58,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     isAddingToCart = false;
     cartAdded = false;
 
+    // Delivery & Urgency
+    deliveryDateString = '';
+    countdownTimer = '';
+    private timerInterval: any;
+
     ngOnInit() {
         this.route.params.subscribe((params: any) => {
             const slug = params['slug'];
@@ -71,7 +76,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
-    ngOnDestroy() { }
+    ngOnDestroy() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+    }
 
     loadProduct(slug: string) {
         this.productService.getProductBySlug(slug).subscribe({
@@ -128,6 +135,32 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
         this.loadReviews();
         this.loadRelatedProducts();
+
+        // Calculate Delivery & Urgency
+        const today = new Date();
+        const deliveryMs = today.getTime() + (3 * 24 * 60 * 60 * 1000); // 3 days
+        const deliveryDate = new Date(deliveryMs);
+        this.deliveryDateString = deliveryDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+        this.startCountdown();
+    }
+
+    startCountdown() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.updateCountdown();
+        this.timerInterval = setInterval(() => {
+            this.updateCountdown();
+        }, 60000); // update every minute
+    }
+
+    updateCountdown() {
+        const now = new Date();
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        const diffMs = endOfDay.getTime() - now.getTime();
+
+        const hrs = Math.floor(diffMs / (1000 * 60 * 60));
+        const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        this.countdownTimer = `${hrs} hrs ${mins} mins`;
     }
 
     selectVariant(variant: any) {

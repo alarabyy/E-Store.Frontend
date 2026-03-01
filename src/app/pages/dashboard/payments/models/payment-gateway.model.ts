@@ -16,3 +16,11 @@ export enum GatewayEnvironment {
     Sandbox = 0,
     Production = 1
 }
+
+export enum PaymentGatewayType {
+    Stripe = 1,
+    PayPal = 2,
+    Adyen = 3,
+    Paymob = 4,
+    FawryPay = 5
+}

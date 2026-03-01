@@ -11,11 +11,12 @@ import { ProductCardComponent } from '../../../components/product-card/product-c
 import { ToastService } from '../../../core/services/toast.service';
 import { LoaderComponent } from '../../../components/loader/loader.component';
 import { SeoService } from '../../../core/services/seo.service';
+import { AutoScrollDirective } from '../../../core/directives/auto-scroll.directive';
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule, RouterLink, UrlPipe, ProductCardComponent, LoaderComponent],
+    imports: [CommonModule, RouterLink, UrlPipe, ProductCardComponent, LoaderComponent, AutoScrollDirective],
     templateUrl: './home.html',
     styleUrls: ['./home.scss']
 })
@@ -48,6 +49,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     flashToastVisible = false;
     flashOffer: any = null;
     private flashToastTimer: any;
+    private flashToastStartTime = 0;
+    private flashToastRemaining = 8000;
+    public isFlashToastPaused = false;
 
     private collectionService = inject(CollectionService);
 
@@ -183,6 +187,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Slide in after a short delay
         setTimeout(() => {
             this.flashToastVisible = true;
+            this.flashToastStartTime = Date.now();
+            this.flashToastRemaining = 8000;
             this.cdr.detectChanges();
         }, 300);
 
@@ -192,8 +198,31 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 8000);
     }
 
+    pauseFlashToast() {
+        if (this.isFlashToastPaused) return;
+        this.isFlashToastPaused = true;
+        clearTimeout(this.flashToastTimer);
+
+        // Calculate remaining time
+        const elapsed = Date.now() - this.flashToastStartTime;
+        this.flashToastRemaining -= elapsed;
+        this.cdr.detectChanges();
+    }
+
+    resumeFlashToast() {
+        if (!this.isFlashToastPaused) return;
+        this.isFlashToastPaused = false;
+        this.flashToastStartTime = Date.now();
+
+        this.flashToastTimer = setTimeout(() => {
+            this.dismissFlashToast();
+        }, this.flashToastRemaining);
+        this.cdr.detectChanges();
+    }
+
     dismissFlashToast(event?: Event) {
         if (event) event.stopPropagation();
+        clearTimeout(this.flashToastTimer);
         this.flashToastVisible = false;
         setTimeout(() => {
             this.showFlashToast = false;
@@ -318,5 +347,28 @@ export class HomeComponent implements OnInit, OnDestroy {
             case 'furnishings': return 'ri-t-shirt-2-line';
             default: return 'ri-home-line';
         }
+    }
+
+    scrollContainer(element: HTMLElement, direction: number) {
+        if (element && element.firstElementChild) {
+            const cardWidth = (element.firstElementChild as HTMLElement).offsetWidth;
+            const gap = 24; // Approx 1.5rem gap
+            const scrollAmount = (cardWidth + gap) * direction;
+            element.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+
+            // Force UI update after smooth scroll finishes
+            setTimeout(() => this.cdr.detectChanges(), 400);
+        }
+    }
+
+    canScrollLeft(element: HTMLElement): boolean {
+        if (!element) return false;
+        return element.scrollLeft > 0;
+    }
+
+    canScrollRight(element: HTMLElement): boolean {
+        if (!element) return false;
+        // The -1 accounts for sub-pixel rounding
+        return element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
     }
 }

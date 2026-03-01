@@ -84,6 +84,15 @@
                     <span>Included</span>
                 </div>
 
+                <!-- Promo Code -->
+                <div class="promo-code-box">
+                    <div class="promo-input-group">
+                        <i class="ri-coupon-3-line"></i>
+                        <input type="text" placeholder="Enter promo code">
+                        <button class="btn-apply">APPLY</button>
+                    </div>
+                </div>
+
                 <div class="summary-divider"></div>
 
                 <div class="summary-row total">
@@ -92,14 +101,11 @@
                 </div>
 
                 <button class="checkout-btn" (click)="openCheckout()">
-                    <i class="ri-secure-payment-line"></i>
-                    Proceed to Checkout
-                    <i class="ri-arrow-right-line"></i>
-                </button>
-
-                <button class="continue-btn" routerLink="/catalog">
-                    <i class="ri-arrow-left-line"></i>
-                    Continue Shopping
+                    <span class="btn-content">
+                        <i class="ri-secure-payment-line"></i>
+                        Proceed to Secure Checkout
+                    </span>
+                    <i class="ri-arrow-right-line arrow-hover"></i>
                 </button>
 
                 <!-- Trust Badges -->
@@ -172,41 +178,50 @@
             <div class="form-section" *ngIf="currentStep === 1">
                 <h3 class="section-label"><i class="ri-map-pin-2-line"></i> Shipping Address</h3>
                 <div class="form-grid">
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.firstName.trim()">
                         <label>First Name *</label>
                         <input type="text" [(ngModel)]="shippingAddress.firstName" placeholder="John">
+                        <span class="error-msg">First name is required</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.lastName.trim()">
                         <label>Last Name *</label>
                         <input type="text" [(ngModel)]="shippingAddress.lastName" placeholder="Doe">
+                        <span class="error-msg">Last name is required</span>
                     </div>
-                    <div class="form-group full">
+                    <div class="form-group full"
+                        [class.has-error]="showErrors && !shippingAddress.streetAddress.trim()">
                         <label>Street Address *</label>
                         <input type="text" [(ngModel)]="shippingAddress.streetAddress" placeholder="123 Main St">
+                        <span class="error-msg">Street address is required</span>
                     </div>
                     <div class="form-group full">
                         <label>Apartment / Suite (optional)</label>
                         <input type="text" [(ngModel)]="shippingAddress.apartmentSuite" placeholder="Apt 4B">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.city.trim()">
                         <label>City *</label>
                         <input type="text" [(ngModel)]="shippingAddress.city" placeholder="Cairo">
+                        <span class="error-msg">City is required</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.state.trim()">
                         <label>State / Governorate *</label>
                         <input type="text" [(ngModel)]="shippingAddress.state" placeholder="Cairo">
+                        <span class="error-msg">State is required</span>
                     </div>
                     <div class="form-group">
                         <label>ZIP / Postal Code</label>
                         <input type="text" [(ngModel)]="shippingAddress.zipCode" placeholder="11511">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.country.trim()">
                         <label>Country *</label>
                         <input type="text" [(ngModel)]="shippingAddress.country" placeholder="Egypt">
+                        <span class="error-msg">Country is required</span>
                     </div>
-                    <div class="form-group full">
+                    <div class="form-group full"
+                        [class.has-error]="showErrors && (!shippingAddress.phoneNumber.trim() || !shippingAddress.phoneNumber.match('^[+0-9\\\s-]{8,20}$'))">
                         <label>Phone Number *</label>
                         <input type="tel" [(ngModel)]="shippingAddress.phoneNumber" placeholder="+20 10 0000 0000">
+                        <span class="error-msg">Valid phone number is required</span>
                     </div>
                 </div>
             </div>
@@ -221,33 +236,49 @@
                     </label>
                 </div>
                 <div class="form-grid" *ngIf="!sameAsShipping">
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.firstName.trim()">
                         <label>First Name *</label>
                         <input type="text" [(ngModel)]="billingAddress.firstName" placeholder="John">
+                        <span class="error-msg">First name is required</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.lastName.trim()">
                         <label>Last Name *</label>
                         <input type="text" [(ngModel)]="billingAddress.lastName" placeholder="Doe">
+                        <span class="error-msg">Last name is required</span>
                     </div>
-                    <div class="form-group full">
+                    <div class="form-group full" [class.has-error]="showErrors && !billingAddress.streetAddress.trim()">
                         <label>Street Address *</label>
                         <input type="text" [(ngModel)]="billingAddress.streetAddress" placeholder="123 Main St">
+                        <span class="error-msg">Street address is required</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full">
+                        <label>Apartment / Suite (optional)</label>
+                        <input type="text" [(ngModel)]="billingAddress.apartmentSuite" placeholder="Apt 4B">
+                    </div>
+                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.city.trim()">
                         <label>City *</label>
                         <input type="text" [(ngModel)]="billingAddress.city" placeholder="Cairo">
+                        <span class="error-msg">City is required</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.state.trim()">
                         <label>State *</label>
                         <input type="text" [(ngModel)]="billingAddress.state" placeholder="Cairo">
+                        <span class="error-msg">State is required</span>
                     </div>
                     <div class="form-group">
+                        <label>ZIP / Postal Code</label>
+                        <input type="text" [(ngModel)]="billingAddress.zipCode" placeholder="11511">
+                    </div>
+                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.country.trim()">
                         <label>Country *</label>
                         <input type="text" [(ngModel)]="billingAddress.country" placeholder="Egypt">
+                        <span class="error-msg">Country is required</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full"
+                        [class.has-error]="showErrors && (!billingAddress.phoneNumber.trim() || !billingAddress.phoneNumber.match('^[+0-9\\\s-]{8,20}$'))">
                         <label>Phone Number *</label>
                         <input type="tel" [(ngModel)]="billingAddress.phoneNumber" placeholder="+20 10 0000 0000">
+                        <span class="error-msg">Valid phone number is required</span>
                     </div>
                 </div>
                 <div class="same-address-confirmed" *ngIf="sameAsShipping">
@@ -327,27 +358,33 @@
                         </div>
 
                         <div class="payment-form">
-                            <div class="form-group full">
+                            <div class="form-group full" [class.has-error]="showErrors && !creditCard.name.trim()">
                                 <label>Cardholder Name</label>
                                 <input type="text" [(ngModel)]="creditCard.name" placeholder="John Doe">
+                                <span class="error-msg">Name is required</span>
                             </div>
-                            <div class="form-group full">
+                            <div class="form-group full" [class.has-error]="showErrors && isInvalidCardNumber()">
                                 <label>Card Number</label>
                                 <div class="input-with-icon">
                                     <i class="ri-bank-card-line"></i>
-                                    <input type="text" [(ngModel)]="creditCard.number" placeholder="4242 •••• •••• ••••"
+                                    <input type="text" [(ngModel)]="creditCard.number"
+                                        (input)="formatCardNumber($event)" placeholder="4242 •••• •••• ••••"
                                         maxlength="19">
                                 </div>
+                                <span class="error-msg">Valid card number is required</span>
                             </div>
                             <div class="form-row-multi">
-                                <div class="form-group">
+                                <div class="form-group" [class.has-error]="showErrors && isInvalidExpiry()">
                                     <label>Expiry (MM/YY)</label>
-                                    <input type="text" [(ngModel)]="creditCard.expiry" placeholder="12/28"
-                                        maxlength="5">
+                                    <input type="text" [(ngModel)]="creditCard.expiry" (input)="formatExpiry($event)"
+                                        placeholder="12/28" maxlength="5">
+                                    <span class="error-msg">Invalid format (MM/YY)</span>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" [class.has-error]="showErrors && isInvalidCVV()">
                                     <label>CVV</label>
-                                    <input type="password" [(ngModel)]="creditCard.cvv" placeholder="•••" maxlength="4">
+                                    <input type="password" [(ngModel)]="creditCard.cvv" (input)="formatCVV($event)"
+                                        placeholder="•••" maxlength="4">
+                                    <span class="error-msg">Invalid CVV</span>
                                 </div>
                             </div>
                         </div>

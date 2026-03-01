@@ -62,7 +62,7 @@
                     <span class="pulse-dot"></span> {{ product.viewCount }} viewing now
                 </span>
                 <span class="live-pill sold" *ngIf="product.totalSold > 0">
-                    <i class="ri-shopping-bag-3-fill"></i> {{ product.totalSold }} sold
+                    <i class="ri-fire-fill"></i> {{ product.totalSold }} sold in last 24h
                 </span>
             </div>
 
@@ -176,18 +176,37 @@
 
         <!-- COL 3 · Quick Summary Card (sticky) -->
         <section class="pdp-sticky-card">
+            <div class="sticky-urgency" *ngIf="product.stockLevel > 0 && product.stockLevel <= 5">
+                <i class="ri-alarm-warning-fill"></i>
+                <span>Hurry! Only <strong>{{ product.stockLevel }}</strong> left in stock.</span>
+            </div>
+
             <div class="sticky-price">
                 <span class="price">{{ product.price | number:'1.0-0' }}</span>
                 <span class="cur">EGP</span>
             </div>
 
-            <div class="sticky-stock" [class.in]="product.stockLevel > 0" [class.out]="product.stockLevel === 0">
-                {{ product.stockLevel > 0 ? 'In Stock' : 'Unavailable' }}
+            <div class="guarantee-badge">
+                <i class="ri-shield-check-fill"></i> Price Match Guarantee
             </div>
 
-            <div class="sticky-delivery">
-                <i class="ri-map-pin-2-line"></i>
-                <span>Deliver to Egypt — <strong>FREE</strong></span>
+            <div class="sticky-stock" [class.in]="product.stockLevel > 0" [class.out]="product.stockLevel === 0">
+                {{ product.stockLevel > 0 ? 'In Stock — Ready to Ship' : 'Currently Unavailable' }}
+            </div>
+
+            <div class="sticky-delivery-box">
+                <div class="delivery-row">
+                    <i class="ri-truck-fill icon-truck"></i>
+                    <div class="del-info">
+                        <strong>Free Delivery to Egypt</strong>
+                        <span class="del-date" *ngIf="deliveryDateString">Est. Delivery: <strong>{{ deliveryDateString
+                                }}</strong></span>
+                    </div>
+                </div>
+                <div class="order-countdown" *ngIf="countdownTimer && product.stockLevel > 0">
+                    <p>Order within <span class="timer">{{ countdownTimer }}</span> to get it by {{ deliveryDateString
+                        }}.</p>
+                </div>
             </div>
 
             <!-- Qty in card -->
@@ -246,12 +265,15 @@
                     <h2>About This Product</h2>
                     <p *ngIf="product.summary">{{ product.summary }}</p>
                     <p *ngIf="product.description">{{ product.description }}</p>
-                    <ul class="highlight-list" *ngIf="product.attributes && product.attributes.length > 0">
-                        <li *ngFor="let attr of product.attributes | slice:0:5">
-                            <i class="ri-checkbox-circle-line"></i>
-                            <strong>{{ $any(attr).attributeName }}:</strong> {{ $any(attr).value }}
-                        </li>
-                    </ul>
+                    <div class="highlights-box" *ngIf="product.attributes && product.attributes.length > 0">
+                        <h3><i class="ri-sparkling-fill"></i> Product Highlights</h3>
+                        <ul class="highlight-list">
+                            <li *ngFor="let attr of product.attributes | slice:0:5">
+                                <i class="ri-check-double-line"></i>
+                                <strong>{{ $any(attr).attributeName }}:</strong> {{ $any(attr).value }}
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="img-side" *ngIf="product.imagesList.length > 1">
                     <img [src]="product.imagesList[1] | url" [alt]="product.name">

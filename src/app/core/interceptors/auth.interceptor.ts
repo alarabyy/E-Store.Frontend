@@ -2,6 +2,8 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpRequest, HttpHandlerFn } from
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
+import { ApiResponse } from '../models/api-response.model';
+import { AuthResponse } from '../models/auth.models';
 
 let isRefreshing = false;
 const refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -11,6 +13,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     let authReq = req;
     const token = authService.getToken();
 
+    // Skip if it's the auth endpoint
+    if (req.url.includes('auth/')) {
+        return next(req);
+    }
+
+    // Preemptive Refresh: If we have a token but it's already expired, 
+    // trigger the refresh logic before even making the call.
+    if (token && authService.isTokenExpired()) {
+        return handle401Error(req, next, authService);
+    }
+
     if (token) {
         authReq = addToken(req, token);
     }
@@ -18,10 +31,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(authReq).pipe(
         catchError(error => {
             if (error instanceof HttpErrorResponse && error.status === 401) {
-                // Skip if it's the login or refresh request itself causing 401
-                if (req.url.includes('auth/login') || req.url.includes('auth/refresh-token')) {
-                    return throwError(() => error);
-                }
                 return handle401Error(authReq, next, authService);
             }
             return throwError(() => error);
@@ -46,22 +55,23 @@ function handle401Error(request: HttpRequest<any>, next: HttpHandlerFn, authServ
 
         if (refreshToken) {
             return authService.refreshToken(refreshToken).pipe(
-                switchMap((response: any) => {
+                switchMap((response: ApiResponse<AuthResponse>) => {
                     isRefreshing = false;
-                    // The refreshToken method in authService already calls setSession,
-                    // so we can just grab the new token from the service or the response.
-                    // Assuming response.data contains the AuthResponse.
-                    const newToken = response.data?.accessToken || authService.getToken();
-                    if (!newToken) {
+                    const newToken = response.data?.accessToken;
+
+                    if (!response.isSuccess || !newToken) {
                         authService.logout();
+                        refreshTokenSubject.error(new Error('Refresh failed'));
                         return throwError(() => new Error('Refresh failed'));
                     }
+
                     refreshTokenSubject.next(newToken);
                     return next(addToken(request, newToken));
                 }),
                 catchError((err) => {
                     isRefreshing = false;
                     authService.logout();
+                    refreshTokenSubject.error(err);
                     return throwError(() => err);
                 })
             );

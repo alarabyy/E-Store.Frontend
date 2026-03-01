@@ -4,29 +4,49 @@
          FLASH OFFER TOAST — Slides in from right on page load
     ══════════════════════════════════════════════════════════ -->
     <div class="flash-toast" *ngIf="showFlashToast && flashOffer" [class.show]="flashToastVisible"
+        [class.paused]="isFlashToastPaused" (mouseenter)="pauseFlashToast()" (mouseleave)="resumeFlashToast()"
         (click)="goToFlashOffer()">
+
         <div class="flash-toast-glow"></div>
-        <button class="flash-close" (click)="dismissFlashToast($event)">
+
+        <!-- Close Button -->
+        <button class="flash-close" (click)="dismissFlashToast($event)" aria-label="Close notification">
             <i class="ri-close-line"></i>
         </button>
-        <div class="flash-icon-wrap">
-            <i class="ri-fire-fill"></i>
-        </div>
-        <div class="flash-content">
-            <span class="flash-label">🔥 Exclusive Offer</span>
-            <h4 class="flash-title">{{ flashOffer.title }}</h4>
-            <p class="flash-desc">{{ flashOffer.desc }}</p>
-            <div class="flash-price" *ngIf="flashOffer.priceNow">
-                <span class="flash-now">{{ flashOffer.priceNow | number:'1.0-0' }} EGP</span>
-                <span class="flash-was" *ngIf="flashOffer.originalPrice">{{ flashOffer.originalPrice |
-                    number:'1.0-0' }} EGP</span>
+
+        <!-- Icon & Status -->
+        <div class="flash-top-row">
+            <div class="flash-icon-wrap">
+                <i class="ri-flashlight-fill"></i>
+            </div>
+            <div class="flash-badge">
+                <span class="pulse-dot"></span>
+                EXCLUSIVE DEAL
             </div>
         </div>
-        <div class="flash-cta-arrow">
-            <i class="ri-arrow-right-line"></i>
+
+        <div class="flash-content">
+            <h4 class="flash-title">{{ flashOffer.title }}</h4>
+            <p class="flash-desc">{{ flashOffer.desc }}</p>
+
+            <div class="flash-footer">
+                <div class="flash-price" *ngIf="flashOffer.priceNow">
+                    <span class="flash-now">{{ flashOffer.priceNow | number:'1.0-0' }} EGP</span>
+                    <span class="flash-was" *ngIf="flashOffer.originalPrice">
+                        {{ flashOffer.originalPrice | number:'1.0-0' }} EGP
+                    </span>
+                </div>
+                <div class="flash-action">
+                    View <i class="ri-arrow-right-line"></i>
+                </div>
+            </div>
         </div>
+
+        <!-- Progress Bar -->
         <div class="flash-progress">
-            <div class="flash-progress-fill" [class.running]="flashToastVisible"></div>
+            <div class="flash-progress-fill" [class.running]="flashToastVisible && !isFlashToastPaused"
+                [style.animation-play-state]="isFlashToastPaused ? 'paused' : 'running'">
+            </div>
         </div>
     </div>
 
@@ -282,16 +302,26 @@
                 </a>
             </div>
 
-            <div class="products-grid-home">
-                <app-product-card *ngFor="let p of featuredProducts" [product]="p"
-                    [categoryName]="p.categoryName || p.category">
-                </app-product-card>
+            <div class="carousel-container">
+                <button class="nav-btn left" (click)="scrollContainer(trendingScroll, -1)"
+                    [class.disabled]="!canScrollLeft(trendingScroll)">
+                    <i class="ri-arrow-left-s-line"></i>
+                </button>
+                <div class="products-grid-home scrollable" #trendingScroll appAutoScroll (scroll)="0">
+                    <app-product-card *ngFor="let p of featuredProducts" [product]="p"
+                        [categoryName]="p.categoryName || p.category">
+                    </app-product-card>
+                </div>
+                <button class="nav-btn right" (click)="scrollContainer(trendingScroll, 1)"
+                    [class.disabled]="!canScrollRight(trendingScroll)">
+                    <i class="ri-arrow-right-s-line"></i>
+                </button>
             </div>
         </section>
 
         <!-- Dynamic Category Sections -->
-        <section class="products-section category-reveal" *ngFor="let cat of categories; let i = index">
-            <ng-container *ngIf="cat.products && cat.products.length > 0">
+        <ng-container *ngFor="let cat of categories; let i = index">
+            <section class="products-section category-reveal" *ngIf="cat.products && cat.products.length > 0">
                 <div class="section-head">
                     <div class="head-label category-tag">{{ cat.name }}</div>
                     <h2 class="section-h2">{{ cat.name }} Collection</h2>
@@ -301,13 +331,22 @@
                     </a>
                 </div>
 
-                <div class="products-grid-home">
-                    <app-product-card *ngFor="let p of cat.products.slice(0, 4)" [product]="p"
-                        [categoryName]="cat.name">
-                    </app-product-card>
+                <div class="carousel-container">
+                    <button class="nav-btn left" (click)="scrollContainer(catScroll, -1)"
+                        [class.disabled]="!canScrollLeft(catScroll)">
+                        <i class="ri-arrow-left-s-line"></i>
+                    </button>
+                    <div class="products-grid-home scrollable" #catScroll appAutoScroll (scroll)="0">
+                        <app-product-card *ngFor="let p of cat.products" [product]="p" [categoryName]="cat.name">
+                        </app-product-card>
+                    </div>
+                    <button class="nav-btn right" (click)="scrollContainer(catScroll, 1)"
+                        [class.disabled]="!canScrollRight(catScroll)">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </button>
                 </div>
-            </ng-container>
-        </section>
+            </section>
+        </ng-container>
     </div>
 
 

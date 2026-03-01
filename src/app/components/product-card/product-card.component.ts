@@ -35,15 +35,30 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
     quantity: number = 1;
     selectedVariant: any = null;
 
+    // Feedback states
+    isAddingToCart = false;
+    cartAdded = false;
+
     addToCart(event: Event) {
         event.stopPropagation();
-        this.cartService.addToCart({
-            id: this.product.id,
-            name: this.product.name,
-            price: this.product.minPrice,
-            image: this.product.imageUrl
-        });
-        this.toastService.success('Item added to cart successfully!');
+        this.isAddingToCart = true;
+
+        // Simulating network delay for effect
+        setTimeout(() => {
+            this.cartService.addToCart({
+                id: this.product.id,
+                name: this.product.name,
+                price: this.product.minPrice,
+                image: this.product.imageUrl
+            });
+            this.isAddingToCart = false;
+            this.cartAdded = true;
+            this.toastService.success(`✓ "${this.product.name}" added to cart!`);
+
+            setTimeout(() => {
+                this.cartAdded = false;
+            }, 2000);
+        }, 400);
     }
 
     toggleWishlist(event: Event) {

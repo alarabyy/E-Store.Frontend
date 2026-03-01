@@ -22,14 +22,22 @@ export class PaymentDashboardService {
     }
 
     enableGateway(id: number): Observable<ApiResponse> {
-        return this.http.post<ApiResponse>(`${this.apiUrl}/enable/${id}`, {});
+        return this.http.post<ApiResponse>(`${this.apiUrl}/${id}/enable`, {});
     }
 
     disableGateway(id: number): Observable<ApiResponse> {
-        return this.http.post<ApiResponse>(`${this.apiUrl}/disable/${id}`, {});
+        return this.http.post<ApiResponse>(`${this.apiUrl}/${id}/disable`, {});
     }
 
     createGateway(payload: any): Observable<ApiResponse<number>> {
         return this.http.post<ApiResponse<number>>(`${this.apiUrl}/create`, payload);
+    }
+
+    updateGateway(id: number, payload: any): Observable<ApiResponse> {
+        return this.http.put<ApiResponse>(`${this.apiUrl}/${id}`, payload);
+    }
+
+    setCredentials(id: number, credentials: Record<string, string>): Observable<ApiResponse> {
+        return this.http.post<ApiResponse>(`${this.apiUrl}/${id}/credentials`, { credentials });
     }
 }
