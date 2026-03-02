@@ -17,7 +17,7 @@ import { AutoScrollDirective } from '../../../core/directives/auto-scroll.direct
 @Component({
     selector: 'app-catalog',
     standalone: true,
-    imports: [CommonModule, RouterLink, UrlPipe, FormsModule, ProductCardComponent, LoaderComponent, AutoScrollDirective],
+    imports: [CommonModule, RouterLink, UrlPipe, FormsModule, ProductCardComponent, AutoScrollDirective],
     templateUrl: './catalog.component.html',
     styleUrls: ['./catalog.component.scss']
 })

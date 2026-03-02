@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WishlistService } from './services/wishlist.service';
@@ -6,11 +6,13 @@ import { CartService } from '../cart/services/cart.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { ToastService } from '../../../core/services/toast.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { ProductCardComponent } from '../../../components/product-card/product-card.component';
+import { Product } from '../catalog/models/product.model';
 
 @Component({
     selector: 'app-wishlist',
     standalone: true,
-    imports: [CommonModule, RouterLink, UrlPipe],
+    imports: [CommonModule, RouterLink, UrlPipe, ProductCardComponent],
     templateUrl: './wishlist.component.html',
     styleUrls: ['./wishlist.component.scss']
 })
@@ -20,6 +22,30 @@ export class WishlistComponent implements OnInit {
     toastService = inject(ToastService);
     seoService = inject(SeoService);
 
+    // Computed signal to map WishlistItems to Product format for ProductCardComponent
+    mappedProducts = computed(() => {
+        return this.wishlistService.items().map(item => {
+            return {
+                id: item.id,
+                name: item.name,
+                slug: item.slug || item.id.toString(),
+                minPrice: item.price,
+                maxPrice: item.price,
+                categoryName: item.categoryName || 'Saved Item',
+                imageUrl: item.image,
+                averageRating: item.averageRating || 0,
+                // defaults to satisfy interface
+                description: '',
+                isActive: true,
+                isFeatured: false,
+                totalStock: 10,
+                reviewCount: 0,
+                viewCount: 0,
+                totalSold: 0
+            } as Product;
+        });
+    });
+
     ngOnInit() {
         this.seoService.setSeoData({
             title: 'Your Wishlist',
@@ -27,17 +53,5 @@ export class WishlistComponent implements OnInit {
             keywords: 'wishlist, favorite products, save for later, e-store'
         });
         this.wishlistService.loadFromBackend();
-    }
-
-    moveToCart(item: any) {
-        this.cartService.addToCart({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            image: item.image,
-            variantId: item.variantId
-        });
-        this.wishlistService.toggleWishlist(item); // Remove from wishlist after adding to cart
-        this.toastService.success('Item moved to cart successfully!');
     }
 }

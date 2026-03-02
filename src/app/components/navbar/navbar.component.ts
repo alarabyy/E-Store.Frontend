@@ -23,6 +23,8 @@ export class NavbarComponent implements OnInit {
     isNavHidden = false;
     lastScrollTop = 0;
     isMobileMenuOpen = signal(false);
+    isCategoriesMenuOpen = signal(false);
+    activeCategory = signal<number | null>(null);
 
     offers = [
         { title: 'End of Season Sale', code: 'WINTER50' },
@@ -58,5 +60,30 @@ export class NavbarComponent implements OnInit {
 
     toggleMobileMenu() {
         this.isMobileMenuOpen.set(!this.isMobileMenuOpen());
+    }
+
+    toggleCategoriesMenu(event?: Event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        const newState = !this.isCategoriesMenuOpen();
+        this.isCategoriesMenuOpen.set(newState);
+
+        // Reset active category when menu is opened or closed
+        if (newState || !newState) {
+            this.activeCategory.set(null);
+        }
+    }
+
+    setActiveCategory(id: number | null) {
+        this.activeCategory.set(id);
+    }
+
+    @HostListener('document:click', ['$event'])
+    closeMenus(event: Event) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.cat-dropdown-wrapper')) {
+            this.isCategoriesMenuOpen.set(false);
+        }
     }
 }

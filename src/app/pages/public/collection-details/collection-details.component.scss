@@ -172,6 +172,15 @@
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 40px;
 
+            @media (max-width: 768px) {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            @media (max-width: 480px) {
+                gap: 10px;
+            }
+
             >* {
                 animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 
@@ -200,48 +209,48 @@
                 }
             }
         }
+    }
 
-        .no-products {
-            text-align: center;
-            padding: 100px 0;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 24px;
-            border: 2px dashed #e2e8f0;
+    .no-products {
+        text-align: center;
+        padding: 100px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 24px;
+        border: 2px dashed #e2e8f0;
 
-            i {
-                font-size: 4rem;
-                color: #c5a059;
-                margin-bottom: 20px;
-                display: block;
-                animation: float 3s ease-in-out infinite;
-            }
+        i {
+            font-size: 4rem;
+            color: #c5a059;
+            margin-bottom: 20px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
 
-            h3 {
-                font-size: 1.8rem;
-                color: #1e293b;
-                margin-bottom: 10px;
-            }
+        h3 {
+            font-size: 1.8rem;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
 
-            p {
-                color: #64748b;
-                margin-bottom: 30px;
-            }
+        p {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
 
-            .btn-luxe {
-                display: inline-block;
-                padding: 14px 40px;
-                background: #0f172a;
-                color: white;
-                text-decoration: none;
-                border-radius: 8px;
-                font-weight: 600;
-                transition: all 0.3s;
+        .btn-luxe {
+            display: inline-block;
+            padding: 14px 40px;
+            background: #0f172a;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
 
-                &:hover {
-                    background: #c5a059;
-                    transform: translateY(-3px);
-                    box-shadow: 0 8px 20px rgba(197, 160, 89, 0.3);
-                }
+            &:hover {
+                background: #c5a059;
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(197, 160, 89, 0.3);
             }
         }
     }

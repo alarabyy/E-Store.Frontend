@@ -1,0 +1,188 @@
+<div class="promotions-container">
+    <header class="header">
+        <div class="header-left">
+            <h1>Promotions & Coupons</h1>
+            <p>Manage your discount codes and marketing promotions</p>
+        </div>
+        <button class="btn-primary" (click)="openCreateModal()">
+            <i class="ri-add-line"></i> Create Promotion
+        </button>
+    </header>
+
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="icon-box blue">
+                <i class="ri-coupon-2-line"></i>
+            </div>
+            <div class="stat-info">
+                <span class="label">Total Promotions</span>
+                <span class="value">{{ promotions().length }}</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-box green">
+                <i class="ri-checkbox-circle-line"></i>
+            </div>
+            <div class="stat-info">
+                <span class="label">Active</span>
+                <span class="value">{{ promotions().length }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promotions Table -->
+    <div class="table-card" [class.loading]="isLoading()">
+        <div class="table-responsive">
+            <table class="promotions-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Usage</th>
+                        <th>Validity</th>
+                        <th>Applies To</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let promo of promotions()">
+                        <td>
+                            <div class="code-badge">{{ promo.code }}</div>
+                        </td>
+                        <td>{{ getTypeLabel(promo.type) }}</td>
+                        <td>
+                            <span class="promo-value" [class.percentage]="promo.type === 0">
+                                {{ promo.value }}{{ promo.type === 0 ? '%' : ' EGP' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="usage-info">
+                                <span class="used">0</span>
+                                <span class="sep">/</span>
+                                <span class="limit">{{ promo.usageLimit || '∞' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="validity">
+                                <span class="date">{{ promo.startsAt | date:'shortDate' }}</span>
+                                <i class="ri-arrow-right-line"></i>
+                                <span class="date">{{ promo.endsAt | date:'shortDate' }}</span>
+                            </div>
+                        </td>
+                        <td>{{ getAppliesToLabel(promo.appliesToType) }}</td>
+                        <td>
+                            <span class="status-badge" [class.active]="promo.isActive">
+                                {{ promo.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit" (click)="openEditModal(promo)" title="Edit">
+                                    <i class="ri-edit-line"></i>
+                                </button>
+                                <button class="action-btn delete" (click)="deletePromotion(promo.id)" title="Delete">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" *ngIf="promotions().length === 0 && !isLoading()">
+            <i class="ri-coupon-3-line"></i>
+            <h3>No promotions found</h3>
+            <p>Start by creating your first promotional code</p>
+            <button class="btn-outline" (click)="openCreateModal()">Create Promotion</button>
+        </div>
+    </div>
+
+    <!-- Modal for Create/Edit -->
+    <div class="modal-overlay" *ngIf="isModalOpen()" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <header class="modal-header">
+                <h2>{{ isEditMode() ? 'Edit Promotion' : 'New Promotion' }}</h2>
+                <button class="close-btn" (click)="closeModal()">
+                    <i class="ri-close-line"></i>
+                </button>
+            </header>
+
+            <form [formGroup]="promotionForm" (ngSubmit)="savePromotion()">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Promotion Code</label>
+                            <input type="text" formControlName="code" placeholder="ENTER-CODE">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select formControlName="type">
+                                <option *ngFor="let t of promotionTypes" [value]="t.value">{{ t.label }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Value</label>
+                            <input type="number" formControlName="value">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="datetime-local" formControlName="startsAt">
+                        </div>
+
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="datetime-local" formControlName="endsAt">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Usage Limit</label>
+                            <input type="number" formControlName="usageLimit" placeholder="Leave empty for unlimited">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Limit Per User</label>
+                            <input type="number" formControlName="usagePerUser">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Min. Order Amount</label>
+                            <input type="number" formControlName="minimumOrderAmount">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Max. Discount Amount</label>
+                            <input type="number" formControlName="maxDiscountAmount">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Applies To</label>
+                            <select formControlName="appliesToType">
+                                <option *ngFor="let a of appliesToTypes" [value]="a.value">{{ a.label }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group checkbox">
+                            <label>
+                                <input type="checkbox" formControlName="isActive">
+                                Is Active
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="modal-footer">
+                    <button type="button" class="btn-ghost" (click)="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" [disabled]="promotionForm.invalid || isLoading()">
+                        {{ isLoading() ? 'Saving...' : 'Save Promotion' }}
+                    </button>
+                </footer>
+            </form>
+        </div>
+    </div>
+</div>

@@ -282,6 +282,17 @@ $white: #ffffff;
     top: 110px;
     border: 1px solid #f1f5f9;
 
+    /* Make it scrollable vertically if items overflow the window height */
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+
+    // Hide scrollbar but keep functionality
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
     .summary-header {
         display: flex;
         align-items: center;

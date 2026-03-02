@@ -103,10 +103,71 @@
     <!-- Category Bar (Second Row) -->
     <div class="category-bar">
         <div class="cat-container">
-            <ng-container *ngFor="let cat of storeService.categories$ | async">
-                <a [routerLink]="['/categories', cat.slug]" class="cat-link">{{ cat.name }}</a>
-            </ng-container>
-            <a routerLink="/catalog" class="cat-link special">Exclusive Offers 🔥</a>
+            <!-- All Categories Mega Menu Wrapper -->
+            <div class="cat-dropdown-wrapper">
+                <button type="button" class="all-cats-btn" (click)="toggleCategoriesMenu($event)">
+                    <i class="ri-menu-2-line"></i> All Categories
+                </button>
+
+                <div class="mega-menu" [class.open]="isCategoriesMenuOpen()">
+                    <div class="mega-menu-inner">
+                        <ng-container *ngIf="storeService.categories$ | async as categories; else loader">
+                            <!-- Left Side: Parent Categories -->
+                            <ul class="parent-cats" *ngIf="categories.length > 0">
+                                <li *ngFor="let cat of categories; let i = index"
+                                    (mouseenter)="setActiveCategory(cat.id)"
+                                    [class.active]="activeCategory() === cat.id || (activeCategory() === null && i === 0)">
+                                    <span>{{ cat.name }}</span>
+                                    <i *ngIf="cat.children.length" class="ri-arrow-right-s-line"></i>
+                                </li>
+                            </ul>
+
+                            <!-- Right Side: Subcategories -->
+                            <div class="child-cats-wrapper" *ngIf="categories.length > 0">
+                                <ng-container *ngFor="let cat of categories; let i = index">
+                                    <div class="child-cats"
+                                        *ngIf="(activeCategory() === cat.id) || (activeCategory() === null && i === 0)">
+                                        <h3 class="cat-title">
+                                            <a [routerLink]="['/categories', cat.slug]"
+                                                (click)="isCategoriesMenuOpen.set(false)">
+                                                Shop all {{ cat.name }} <i class="ri-arrow-right-line"></i>
+                                            </a>
+                                        </h3>
+                                        <ul class="sub-cats" *ngIf="cat.children.length">
+                                            <li *ngFor="let sub of cat.children">
+                                                <a [routerLink]="['/categories', sub.slug]"
+                                                    (click)="isCategoriesMenuOpen.set(false)">{{ sub.name }}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <!-- If empty cats -->
+                            <div class="empty-cats" *ngIf="categories.length === 0"
+                                style="padding: 2rem; color: #64748b;">
+                                No categories found.
+                            </div>
+                        </ng-container>
+
+                        <ng-template #loader>
+                            <div style="padding: 2rem; color: #64748b; font-family: 'Outfit', sans-serif;">
+                                <i class="ri-loader-4-line ri-spin"></i> Loading...
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Row Shortcuts (max 6 links to fit single row easily) -->
+            <div class="cat-shortcuts">
+                <ng-container *ngIf="storeService.categories$ | async as categories">
+                    <a *ngFor="let cat of categories | slice:0:6" [routerLink]="['/categories', cat.slug]"
+                        class="cat-link">{{ cat.name }}</a>
+                </ng-container>
+
+                <a routerLink="/catalog" class="cat-link special">Exclusive Offers 🔥</a>
+            </div>
         </div>
     </div>
 </nav>

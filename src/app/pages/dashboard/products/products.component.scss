@@ -1442,6 +1442,7 @@ $border: #e2e8f0;
                 overflow: hidden;
                 margin-top: 0.1rem;
                 opacity: 0.8;
+                overflow-wrap: break-word;
             }
 
             .p-slug {
@@ -1809,6 +1810,17 @@ $border: #e2e8f0;
 @media (min-width: 993px) {
     .products-list-view {
         display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        &::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+        }
     }
 
     .products-grid {

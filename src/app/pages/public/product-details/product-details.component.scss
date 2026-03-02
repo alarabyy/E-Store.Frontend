@@ -1560,6 +1560,8 @@ $success: #10b981;
             color: $mid;
             line-height: 1.65;
             margin: 0;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
     }
 }

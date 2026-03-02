@@ -96,5 +96,9 @@ export const DASHBOARD_ROUTES: Routes = [
     {
         path: 'payments',
         loadComponent: () => import('../pages/dashboard/payments/payments.component').then(m => m.PaymentDashboardComponent)
+    },
+    {
+        path: 'promotions',
+        loadComponent: () => import('../pages/dashboard/promotions/promotions.component').then(m => m.PromotionsComponent)
     }
 ];
