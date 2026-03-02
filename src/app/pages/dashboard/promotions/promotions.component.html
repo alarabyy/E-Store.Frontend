@@ -48,36 +48,36 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let promo of promotions()">
-                        <td>
+                        <td data-label="Code">
                             <div class="code-badge">{{ promo.code }}</div>
                         </td>
-                        <td>{{ getTypeLabel(promo.type) }}</td>
-                        <td>
+                        <td data-label="Type">{{ getTypeLabel(promo.type) }}</td>
+                        <td data-label="Value">
                             <span class="promo-value" [class.percentage]="promo.type === 0">
                                 {{ promo.value }}{{ promo.type === 0 ? '%' : ' EGP' }}
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Usage">
                             <div class="usage-info">
                                 <span class="used">0</span>
                                 <span class="sep">/</span>
                                 <span class="limit">{{ promo.usageLimit || '∞' }}</span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Validity">
                             <div class="validity">
                                 <span class="date">{{ promo.startsAt | date:'shortDate' }}</span>
                                 <i class="ri-arrow-right-line"></i>
                                 <span class="date">{{ promo.endsAt | date:'shortDate' }}</span>
                             </div>
                         </td>
-                        <td>{{ getAppliesToLabel(promo.appliesToType) }}</td>
-                        <td>
+                        <td data-label="Applies To">{{ getAppliesToLabel(promo.appliesToType) }}</td>
+                        <td data-label="Status">
                             <span class="status-badge" [class.active]="promo.isActive">
                                 {{ promo.isActive ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Actions">
                             <div class="actions">
                                 <button class="action-btn edit" (click)="openEditModal(promo)" title="Edit">
                                     <i class="ri-edit-line"></i>
@@ -121,7 +121,7 @@
                         <div class="form-group">
                             <label>Type</label>
                             <select formControlName="type">
-                                <option *ngFor="let t of promotionTypes" [value]="t.value">{{ t.label }}</option>
+                                <option *ngFor="let t of promotionTypes" [ngValue]="t.value">{{ t.label }}</option>
                             </select>
                         </div>
 
@@ -163,7 +163,7 @@
                         <div class="form-group">
                             <label>Applies To</label>
                             <select formControlName="appliesToType">
-                                <option *ngFor="let a of appliesToTypes" [value]="a.value">{{ a.label }}</option>
+                                <option *ngFor="let a of appliesToTypes" [ngValue]="a.value">{{ a.label }}</option>
                             </select>
                         </div>
 

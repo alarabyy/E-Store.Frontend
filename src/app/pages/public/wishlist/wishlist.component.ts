@@ -12,7 +12,7 @@ import { Product } from '../catalog/models/product.model';
 @Component({
     selector: 'app-wishlist',
     standalone: true,
-    imports: [CommonModule, RouterLink, UrlPipe, ProductCardComponent],
+    imports: [CommonModule, RouterLink, ProductCardComponent],
     templateUrl: './wishlist.component.html',
     styleUrls: ['./wishlist.component.scss']
 })

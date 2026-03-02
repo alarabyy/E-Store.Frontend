@@ -25,10 +25,14 @@ export class PromotionService {
     }
 
     updatePromotion(request: UpdatePromotionRequest): Observable<ApiResponse<boolean>> {
-        return this.http.put<ApiResponse<boolean>>(`${this.apiUrl}/update`, request);
+        return this.http.put<ApiResponse<boolean>>(`${this.apiUrl}/${request.id}/edit`, request);
     }
 
     deletePromotion(id: number): Observable<ApiResponse<boolean>> {
-        return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/delete/${id}`);
+        return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/${id}/delete`);
+    }
+
+    applyPromotion(request: { promoCode: string }): Observable<ApiResponse<any>> {
+        return this.http.post<ApiResponse<any>>(`${environment.apiUrl}/promotions/apply`, request);
     }
 }

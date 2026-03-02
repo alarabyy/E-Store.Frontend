@@ -5,12 +5,32 @@
         <a routerLink="/"><i class="ri-home-4-line"></i> Home</a>
         <i class="ri-arrow-right-s-line"></i>
         <a routerLink="/catalog">Catalog</a>
+        <i class="ri-arrow-right-s-line" *ngIf="product?.categoryName"></i>
+        <a *ngIf="product?.categoryName" [routerLink]="['/catalog']"
+            [queryParams]="{ category: product.categoryName }">{{ product.categoryName }}</a>
         <i class="ri-arrow-right-s-line"></i>
-        <span>{{ product.name }}</span>
+        <span>{{ product?.name || 'Loading...' }}</span>
     </nav>
 
+    <!-- ── Loading Skeleton ────────────────────────── -->
+    <div class="pdp-main skeleton" *ngIf="!product">
+        <div class="pdp-gallery">
+            <div class="sk-main-img"></div>
+            <div class="sk-thumbs">
+                <div class="sk-thumb" *ngFor="let i of [1,2,3,4]"></div>
+            </div>
+        </div>
+        <div class="pdp-info">
+            <div class="sk-line w-30"></div>
+            <div class="sk-line w-80 h-large"></div>
+            <div class="sk-line w-50"></div>
+            <div class="sk-price"></div>
+            <div class="sk-block"></div>
+        </div>
+    </div>
+
     <!-- ── Main Layout ───────────────────────────────── -->
-    <div class="pdp-main">
+    <div class="pdp-main" *ngIf="product">
 
         <!-- COL 1 · Gallery -->
         <section class="pdp-gallery">
@@ -37,6 +57,35 @@
 
                 <img [src]="activeImage | url" [alt]="product.name" class="main-img">
             </div>
+
+            <!-- Promo Code Widget (Relocated under gallery) -->
+            <div class="promo-widget gallery-version">
+                <div class="promo-header">
+                    <i class="ri-ticket-2-line"></i>
+                    <span>Have a promo code?</span>
+                </div>
+                <div class="promo-input-group">
+                    <input type="text" [(ngModel)]="promoCode" placeholder="Enter code..." class="promo-input"
+                        [disabled]="isApplyingPromo" (keyup.enter)="applyPromoCode()">
+                    <button class="btn-apply-promo" (click)="applyPromoCode()"
+                        [disabled]="isApplyingPromo || !promoCode">
+                        <i class="ri-loader-4-line spin" *ngIf="isApplyingPromo"></i>
+                        <span>{{ isApplyingPromo ? '...' : 'Apply' }}</span>
+                    </button>
+                </div>
+                <!-- Applied Discount Info -->
+                <div class="applied-promo-success" *ngIf="appliedDiscount" [@fadeIn]>
+                    <div class="success-content">
+                        <i class="ri-checkbox-circle-fill"></i>
+                        <span class="msg">Sweet! You saved <strong>{{ appliedDiscount.discountAmount | number:'1.0-0' }}
+                                EGP</strong></span>
+                    </div>
+                    <button class="btn-remove-promo" (click)="promoCode=''; applyPromoCode()" title="Remove">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+            </div>
+
         </section>
 
         <!-- COL 2 · Info -->
@@ -51,8 +100,8 @@
                         [class]="i <= product.rating ? 'ri-star-fill' : (i <= product.rating + 0.5 ? 'ri-star-half-fill' : 'ri-star-line')"></i>
                 </div>
                 <span class="rating-val">{{ product.rating | number:'1.1-1' }}</span>
-                <button class="reviews-link" (click)="setTab('reviews')" *ngIf="product.reviewsCount > 0">
-                    {{ product.reviewsCount }} Reviews
+                <button class="reviews-link" (click)="scrollToReviews()" *ngIf="product.reviewsCount > 0">
+                    {{ product.reviewsCount }} {{ product.reviewsCount === 1 ? 'Review' : 'Reviews' }}
                 </button>
             </div>
 
@@ -66,110 +115,111 @@
                 </span>
             </div>
 
-            <!-- Price block -->
-            <div class="price-block">
-                <div class="price-main">
-                    <span class="amount">{{ product.price | number:'1.0-0' }}</span>
-                    <span class="currency">EGP</span>
-                </div>
-                <div class="price-sub" *ngIf="product.oldPrice">
-                    <span class="old">{{ product.oldPrice | number:'1.0-0' }} EGP</span>
-                    <span class="save-badge">Save {{ discountPercent }}%</span>
-                </div>
-            </div>
-
-            <!-- Variant Selection -->
-            <div class="variant-section" *ngIf="product.variants && product.variants.length > 0">
-                <div class="v-label">
-                    <span>Available Options:</span>
-                    <strong *ngIf="selectedVariant">{{ selectedVariant.name }}</strong>
-                </div>
-                <div class="variant-grid">
-                    <div class="v-chip" *ngFor="let v of product.variants"
-                        [class.selected]="selectedVariant?.id === v.id" (click)="selectVariant(v)">
-                        <img [src]="v.imageUrl | url" *ngIf="v.imageUrl" class="v-img">
-                        <span>{{ v.name }}</span>
+            <div class="price-container">
+                <div class="price-main-row">
+                    <div class="price-stack">
+                        <span class="amount" [class.has-promo]="appliedDiscount">{{ (appliedDiscount ?
+                            appliedDiscount.finalAmount : product.price) | number:'1.0-0' }}</span>
+                        <span class="currency">EGP</span>
+                    </div>
+                    <div class="price-badges">
+                        <span class="promo-tag" *ngIf="appliedDiscount">
+                            <i class="ri-coupon-3-fill"></i> PROMO APPLIED
+                        </span>
                     </div>
                 </div>
+                <div class="price-sub-row" *ngIf="product.oldPrice || appliedDiscount">
+                    <span class="old-price">
+                        {{ (appliedDiscount ? product.price : product.oldPrice) | number:'1.0-0' }} EGP
+                    </span>
+                    <span class="discount-badge" *ngIf="discountPercent > 0 && !appliedDiscount">-{{ discountPercent
+                        }}%</span>
+                    <span class="discount-badge promo" *ngIf="appliedDiscount">
+                        -{{ (appliedDiscount.discountAmount / (appliedDiscount.finalAmount +
+                        appliedDiscount.discountAmount) * 100) | number:'1.0-0' }}% EXTRA
+                    </span>
+                </div>
             </div>
 
-            <!-- Quantity Stepper -->
-            <div class="qty-block">
-                <label>Quantity</label>
-                <div class="qty-stepper">
-                    <button class="qty-btn" (click)="changeQuantity(-1)" [disabled]="quantity <= 1">
-                        <i class="ri-subtract-line"></i>
-                    </button>
-                    <span class="qty-val">{{ quantity }}</span>
-                    <button class="qty-btn" (click)="changeQuantity(1)">
-                        <i class="ri-add-line"></i>
+
+            <!-- Options & Actions Group -->
+            <div class="options-actions-group">
+                <!-- Variant Selection -->
+                <div class="variant-section" *ngIf="product.variants && product.variants.length > 0">
+                    <div class="v-label">
+                        <span>Options</span>
+                        <span class="v-current" *ngIf="selectedVariant">{{ selectedVariant.name }}</span>
+                    </div>
+                    <div class="variant-grid">
+                        <div class="v-chip" *ngFor="let v of product.variants"
+                            [class.selected]="selectedVariant?.id === v.id" (click)="selectVariant(v)">
+                            <img [src]="v.imageUrl | url" *ngIf="v.imageUrl" class="v-img">
+                            <span>{{ v.name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantity & Add to Cart -->
+                <div class="purchase-row">
+                    <div class="qty-control">
+                        <button class="qty-btn" (click)="changeQuantity(-1)" [disabled]="quantity <= 1">
+                            <i class="ri-subtract-line"></i>
+                        </button>
+                        <span class="qty-val">{{ quantity }}</span>
+                        <button class="qty-btn" (click)="changeQuantity(1)">
+                            <i class="ri-add-line"></i>
+                        </button>
+                    </div>
+
+                    <button class="btn-cart-primary" [class.adding]="isAddingToCart" [class.added]="cartAdded"
+                        [disabled]="product.stockLevel === 0 || isAddingToCart" (click)="addToCart()">
+                        <i class="ri-shopping-cart-2-line" *ngIf="!isAddingToCart && !cartAdded"></i>
+                        <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart"></i>
+                        <i class="ri-check-line" *ngIf="cartAdded"></i>
+                        <span>{{ cartAdded ? 'Added!' : (isAddingToCart ? 'Adding...' : 'Add to Cart') }}</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Stock status -->
-            <div class="stock-status" [class.in-stock]="product.stockLevel > 0"
-                [class.low-stock]="product.stockLevel > 0 && product.stockLevel < 10"
-                [class.out-of-stock]="product.stockLevel === 0">
-                <i [class]="product.stockLevel > 0 ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"></i>
-                <span *ngIf="product.stockLevel > 10">In Stock — Ready to ship</span>
-                <span *ngIf="product.stockLevel > 0 && product.stockLevel <= 10">
-                    Only {{ product.stockLevel }} left — Order soon!
-                </span>
-                <span *ngIf="product.stockLevel === 0">Currently Unavailable</span>
-            </div>
-
-            <!-- About -->
-            <div class="about-block" *ngIf="product.summary">
-                <p>{{ product.summary }}</p>
-            </div>
-
-            <!-- Quick Specs preview -->
-            <div class="quick-specs" *ngIf="product.attributes && product.attributes.length > 0">
-                <div class="qs-item" *ngFor="let attr of product.attributes | slice:0:3">
-                    <span class="qs-key">{{ $any(attr).attributeName }}</span>
-                    <span class="qs-val">{{ $any(attr).value }}</span>
+            <!-- Stock & Trust Indicators -->
+            <div class="trust-indicators-row">
+                <div class="stock-indicator" [class.in-stock]="product.stockLevel > 0"
+                    [class.low-stock]="product.stockLevel > 0 && product.stockLevel < 10"
+                    [class.out-of-stock]="product.stockLevel === 0">
+                    <span class="dot"></span>
+                    <span *ngIf="product.stockLevel > 10">In Stock</span>
+                    <span *ngIf="product.stockLevel > 0 && product.stockLevel <= 10">Only {{ product.stockLevel }}
+                        Left</span>
+                    <span *ngIf="product.stockLevel === 0">Out of Stock</span>
+                </div>
+                <div class="wish-share-row">
+                    <button class="btn-tool" [class.active]="wishlistService.isInWishlist(product.id)"
+                        (click)="toggleWishlist()" title="Add to Wishlist">
+                        <i [class]="wishlistService.isInWishlist(product.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
+                    </button>
+                    <button class="btn-tool" (click)="shareProduct()" title="Share Product">
+                        <i class="ri-share-forward-line"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- CTA Actions -->
-            <div class="cta-actions">
-                <button class="btn-cart" [class.adding]="isAddingToCart" [class.added]="cartAdded"
-                    [disabled]="product.stockLevel === 0 || isAddingToCart" (click)="addToCart()">
-                    <i class="ri-shopping-cart-line" *ngIf="!isAddingToCart && !cartAdded"></i>
-                    <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart"></i>
-                    <i class="ri-check-line" *ngIf="cartAdded"></i>
-                    <span *ngIf="!cartAdded">{{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}</span>
-                    <span *ngIf="cartAdded">Added!</span>
-                </button>
-
-                <button class="btn-wishlist" [class.active]="wishlistService.isInWishlist(product.id)"
-                    (click)="toggleWishlist()">
-                    <i [class]="wishlistService.isInWishlist(product.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
-                </button>
-
-                <button class="btn-share" (click)="shareProduct()" title="Share">
-                    <i class="ri-share-line"></i>
-                </button>
-            </div>
-
-            <!-- Trust badges -->
+            <!-- Trust badges with refined tooltips -->
             <div class="trust-strip">
-                <div class="trust-item">
-                    <i class="ri-lock-fill"></i>
+                <div class="trust-item" title="Your payment info is encrypted and 100% safe.">
+                    <i class="ri-shield-keyhole-fill"></i>
                     <span>Secure Checkout</span>
                 </div>
-                <div class="trust-item">
+                <div class="trust-item" title="Enjoy complimentary shipping on all orders over 1000 EGP.">
                     <i class="ri-truck-fill"></i>
                     <span>Free Shipping</span>
                 </div>
-                <div class="trust-item">
-                    <i class="ri-restart-line"></i>
+                <div class="trust-item" title="Not happy? Return it within 14 days, no questions asked.">
+                    <i class="ri-loop-left-line"></i>
                     <span>Easy Returns</span>
                 </div>
-                <div class="trust-item">
-                    <i class="ri-shield-check-fill"></i>
-                    <span>Warranty</span>
+                <div class="trust-item" title="Authentic high-quality craftsmanship guaranteed.">
+                    <i class="ri-award-fill"></i>
+                    <span>Quality Promise</span>
                 </div>
             </div>
         </section>
@@ -182,8 +232,10 @@
             </div>
 
             <div class="sticky-price">
-                <span class="price">{{ product.price | number:'1.0-0' }}</span>
+                <span class="price">{{ (appliedDiscount ? appliedDiscount.finalAmount : product.price) | number:'1.0-0'
+                    }}</span>
                 <span class="cur">EGP</span>
+                <span class="applied-badge" *ngIf="appliedDiscount">PROMO</span>
             </div>
 
             <div class="guarantee-badge">
@@ -209,24 +261,25 @@
                 </div>
             </div>
 
-            <!-- Qty in card -->
-            <div class="qty-stepper small">
-                <button class="qty-btn" (click)="changeQuantity(-1)" [disabled]="quantity <= 1">
-                    <i class="ri-subtract-line"></i>
-                </button>
-                <span class="qty-val">{{ quantity }}</span>
-                <button class="qty-btn" (click)="changeQuantity(1)">
-                    <i class="ri-add-line"></i>
+            <div class="purchase-row sticky">
+                <div class="qty-control">
+                    <button class="qty-btn" (click)="changeQuantity(-1)" [disabled]="quantity <= 1">
+                        <i class="ri-subtract-line"></i>
+                    </button>
+                    <span class="qty-val">{{ quantity }}</span>
+                    <button class="qty-btn" (click)="changeQuantity(1)">
+                        <i class="ri-add-line"></i>
+                    </button>
+                </div>
+
+                <button class="btn-cart-sticky" [class.adding]="isAddingToCart" [class.added]="cartAdded"
+                    [disabled]="product.stockLevel === 0 || isAddingToCart" (click)="addToCart()">
+                    <i class="ri-shopping-cart-2-line" *ngIf="!isAddingToCart && !cartAdded"></i>
+                    <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart"></i>
+                    <i class="ri-check-line" *ngIf="cartAdded"></i>
+                    <span>{{ cartAdded ? 'Added!' : (isAddingToCart ? 'Adding...' : 'Add to Cart') }}</span>
                 </button>
             </div>
-
-            <button class="btn-cart-main" [class.adding]="isAddingToCart" [class.added]="cartAdded"
-                [disabled]="product.stockLevel === 0 || isAddingToCart" (click)="addToCart()">
-                <i class="ri-shopping-cart-line" *ngIf="!isAddingToCart && !cartAdded"></i>
-                <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart"></i>
-                <i class="ri-check-line" *ngIf="cartAdded"></i>
-                <span>{{ cartAdded ? 'Added to Cart!' : (isAddingToCart ? 'Adding...' : 'Add to Cart') }}</span>
-            </button>
 
             <button class="btn-wishlist-card" [class.active]="wishlistService.isInWishlist(product.id)"
                 (click)="toggleWishlist()">
@@ -274,6 +327,13 @@
                             </li>
                         </ul>
                     </div>
+
+                    <!-- Care Instructions (Added for Premium feel) -->
+                    <div class="care-box">
+                        <h3><i class="ri-heart-pulse-line"></i> Care & Quality</h3>
+                        <p>To maintain the premium finish, avoid direct sunlight and clean with a damp microfiber cloth.
+                            Our materials are sustainably sourced and artisan-crafted.</p>
+                    </div>
                 </div>
                 <div class="img-side" *ngIf="product.imagesList.length > 1">
                     <img [src]="product.imagesList[1] | url" [alt]="product.name">
@@ -300,8 +360,7 @@
 
     </section>
 
-    <!-- ── Customer Reviews ── Always visible below tabs ── -->
-    <section class="reviews-standalone">
+    <section class="reviews-standalone" #reviewsSection>
         <div class="reviews-section-header">
             <h2 class="reviews-title">
                 <i class="ri-star-fill"></i>

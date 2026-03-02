@@ -78,12 +78,24 @@ export class PromotionsComponent implements OnInit {
     openCreateModal() {
         this.isEditMode.set(false);
         this.selectedPromotionId.set(null);
+        const toLocalISO = (date: Date) => {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+            return localDate.toISOString().slice(0, 16);
+        };
+
+        const now = new Date();
+        const oneMonthLater = new Date();
+        oneMonthLater.setMonth(now.getMonth() + 1);
+
         this.promotionForm.reset({
             type: PromotionType.Percentage,
             appliesToType: AppliesToType.All,
             isActive: true,
             usagePerUser: 1,
-            minimumOrderAmount: 0
+            minimumOrderAmount: 0,
+            startsAt: toLocalISO(now),
+            endsAt: toLocalISO(oneMonthLater)
         });
         this.isModalOpen.set(true);
     }
@@ -92,9 +104,15 @@ export class PromotionsComponent implements OnInit {
         this.isEditMode.set(true);
         this.selectedPromotionId.set(promotion.id);
 
-        // Format dates for input type="datetime-local"
-        const startsAt = new Date(promotion.startsAt).toISOString().slice(0, 16);
-        const endsAt = new Date(promotion.endsAt).toISOString().slice(0, 16);
+        // Format dates for input type="datetime-local" (using local time instead of UTC)
+        const toLocalISO = (date: Date) => {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+            return localDate.toISOString().slice(0, 16);
+        };
+
+        const startsAt = toLocalISO(new Date(promotion.startsAt));
+        const endsAt = toLocalISO(new Date(promotion.endsAt));
 
         this.promotionForm.patchValue({
             ...promotion,
@@ -112,11 +130,24 @@ export class PromotionsComponent implements OnInit {
         if (this.promotionForm.invalid) return;
 
         this.isLoading.set(true);
-        const request = this.promotionForm.value;
+        const formValue = this.promotionForm.value;
+
+        // Ensure dates are converted to ISO strings for backend
+        const requestBase = {
+            ...formValue,
+            startsAt: new Date(formValue.startsAt).toISOString(),
+            endsAt: new Date(formValue.endsAt).toISOString(),
+            // Ensure numeric values are indeed numbers
+            value: Number(formValue.value),
+            maxDiscountAmount: formValue.maxDiscountAmount ? Number(formValue.maxDiscountAmount) : null,
+            minimumOrderAmount: formValue.minimumOrderAmount ? Number(formValue.minimumOrderAmount) : 0,
+            usageLimit: formValue.usageLimit ? Number(formValue.usageLimit) : null,
+            usagePerUser: Number(formValue.usagePerUser)
+        };
 
         if (this.isEditMode()) {
             const updateRequest: UpdatePromotionRequest = {
-                ...request,
+                ...requestBase,
                 id: this.selectedPromotionId()!
             };
             this.promotionService.updatePromotion(updateRequest).subscribe({
@@ -134,7 +165,7 @@ export class PromotionsComponent implements OnInit {
                 }
             });
         } else {
-            const createRequest: CreatePromotionRequest = request;
+            const createRequest: CreatePromotionRequest = requestBase;
             this.promotionService.createPromotion(createRequest).subscribe({
                 next: (res) => {
                     if (res.isSuccess) {
@@ -144,8 +175,8 @@ export class PromotionsComponent implements OnInit {
                     }
                     this.isLoading.set(false);
                 },
-                error: () => {
-                    this.toastService.error('Failed to create promotion');
+                error: (err) => {
+                    this.toastService.error(err.error?.message || 'Failed to create promotion');
                     this.isLoading.set(false);
                 }
             });

@@ -18,7 +18,7 @@
 
         <!-- Wishlist Content -->
         <div class="wishlist-grid" *ngIf="wishlistService.itemCount > 0">
-            <app-product-card *ngFor="let item of mappedProducts()" [product]="item"></app-product-card>
+            <app-product-card *ngFor="let item of mappedProducts()" [product]="$any(item)"></app-product-card>
         </div>
     </div>
 </div>

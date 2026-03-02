@@ -27,10 +27,25 @@ export interface CreatePromotionRequest {
     usagePerUser?: number;
     startsAt: string;
     endsAt: string;
+    isActive: boolean;
     appliesToType: AppliesToType;
     metadata?: string;
 }
 
 export interface UpdatePromotionRequest extends CreatePromotionRequest {
     id: number;
+}
+
+export interface ApplyPromotionRequest {
+    promoCode: string;
+    productId?: number;
+    amount?: number;
+}
+
+export interface DiscountResult {
+    isValid: boolean;
+    errorMessage?: string;
+    discountAmount: number;
+    finalAmount: number;
+    isFreeShipping: boolean;
 }

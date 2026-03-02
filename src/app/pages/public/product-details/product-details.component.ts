@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from '../catalog/services/product.service';
 import { CartService } from '../cart/services/cart.service';
 import { WishlistService } from '../wishlist/services/wishlist.service';
+import { PromotionService } from '../../dashboard/promotions/promotion.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { environment } from '../../../../environments/environment';
@@ -23,14 +24,22 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private productService = inject(ProductService);
     private cartService = inject(CartService);
     public wishlistService = inject(WishlistService);
+    private promotionService = inject(PromotionService);
     private toastService = inject(ToastService);
     private seoService = inject(SeoService);
+    private el = inject(ElementRef);
+    @ViewChild('reviewsSection') reviewsSection!: ElementRef;
 
     product: any = null;
     activeImage = '';
     quantity: number = 1;
     activeTab: string = 'details';
     selectedVariant: any = null;
+
+    // Promo Code
+    promoCode: string = '';
+    isApplyingPromo: boolean = false;
+    appliedDiscount: any = null;
 
 
     // Data arrays
@@ -221,8 +230,18 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
     changeQuantity(delta: number) {
         const newQty = this.quantity + delta;
-        if (newQty >= 1 && newQty <= (this.product.stockLevel || 99)) {
+        const maxStock = this.selectedVariant ? this.selectedVariant.stockQuantity : (this.product.stockLevel || 99);
+
+        if (newQty >= 1 && newQty <= maxStock) {
             this.quantity = newQty;
+        } else if (newQty > maxStock) {
+            this.toastService.info(`Only ${maxStock} units available.`);
+        }
+    }
+
+    scrollToReviews() {
+        if (this.reviewsSection) {
+            this.reviewsSection.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
@@ -234,10 +253,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         if (this.product.stockLevel === 0) return;
         this.isAddingToCart = true;
 
+        const finalPrice = this.appliedDiscount ? this.appliedDiscount.finalAmount : this.product.price;
+
         this.cartService.addToCart({
             id: this.product.id,
             name: this.product.name + (this.selectedVariant ? ` - ${this.selectedVariant.name}` : ''),
-            price: this.product.price,
+            price: finalPrice,
             image: this.activeImage,
             variantId: this.selectedVariant?.id
         }, this.quantity);
@@ -282,6 +303,32 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
                 this.toastService.info('Copy the link from your address bar.');
             });
         }
+    }
+
+    applyPromoCode() {
+        if (!this.promoCode || this.promoCode.trim() === '') {
+            this.appliedDiscount = null;
+            return;
+        }
+
+        this.isApplyingPromo = true;
+        this.promotionService.applyPromotion({ promoCode: this.promoCode }).subscribe({
+            next: (res) => {
+                if (res.isSuccess && res.data.isValid) {
+                    this.appliedDiscount = res.data;
+                    this.toastService.success('Promo code applied successfully!');
+                } else {
+                    this.appliedDiscount = null;
+                    this.toastService.error(res.data?.errorMessage || 'Invalid promo code');
+                }
+                this.isApplyingPromo = false;
+            },
+            error: (err) => {
+                this.isApplyingPromo = false;
+                this.appliedDiscount = null;
+                this.toastService.error(err.error?.message || 'Failed to apply promo code');
+            }
+        });
     }
 
     submitReview() {
