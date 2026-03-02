@@ -322,7 +322,8 @@
                             [class.scrollable]="viewMode !== 'list'" #catScroll appAutoScroll (scroll)="0">
                             <app-product-card *ngFor="let product of section.products; let pi = index"
                                 [product]="product" [categoryName]="section.name"
-                                [style.animation-delay]="(si * 0.08) + (pi * 0.05) + 's'">
+                                [style.animation-delay]="(si * 0.08) + (pi * 0.05) + 's'" [useInternalQuickView]="false"
+                                (quickView)="openQuickView($event, product)">
                             </app-product-card>
                         </div>
                         <button class="nav-btn right" (click)="scrollContainer(catScroll, 1)"

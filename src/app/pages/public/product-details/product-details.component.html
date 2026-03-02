@@ -460,6 +460,22 @@
 
 </div>
 
+<!-- ── Mobile Fixed Action Bar ───────────────────── -->
+<div class="mobile-action-bar" *ngIf="product">
+    <div class="mob-price-col">
+        <span class="mob-lbl">Total</span>
+        <span class="mob-price">{{ (appliedDiscount ? appliedDiscount.finalAmount : (product.price || product.minPrice))
+            | number:'1.0-0' }} EGP</span>
+    </div>
+    <button class="btn-mob-cart" [class.adding]="isAddingToCart" [class.added]="cartAdded"
+        [disabled]="product.stockLevel === 0 || isAddingToCart" (click)="addToCart()">
+        <i class="ri-shopping-cart-2-line" *ngIf="!isAddingToCart && !cartAdded"></i>
+        <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart"></i>
+        <i class="ri-check-line" *ngIf="cartAdded"></i>
+        <span>{{ cartAdded ? 'Added' : (isAddingToCart ? '...' : 'Add to Cart') }}</span>
+    </button>
+</div>
+
 <!-- ── Professional Zoom Modal ────────────────────── -->
 <div class="zoom-backdrop" *ngIf="isZoomOpen" (click)="closeZoom()">
     <div class="zoom-modal" (click)="$event.stopPropagation()" (mousedown)="onZoomMouseDown($event)"

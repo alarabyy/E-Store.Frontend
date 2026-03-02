@@ -13,6 +13,11 @@ export interface StoreSettings {
     twitterUrl?: string;
     linkedInUrl?: string;
     aboutSection?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    backgroundColor?: string;
+    textColor?: string;
 }
 
 export interface UpdateStoreSettingsRequest {
@@ -29,4 +34,9 @@ export interface UpdateStoreSettingsRequest {
     twitterUrl?: string;
     linkedInUrl?: string;
     aboutSection?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    backgroundColor?: string;
+    textColor?: string;
 }

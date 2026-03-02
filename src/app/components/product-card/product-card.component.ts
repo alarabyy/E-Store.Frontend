@@ -1,4 +1,4 @@
-import { Component, Input, inject, ViewChild, ElementRef, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, ViewChild, ElementRef, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +25,9 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
 
     @Input() product!: Product;
     @Input() categoryName: string = '';
+    @Input() useInternalQuickView: boolean = true;
+    @Output() quickView = new EventEmitter<Event>();
+
     @ViewChild('quickViewOverlay') quickViewOverlay!: ElementRef<HTMLDivElement>;
 
     // Quick View State
@@ -84,6 +87,11 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
     openQuickView(event: Event) {
         event.stopPropagation();
         event.preventDefault();
+
+        if (!this.useInternalQuickView) {
+            this.quickView.emit(event);
+            return;
+        }
 
         this.isQuickViewOpen = true;
         this.isLoadingProduct = true;

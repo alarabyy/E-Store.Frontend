@@ -2,18 +2,20 @@
     <!-- Global Promo Ticker -->
     <div class="promo-ticker">
         <div class="ticker-track">
-            <span *ngFor="let offer of offers">
-                💫 {{ offer.title }}: Use code <span class="hc">{{ offer.code }}</span> for special discount
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                🚚 Free shipping on furniture &nbsp;&nbsp;&nbsp;&nbsp;
-                ✨ Elite Store - The Address of Luxury &nbsp;&nbsp;&nbsp;&nbsp;
+            <span class="offer-item" *ngFor="let offer of offers">
+                <a [routerLink]="offer.slug ? ['/collections', offer.slug] : '/catalog'" class="promo-link">
+                    ✨ <span class="promo-title">Explore {{ offer.title }}</span>
+                    <span class="hc">{{ offer.discountText }}</span>
+                </a>
+                <span class="spacer">&nbsp;&nbsp;&nbsp;&nbsp;⭐&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </span>
-            <!-- Duplicate -->
-            <span *ngFor="let offer of offers">
-                💫 {{ offer.title }}: Use code <span class="hc">{{ offer.code }}</span> for special discount
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                🚚 Free shipping on furniture &nbsp;&nbsp;&nbsp;&nbsp;
-                ✨ Elite Store - The Address of Luxury &nbsp;&nbsp;&nbsp;&nbsp;
+            <!-- Duplicate for infinite scroll -->
+            <span class="offer-item" *ngFor="let offer of offers">
+                <a [routerLink]="offer.slug ? ['/collections', offer.slug] : '/catalog'" class="promo-link">
+                    ✨ <span class="promo-title">Explore {{ offer.title }}</span>
+                    <span class="hc">{{ offer.discountText }}</span>
+                </a>
+                <span class="spacer">&nbsp;&nbsp;&nbsp;&nbsp;⭐&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </span>
         </div>
     </div>

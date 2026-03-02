@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../pages/public/cart/services/cart.service';
 import { WishlistService } from '../../pages/public/wishlist/services/wishlist.service';
 import { StoreService } from '../../core/services/store.service';
+import { CollectionService } from '../../pages/public/catalog/services/collection.service';
 
 
 @Component({
@@ -19,6 +20,8 @@ export class NavbarComponent implements OnInit {
     public cartService = inject(CartService);
     public wishlistService = inject(WishlistService);
     public storeService = inject(StoreService);
+    private collectionService = inject(CollectionService);
+
     isScrolled = false;
     isNavHidden = false;
     lastScrollTop = 0;
@@ -26,14 +29,37 @@ export class NavbarComponent implements OnInit {
     isCategoriesMenuOpen = signal(false);
     activeCategory = signal<number | null>(null);
 
-    offers = [
-        { title: 'End of Season Sale', code: 'WINTER50' },
-        { title: 'Limited Time Free Shipping', code: 'FREE20' },
-        { title: 'Handmade Carpet Offers', code: 'CARPET10' }
-    ];
+    offers: any[] = [];
 
     ngOnInit() {
         this.cartService.loadFromBackend();
+        this.loadOffers();
+    }
+
+    private loadOffers() {
+        this.collectionService.getCollectionsList(1, 5).subscribe({
+            next: (res) => {
+                const items = res?.data || res?.items || [];
+                if (items.length > 0) {
+                    this.offers = items.map((c: any) => ({
+                        title: c.name,
+                        slug: c.slug,
+                        discountText: c.discountPercentage ? `Up to ${c.discountPercentage}% OFF` : 'Exclusive Offer'
+                    }));
+                } else {
+                    this.setDefaultOffers();
+                }
+            },
+            error: () => this.setDefaultOffers()
+        });
+    }
+
+    private setDefaultOffers() {
+        this.offers = [
+            { title: 'End of Season Sale', discountText: 'Use code WINTER50', slug: '' },
+            { title: 'Limited Time Free Shipping', discountText: 'Use code FREE20', slug: '' },
+            { title: 'Handmade Carpet Offers', discountText: 'Special Discounts', slug: '' }
+        ];
     }
 
     @HostListener('window:scroll', [])

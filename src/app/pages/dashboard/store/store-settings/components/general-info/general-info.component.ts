@@ -50,7 +50,12 @@ export class GeneralInfoComponent implements OnChanges {
             aboutSection: [''],
             storeLogoUrl: [''],
             storeSecondaryLogoUrl: [''],
-            faviconUrl: ['']
+            faviconUrl: [''],
+            primaryColor: ['#1e40af'],
+            secondaryColor: ['#3b82f6'],
+            accentColor: ['#f59e0b'],
+            backgroundColor: ['#ffffff'],
+            textColor: ['#1f2937']
         });
     }
 
@@ -144,6 +149,13 @@ export class GeneralInfoComponent implements OnChanges {
         if (val.instagramUrl) formData.append('InstagramUrl', val.instagramUrl);
         if (val.twitterUrl) formData.append('TwitterUrl', val.twitterUrl);
         if (val.linkedInUrl) formData.append('LinkedInUrl', val.linkedInUrl);
+
+        // Colors
+        if (val.primaryColor) formData.append('PrimaryColor', val.primaryColor);
+        if (val.secondaryColor) formData.append('SecondaryColor', val.secondaryColor);
+        if (val.accentColor) formData.append('AccentColor', val.accentColor);
+        if (val.backgroundColor) formData.append('BackgroundColor', val.backgroundColor);
+        if (val.textColor) formData.append('TextColor', val.textColor);
 
         // Files
         if (this.logoFile) formData.append('StoreLogo', this.logoFile);

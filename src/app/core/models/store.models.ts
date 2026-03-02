@@ -13,6 +13,11 @@ export interface StoreSettings {
     twitterUrl?: string;
     linkedInUrl?: string;
     aboutSection?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    backgroundColor?: string;
+    textColor?: string;
 }
 
 export interface CategoryTreeMinimal {
@@ -43,6 +48,11 @@ export interface UpdateStoreSettingsRequest {
     instagramUrl?: string;
     twitterUrl?: string;
     linkedInUrl?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    backgroundColor?: string;
+    textColor?: string;
 }
 
 export interface HomePageBanner {

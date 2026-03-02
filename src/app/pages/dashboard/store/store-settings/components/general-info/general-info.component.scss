@@ -88,6 +88,38 @@
         resize: vertical;
         min-height: 100px;
     }
+
+    .color-input-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            appearance: none;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            width: 45px;
+            height: 45px;
+            padding: 2px;
+            cursor: pointer;
+            background: #f8fafc;
+
+            &::-webkit-color-swatch-wrapper {
+                padding: 0;
+            }
+
+            &::-webkit-color-swatch {
+                border: none;
+                border-radius: 6px;
+            }
+        }
+
+        .color-hex-input {
+            width: 100px;
+            text-align: center;
+        }
+    }
 }
 
 .upload-section {
