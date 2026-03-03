@@ -1,22 +1,44 @@
 <div class="settings-container">
     <header class="settings-header">
         <div>
-            <h1>Store Dashboard</h1>
+            <h1>
+                <i class="ri-store-3-line"></i>
+                Store Settings
+            </h1>
             <p class="subtitle">Customize your store identity and homepage content</p>
         </div>
     </header>
 
     <div class="settings-tabs">
-        <button [class.active]="activeTab === 'general'" (click)="setTab('general')">General Info</button>
-        <button [class.active]="activeTab === 'banners'" (click)="setTab('banners')">Home Banners</button>
-        <button [class.active]="activeTab === 'offers'" (click)="setTab('offers')">Exclusive Offers</button>
-        <button [class.active]="activeTab === 'items'" (click)="setTab('items')">Shop By Items</button>
+        <button [class.active]="activeTab === 'general'" (click)="setTab('general')">
+            <i class="ri-information-line"></i>
+            <span>General Info</span>
+        </button>
+        <button [class.active]="activeTab === 'colors'" (click)="setTab('colors')">
+            <i class="ri-palette-line"></i>
+            <span>Theme Colors</span>
+        </button>
+        <button [class.active]="activeTab === 'banners'" (click)="setTab('banners')">
+            <i class="ri-image-line"></i>
+            <span>Home Banners</span>
+        </button>
+        <button [class.active]="activeTab === 'offers'" (click)="setTab('offers')">
+            <i class="ri-coupon-3-line"></i>
+            <span>Exclusive Offers</span>
+        </button>
+        <button [class.active]="activeTab === 'items'" (click)="setTab('items')">
+            <i class="ri-shopping-cart-line"></i>
+            <span>Shop By Items</span>
+        </button>
     </div>
 
     <!-- Content Sections -->
     <div class="settings-content">
         <app-general-info *ngIf="activeTab === 'general'" [settings]="settingsResponse?.settings || null">
         </app-general-info>
+
+        <app-theme-colors *ngIf="activeTab === 'colors'" [settings]="settingsResponse?.settings || null">
+        </app-theme-colors>
 
         <app-home-banners *ngIf="activeTab === 'banners'" [banners]="settingsResponse?.homeBanners || []"
             (refresh)="loadSettings()">

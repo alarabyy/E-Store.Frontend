@@ -132,7 +132,7 @@ export class ProductsComponent implements OnInit {
         });
     }
 
-    /** توليد slug يدعم العربي والإنجليزي بشكل متماثل */
+    /** Generate slug supporting both Arabic and English */
     buildSlug(name: string): string {
         if (!name) return '';
         return name

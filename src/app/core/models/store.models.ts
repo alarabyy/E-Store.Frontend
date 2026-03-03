@@ -13,6 +13,107 @@ export interface StoreSettings {
     twitterUrl?: string;
     linkedInUrl?: string;
     aboutSection?: string;
+    
+    // Button Colors
+    buttonPrimaryColor?: string;
+    buttonPrimaryTextColor?: string;
+    buttonPrimaryHoverColor?: string;
+    buttonSecondaryColor?: string;
+    buttonSecondaryTextColor?: string;
+    buttonSecondaryHoverColor?: string;
+    buttonSuccessColor?: string;
+    buttonSuccessTextColor?: string;
+    buttonDangerColor?: string;
+    buttonDangerTextColor?: string;
+    buttonWarningColor?: string;
+    buttonWarningTextColor?: string;
+    buttonInfoColor?: string;
+    buttonInfoTextColor?: string;
+    buttonDisabledColor?: string;
+    buttonDisabledTextColor?: string;
+    
+    // Text Colors
+    textPrimaryColor?: string;
+    textSecondaryColor?: string;
+    textMutedColor?: string;
+    textHeadingColor?: string;
+    textBodyColor?: string;
+    textLinkColor?: string;
+    textLinkHoverColor?: string;
+    textErrorColor?: string;
+    textSuccessColor?: string;
+    
+    // Background Colors
+    backgroundPrimaryColor?: string;
+    backgroundSecondaryColor?: string;
+    backgroundCardColor?: string;
+    backgroundSectionColor?: string;
+    backgroundOverlayColor?: string;
+    backgroundDarkColor?: string;
+    
+    // Border Colors
+    borderPrimaryColor?: string;
+    borderSecondaryColor?: string;
+    borderInputColor?: string;
+    borderInputFocusColor?: string;
+    borderCardColor?: string;
+    borderErrorColor?: string;
+    borderSuccessColor?: string;
+    
+    // Input Colors
+    inputBackgroundColor?: string;
+    inputBorderColor?: string;
+    inputFocusColor?: string;
+    inputPlaceholderColor?: string;
+    inputTextColor?: string;
+    inputErrorColor?: string;
+    inputDisabledBackgroundColor?: string;
+    inputDisabledTextColor?: string;
+    
+    // Navigation Colors
+    navigationBackgroundColor?: string;
+    navigationTextColor?: string;
+    navigationActiveColor?: string;
+    navigationActiveTextColor?: string;
+    navigationHoverColor?: string;
+    navigationHoverTextColor?: string;
+    
+    // Header Colors
+    headerBackgroundColor?: string;
+    headerTextColor?: string;
+    headerBorderColor?: string;
+    
+    // Footer Colors
+    footerBackgroundColor?: string;
+    footerTextColor?: string;
+    footerLinkColor?: string;
+    footerLinkHoverColor?: string;
+    
+    // Badge & Tag Colors
+    badgePrimaryColor?: string;
+    badgePrimaryTextColor?: string;
+    badgeSuccessColor?: string;
+    badgeSuccessTextColor?: string;
+    badgeDangerColor?: string;
+    badgeDangerTextColor?: string;
+    badgeWarningColor?: string;
+    badgeWarningTextColor?: string;
+    
+    // Alert Colors
+    alertSuccessBackgroundColor?: string;
+    alertSuccessTextColor?: string;
+    alertSuccessBorderColor?: string;
+    alertErrorBackgroundColor?: string;
+    alertErrorTextColor?: string;
+    alertErrorBorderColor?: string;
+    alertWarningBackgroundColor?: string;
+    alertWarningTextColor?: string;
+    alertWarningBorderColor?: string;
+    alertInfoBackgroundColor?: string;
+    alertInfoTextColor?: string;
+    alertInfoBorderColor?: string;
+    
+    // Legacy Colors (for backward compatibility)
     primaryColor?: string;
     secondaryColor?: string;
     accentColor?: string;
@@ -48,6 +149,107 @@ export interface UpdateStoreSettingsRequest {
     instagramUrl?: string;
     twitterUrl?: string;
     linkedInUrl?: string;
+    
+    // Button Colors
+    buttonPrimaryColor?: string;
+    buttonPrimaryTextColor?: string;
+    buttonPrimaryHoverColor?: string;
+    buttonSecondaryColor?: string;
+    buttonSecondaryTextColor?: string;
+    buttonSecondaryHoverColor?: string;
+    buttonSuccessColor?: string;
+    buttonSuccessTextColor?: string;
+    buttonDangerColor?: string;
+    buttonDangerTextColor?: string;
+    buttonWarningColor?: string;
+    buttonWarningTextColor?: string;
+    buttonInfoColor?: string;
+    buttonInfoTextColor?: string;
+    buttonDisabledColor?: string;
+    buttonDisabledTextColor?: string;
+    
+    // Text Colors
+    textPrimaryColor?: string;
+    textSecondaryColor?: string;
+    textMutedColor?: string;
+    textHeadingColor?: string;
+    textBodyColor?: string;
+    textLinkColor?: string;
+    textLinkHoverColor?: string;
+    textErrorColor?: string;
+    textSuccessColor?: string;
+    
+    // Background Colors
+    backgroundPrimaryColor?: string;
+    backgroundSecondaryColor?: string;
+    backgroundCardColor?: string;
+    backgroundSectionColor?: string;
+    backgroundOverlayColor?: string;
+    backgroundDarkColor?: string;
+    
+    // Border Colors
+    borderPrimaryColor?: string;
+    borderSecondaryColor?: string;
+    borderInputColor?: string;
+    borderInputFocusColor?: string;
+    borderCardColor?: string;
+    borderErrorColor?: string;
+    borderSuccessColor?: string;
+    
+    // Input Colors
+    inputBackgroundColor?: string;
+    inputBorderColor?: string;
+    inputFocusColor?: string;
+    inputPlaceholderColor?: string;
+    inputTextColor?: string;
+    inputErrorColor?: string;
+    inputDisabledBackgroundColor?: string;
+    inputDisabledTextColor?: string;
+    
+    // Navigation Colors
+    navigationBackgroundColor?: string;
+    navigationTextColor?: string;
+    navigationActiveColor?: string;
+    navigationActiveTextColor?: string;
+    navigationHoverColor?: string;
+    navigationHoverTextColor?: string;
+    
+    // Header Colors
+    headerBackgroundColor?: string;
+    headerTextColor?: string;
+    headerBorderColor?: string;
+    
+    // Footer Colors
+    footerBackgroundColor?: string;
+    footerTextColor?: string;
+    footerLinkColor?: string;
+    footerLinkHoverColor?: string;
+    
+    // Badge & Tag Colors
+    badgePrimaryColor?: string;
+    badgePrimaryTextColor?: string;
+    badgeSuccessColor?: string;
+    badgeSuccessTextColor?: string;
+    badgeDangerColor?: string;
+    badgeDangerTextColor?: string;
+    badgeWarningColor?: string;
+    badgeWarningTextColor?: string;
+    
+    // Alert Colors
+    alertSuccessBackgroundColor?: string;
+    alertSuccessTextColor?: string;
+    alertSuccessBorderColor?: string;
+    alertErrorBackgroundColor?: string;
+    alertErrorTextColor?: string;
+    alertErrorBorderColor?: string;
+    alertWarningBackgroundColor?: string;
+    alertWarningTextColor?: string;
+    alertWarningBorderColor?: string;
+    alertInfoBackgroundColor?: string;
+    alertInfoTextColor?: string;
+    alertInfoBorderColor?: string;
+    
+    // Legacy Colors (for backward compatibility)
     primaryColor?: string;
     secondaryColor?: string;
     accentColor?: string;

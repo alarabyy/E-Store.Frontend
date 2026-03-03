@@ -27,6 +27,9 @@ export class OverviewComponent implements OnInit {
     usersService = inject(UsersService);
     cdr = inject(ChangeDetectorRef);
 
+    isRefreshing = false;
+    lastUpdatedAt: Date | null = null;
+
     stats: DashboardStats = {
         totalUsers: 0,
         verifiedEmails: 0,
@@ -39,44 +42,67 @@ export class OverviewComponent implements OnInit {
         totalCategories: 0
     };
 
-    // isLoading = true; // Removed as requested
-
     ngOnInit() {
-        this.loadDashboardData();
-        this.loadCategoryStats();
+        this.refresh();
     }
 
-    loadCategoryStats() {
-        inject(CategoryService).getCategories(1, 1).subscribe({
-            next: (res) => {
-                this.stats.totalCategories = res.totalCount || 0;
+    refresh() {
+        if (this.isRefreshing) return;
+        this.isRefreshing = true;
+
+        this.loadDashboardData(() => {
+            this.loadCategoryStats(() => {
+                this.lastUpdatedAt = new Date();
+                this.isRefreshing = false;
                 this.cdr.detectChanges();
-            }
+            });
         });
     }
 
-    loadDashboardData() {
-        // this.isLoading = true;
-        // Fetch a large number of users to calculate stats client-side 
-        // since we don't have a dedicated stats endpoint
+    loadCategoryStats(done?: () => void) {
+        inject(CategoryService).getCategories(1, 1).subscribe({
+            next: (res) => {
+                this.stats.totalCategories = res.totalCount || 0;
+                done?.();
+            },
+            error: () => done?.()
+        });
+    }
+
+    loadDashboardData(done?: () => void) {
         this.usersService.getAllUsers(1, 1000).subscribe({
             next: (res) => {
                 if ((res as any).isSuccess || res.totalCount !== undefined) {
                     const users = res.data || [];
                     this.calculateStats(users, res.totalCount || users.length);
                 }
-                // this.isLoading = false;
+                done?.();
                 this.cdr.detectChanges();
             },
             error: (err) => {
                 console.error('Failed to load dashboard data', err);
-                // this.isLoading = false;
+                done?.();
             }
         });
     }
 
+    get verifiedRate(): number {
+        return this.stats.totalUsers ? (this.stats.verifiedEmails / this.stats.totalUsers) * 100 : 0;
+    }
+
+    get lockedRate(): number {
+        return this.stats.totalUsers ? (this.stats.lockedUsers / this.stats.totalUsers) * 100 : 0;
+    }
+
+    get topRole(): { name: string; count: number } | null {
+        return this.stats.roles.length ? this.stats.roles[0] : null;
+    }
+
+    rolePercent(count: number): number {
+        return this.stats.totalUsers ? (count / this.stats.totalUsers) * 100 : 0;
+    }
+
     private calculateStats(users: any[], totalCount: number) {
-        // Reset stats structure
         this.stats = {
             totalUsers: totalCount,
             verifiedEmails: 0,
@@ -86,7 +112,7 @@ export class OverviewComponent implements OnInit {
             roles: [],
             emailDomains: [],
             emailChartGradient: '',
-            totalCategories: this.stats.totalCategories // Preserve current count
+            totalCategories: this.stats.totalCategories
         };
 
         const roleCounts = new Map<string, number>();

@@ -64,15 +64,15 @@ export class CategoryFormComponent implements OnInit {
         });
     }
 
-    /** توليد slug يدعم العربي والإنجليزي بشكل متماثل */
+    /** Generate slug supporting both Arabic and English */
     buildSlug(name: string): string {
         if (!name) return '';
         return name
             .trim()
             .toLowerCase()
-            .replace(/[\s_]+/g, '-')           // استبدال المسافات والشرطات السفلية بداش
-            .replace(/-+/g, '-')               // منع تكرار الداش
-            .replace(/^-+|-+$/g, '');          // إزالة الداش من البداية والنهاية
+            .replace(/[\s_]+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '');
     }
 
     loadParentCategories() {

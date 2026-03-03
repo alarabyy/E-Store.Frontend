@@ -1,5 +1,114 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
 
+:root {
+    // Button Colors - Default Values
+    --button-primary-color: #1e40af;
+    --button-primary-text-color: #ffffff;
+    --button-primary-hover-color: #1e3a8a;
+    --button-secondary-color: #6b7280;
+    --button-secondary-text-color: #ffffff;
+    --button-secondary-hover-color: #4b5563;
+    --button-success-color: #10b981;
+    --button-success-text-color: #ffffff;
+    --button-danger-color: #ef4444;
+    --button-danger-text-color: #ffffff;
+    --button-warning-color: #f59e0b;
+    --button-warning-text-color: #ffffff;
+    --button-info-color: #3b82f6;
+    --button-info-text-color: #ffffff;
+    --button-disabled-color: #e5e7eb;
+    --button-disabled-text-color: #9ca3af;
+
+    // Text Colors - Default Values
+    --text-primary-color: #1f2937;
+    --text-secondary-color: #6b7280;
+    --text-muted-color: #9ca3af;
+    --text-heading-color: #111827;
+    --text-body-color: #374151;
+    --text-link-color: #3b82f6;
+    --text-link-hover-color: #2563eb;
+    --text-error-color: #ef4444;
+    --text-success-color: #10b981;
+
+    // Background Colors - Default Values
+    --background-primary-color: #ffffff;
+    --background-secondary-color: #f9fafb;
+    --background-card-color: #ffffff;
+    --background-section-color: #f3f4f6;
+    --background-overlay-color: rgba(0, 0, 0, 0.5);
+    --background-dark-color: #111827;
+
+    // Border Colors - Default Values
+    --border-primary-color: #e5e7eb;
+    --border-secondary-color: #d1d5db;
+    --border-input-color: #d1d5db;
+    --border-input-focus-color: #3b82f6;
+    --border-card-color: #e5e7eb;
+    --border-error-color: #ef4444;
+    --border-success-color: #10b981;
+
+    // Input Colors - Default Values
+    --input-background-color: #ffffff;
+    --input-border-color: #d1d5db;
+    --input-focus-color: #3b82f6;
+    --input-placeholder-color: #9ca3af;
+    --input-text-color: #1f2937;
+    --input-error-color: #ef4444;
+    --input-disabled-background-color: #f3f4f6;
+    --input-disabled-text-color: #9ca3af;
+
+    // Navigation Colors - Default Values
+    --navigation-background-color: #ffffff;
+    --navigation-text-color: #1f2937;
+    --navigation-active-color: #1e40af;
+    --navigation-active-text-color: #ffffff;
+    --navigation-hover-color: #f3f4f6;
+    --navigation-hover-text-color: #1e40af;
+
+    // Header Colors - Default Values
+    --header-background-color: #ffffff;
+    --header-text-color: #1f2937;
+    --header-border-color: #e5e7eb;
+
+    // Footer Colors - Default Values
+    --footer-background-color: #111827;
+    --footer-text-color: #ffffff;
+    --footer-link-color: #d1d5db;
+    --footer-link-hover-color: #ffffff;
+
+    // Badge & Tag Colors - Default Values
+    --badge-primary-color: #dbeafe;
+    --badge-primary-text-color: #1e40af;
+    --badge-success-color: #d1fae5;
+    --badge-success-text-color: #065f46;
+    --badge-danger-color: #fee2e2;
+    --badge-danger-text-color: #991b1b;
+    --badge-warning-color: #fef3c7;
+    --badge-warning-text-color: #92400e;
+
+    // Alert Colors - Default Values
+    --alert-success-background-color: #d1fae5;
+    --alert-success-text-color: #065f46;
+    --alert-success-border-color: #10b981;
+    --alert-error-background-color: #fee2e2;
+    --alert-error-text-color: #991b1b;
+    --alert-error-border-color: #ef4444;
+    --alert-warning-background-color: #fef3c7;
+    --alert-warning-text-color: #92400e;
+    --alert-warning-border-color: #f59e0b;
+    --alert-info-background-color: #dbeafe;
+    --alert-info-text-color: #1e40af;
+    --alert-info-border-color: #3b82f6;
+
+    // Legacy Colors (for backward compatibility)
+    --primary-color: #1e40af;
+    --secondary-color: #3b82f6;
+    --accent-color: #f59e0b;
+    --background-color: #ffffff;
+    --bg-color: #ffffff;
+    --text-color: #1f2937;
+}
+
 * {
     box-sizing: border-box;
 }

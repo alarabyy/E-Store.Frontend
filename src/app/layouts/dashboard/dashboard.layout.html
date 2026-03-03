@@ -5,126 +5,130 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="logo-wrapper" *ngIf="!isSidebarCollapsed()">
-                <app-logo size="small"></app-logo>
+                <app-logo size="small" [light]="true" [glow]="true"></app-logo>
             </div>
-            <div class="logo-mini" *ngIf="isSidebarCollapsed()">E.</div>
-            <button class="toggle-btn" (click)="toggleSidebar()">
-                ☰
+            <div class="logo-mini" *ngIf="isSidebarCollapsed()">
+                <span class="mini-e">E</span>
+                <span class="mini-dash">-</span>
+            </div>
+            <button class="toggle-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
+                <i class="ri-menu-fold-line" *ngIf="!isSidebarCollapsed()"></i>
+                <i class="ri-menu-unfold-line" *ngIf="isSidebarCollapsed()"></i>
             </button>
 
-            <button class="close-mobile-btn" (click)="closeMobileSidebar()">
+            <button class="close-mobile-btn" (click)="closeMobileSidebar()" title="Close Menu">
                 <i class="ri-close-line"></i>
             </button>
         </div>
 
         <nav class="sidebar-nav">
+            <!-- Dashboard & Analytics -->
             <div class="nav-group">
                 <div class="group-label">Main</div>
                 <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
                     class="nav-item" (click)="closeMobileSidebar()">
-                    <span class="icon">📊</span>
-                    <span class="label">Control Panel</span>
+                    <i class="ri-dashboard-3-line icon"></i>
+                    <span class="label">Dashboard</span>
                 </a>
-
                 <a routerLink="/dashboard/products-analytics" routerLinkActive="active" class="nav-item"
                     (click)="closeMobileSidebar()">
-                    <span class="icon">📈</span>
-                    <span class="label">Products Analytics</span>
+                    <i class="ri-bar-chart-box-line icon"></i>
+                    <span class="label">Analytics</span>
                 </a>
+            </div>
 
+            <!-- Products Management -->
+            <div class="nav-group">
+                <div class="group-label">Products</div>
+                <a routerLink="/dashboard/products" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-shopping-bag-3-line icon"></i>
+                    <span class="label">Products</span>
+                </a>
+                <a routerLink="/dashboard/categories" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-folder-2-line icon"></i>
+                    <span class="label">Categories</span>
+                </a>
+                <a routerLink="/dashboard/collections" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-stack-line icon"></i>
+                    <span class="label">Collections</span>
+                </a>
+                <a routerLink="/dashboard/product-attributes" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-price-tag-3-line icon"></i>
+                    <span class="label">Attributes</span>
+                </a>
+                <a routerLink="/dashboard/product-reviews" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-star-smile-line icon"></i>
+                    <span class="label">Reviews</span>
+                </a>
+            </div>
+
+            <!-- Marketing & Promotions -->
+            <div class="nav-group">
+                <div class="group-label">Marketing</div>
+                <a routerLink="/dashboard/promotions" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-coupon-3-line icon"></i>
+                    <span class="label">Promotions</span>
+                </a>
+                <a routerLink="/dashboard/newsletter" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-mail-send-line icon"></i>
+                    <span class="label">Newsletter</span>
+                </a>
+            </div>
+
+            <!-- Users & Support -->
+            <div class="nav-group">
+                <div class="group-label">Support</div>
                 <a routerLink="/dashboard/users" routerLinkActive="active" class="nav-item"
                     (click)="closeMobileSidebar()">
-                    <span class="icon">👥</span>
+                    <i class="ri-user-3-line icon"></i>
                     <span class="label">Users</span>
+                </a>
+                <a routerLink="/dashboard/support-tickets" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-customer-service-2-line icon"></i>
+                    <span class="label">Support Tickets</span>
+                </a>
+                <a routerLink="/dashboard/faqs" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-question-answer-line icon"></i>
+                    <span class="label">FAQs</span>
+                </a>
+            </div>
+
+            <!-- Settings & Configuration -->
+            <div class="nav-group">
+                <div class="group-label">Settings</div>
+                <a routerLink="/dashboard/store-settings" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-store-3-line icon"></i>
+                    <span class="label">Store Settings</span>
+                </a>
+                <a routerLink="/dashboard/payments" routerLinkActive="active" class="nav-item"
+                    (click)="closeMobileSidebar()">
+                    <i class="ri-bank-card-2-line icon"></i>
+                    <span class="label">Payments</span>
                 </a>
                 <a routerLink="/dashboard/rules" routerLinkActive="active" class="nav-item"
                     (click)="closeMobileSidebar()">
-                    <span class="icon">🛡️</span>
-                    <span class="label">Rules</span>
+                    <i class="ri-shield-check-line icon"></i>
+                    <span class="label">Rules & Permissions</span>
                 </a>
-
-                <a routerLink="/dashboard/support-tickets" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">🎫</span>
-                    <span class="label">Support Tickets</span>
-                </a>
-
-
-                <a routerLink="/dashboard/faqs" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">❓</span>
-                    <span class="label">FAQs</span>
-                </a>
-
-                <a routerLink="/dashboard/newsletter" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">📧</span>
-                    <span class="label">Newsletter</span>
-                </a>
-
-                <a routerLink="/dashboard/promotions" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">🏷️</span>
-                    <span class="label">Promotions</span>
-                </a>
-
-
-
-                <a routerLink="/dashboard/categories" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">📁</span>
-                    <span class="label">Categories</span>
-                </a>
-
-                <a routerLink="/dashboard/collections" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">📚</span>
-                    <span class="label">Collections</span>
-                </a>
-
-
-
-
-                <a routerLink="/dashboard/products" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">📦</span>
-                    <span class="label">Products</span>
-                </a>
-
-                <a routerLink="/dashboard/product-attributes" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">🏷️</span>
-                    <span class="label">Attributes</span>
-                </a>
-
-                <a routerLink="/dashboard/product-reviews" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">⭐</span>
-                    <span class="label">Reviews</span>
-                </a>
-
-                <a routerLink="/dashboard/store-settings" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">⚙️</span>
-                    <span class="label">Store Settings</span>
-                </a>
-
-                <a routerLink="/dashboard/payments" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <span class="icon">💳</span>
-                    <span class="label">Payments</span>
-                </a>
-
-
-
-                <a routerLink="/" class="nav-item home-link" (click)="closeMobileSidebar()">
-                    <span class="icon">🏠</span>
-                    <span class="label">Back to Site</span>
-                </a>
-
             </div>
 
-
+            <!-- Back to Site -->
+            <div class="nav-group">
+                <a routerLink="/" class="nav-item home-link" (click)="closeMobileSidebar()">
+                    <i class="ri-home-4-line icon"></i>
+                    <span class="label">Back to Site</span>
+                </a>
+            </div>
         </nav>
 
         <div class="sidebar-footer">
