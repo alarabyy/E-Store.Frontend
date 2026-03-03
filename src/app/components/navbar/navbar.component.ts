@@ -1,10 +1,10 @@
 import { Component, HostListener, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../../pages/auth/services/auth.service';
 import { CartService } from '../../pages/public/cart/services/cart.service';
 import { WishlistService } from '../../pages/public/wishlist/services/wishlist.service';
-import { StoreService } from '../../core/services/store.service';
+import { StoreService } from '../../pages/dashboard/store/services/store.service';
 import { CollectionService } from '../../pages/public/catalog/services/collection.service';
 
 
@@ -32,7 +32,7 @@ export class NavbarComponent implements OnInit {
     offers: any[] = [];
 
     ngOnInit() {
-        this.cartService.loadFromBackend();
+        this.cartService.loadFromLocalStorage();
         this.loadOffers();
     }
 

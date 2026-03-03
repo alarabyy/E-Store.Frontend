@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { PromotionService } from './promotion.service';
 import { Promotion, CreatePromotionRequest, UpdatePromotionRequest } from './promotion.models';
 import { PromotionType, AppliesToType } from './promotion.enums';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 
 @Component({
     selector: 'app-promotions',

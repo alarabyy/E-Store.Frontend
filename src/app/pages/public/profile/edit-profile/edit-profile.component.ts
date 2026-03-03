@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProfileService } from '../profile.service';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ToastService } from '../../../../core/services/toast.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { ToastService } from '../../../../components/toast/services/toast.service';
 import { UserProfileDto } from '../profile.models';
 import { environment } from '../../../../../environments/environment';
 

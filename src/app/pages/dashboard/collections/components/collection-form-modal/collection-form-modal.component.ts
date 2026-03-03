@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Collection, UpdateCollectionRequest } from '../../collection.models';
 import { CollectionService } from '../../collection.service';
-import { ToastService } from '../../../../../core/services/toast.service';
+import { ToastService } from '../../../../../components/toast/services/toast.service';
 import { UrlPipe } from '../../../../../components/pipes/url.pipe';
 
 @Component({

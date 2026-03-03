@@ -5,7 +5,7 @@ import { FaqService } from './services/faq.service';
 import { FAQ, CreateFAQRequest, UpdateFAQRequest } from './models/faq.models';
 import { PagedResponse } from '../../../components/models/pagination.models';
 import { ApiResponse } from '../../../components/models/api-response.model';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 
 @Component({
     selector: 'app-faqs',

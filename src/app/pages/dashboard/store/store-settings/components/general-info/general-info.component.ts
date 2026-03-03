@@ -2,9 +2,9 @@ import { Component, inject, Input, OnChanges, SimpleChanges, ChangeDetectorRef }
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GeneralInfoService } from './general-info.service';
-import { ToastService } from '../../../../../../core/services/toast.service';
+import { ToastService } from '../../../../../../components/toast/services/toast.service';
 import { StoreSettings } from './general-info.model';
-import { ApiResponse } from '../../../../../../core/models/api-response.model';
+import { ApiResponse } from '../../../../../../core/api/models/api-response.model';
 import { UrlPipe } from '../../../../../../components/pipes/url.pipe';
 import { environment } from '../../../../../../../environments/environment';
 

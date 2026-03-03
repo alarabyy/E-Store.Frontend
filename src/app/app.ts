@@ -2,7 +2,7 @@ import { Component, signal, OnInit } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd, NavigationStart, NavigationCancel, NavigationError } from '@angular/router';
 import { ToastComponent } from './components/toast/toast.component';
 import { LoaderComponent } from './components/loader/loader.component';
-import { LoaderService } from './core/services/loader.service';
+import { LoaderService } from './components/loader/services/loader.service';
 import { CommonModule } from '@angular/common';
 
 declare var AOS: any;

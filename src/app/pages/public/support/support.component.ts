@@ -1,7 +1,7 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SeoService } from '../../../core/services/seo.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 import { SupportTicketsComponent } from './components/support-tickets/support-tickets.component';
 import { SupportFaqComponent } from './components/support-faq/support-faq.component';
 

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../../../../../environments/environment';
-import { ApiResponse } from '../../../../../../core/models/api-response.model';
+import { ApiResponse } from '../../../../../../core/api/models/api-response.model';
 import { Observable } from 'rxjs';
 import { UpdateStoreSettingsRequest } from './general-info.model';
 

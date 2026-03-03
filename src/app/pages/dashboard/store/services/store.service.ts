@@ -2,8 +2,8 @@ import { Injectable, inject, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
 import { BehaviorSubject, Observable, map, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api-response.model';
+import { environment } from '../../../../../environments/environment';
+import { ApiResponse } from '../../../../core/api/models/api-response.model';
 import { PublicStoreInfo, StoreSettings, CategoryTreeMinimal, HomePageBanner, ExclusiveOffer, ShopByItem } from '../models/store.models';
 
 @Injectable({

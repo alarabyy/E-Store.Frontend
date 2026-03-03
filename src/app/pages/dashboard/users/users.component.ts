@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { UsersService } from './services/users.service';

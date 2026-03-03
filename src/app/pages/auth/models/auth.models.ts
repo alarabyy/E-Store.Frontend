@@ -1,3 +1,6 @@
+export type { ApiResponse } from '../../../core/api/models/api-response.model';
+
+
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;

@@ -2,10 +2,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RegisterRequest, GoogleAuthRequest } from '../../../core/models/auth.models';
+import { RegisterRequest, GoogleAuthRequest } from '../models/auth.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-social-login';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-register',

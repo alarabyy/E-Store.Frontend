@@ -2,8 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Verify2FARequest } from '../../../core/models/auth.models';
-import { AuthService } from '../../../core/services/auth.service';
+import { Verify2FARequest } from '../models/auth.models';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-verify-otp',

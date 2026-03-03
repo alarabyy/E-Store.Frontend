@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api-response.model';
+import { environment } from '../../../../../environments/environment';
+import { ApiResponse } from '../../../../core/api/models/api-response.model';
 
 export interface HomeDataDto {
     homeBanners: HomeBanner[];
@@ -74,7 +74,7 @@ export class HomeService {
             map(res => {
                 if (res.isSuccess && res.data) {
                     // Map product imageUrls consistently
-                    res.data.categories = res.data.categories.map(cat => ({
+                    res.data.categories = res.data.categories.map((cat: any) => ({
                         ...cat,
                         products: (cat.products || []).map((p: any) => ({
                             ...p,

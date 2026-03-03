@@ -2,9 +2,9 @@ import { Component, inject, Input, Output, EventEmitter, ChangeDetectorRef } fro
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ShopByItemsService } from './shop-by-items.service';
-import { ToastService } from '../../../../../../core/services/toast.service';
+import { ToastService } from '../../../../../../components/toast/services/toast.service';
 import { ShopByItem } from './shop-by-items.model';
-import { ApiResponse } from '../../../../../../core/models/api-response.model';
+import { ApiResponse } from '../../../../../../core/api/models/api-response.model';
 import { Observable } from 'rxjs';
 import { UrlPipe } from '../../../../../../components/pipes/url.pipe';
 

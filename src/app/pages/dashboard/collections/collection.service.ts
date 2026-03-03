@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ApiResponse } from '../../../core/models/api-response.model';
+import { ApiResponse } from '../../../core/api/models/api-response.model';
 import { Collection, CreateCollectionRequest, UpdateCollectionRequest, ManageCollectionProductsRequest } from './collection.models';
 
 @Injectable({

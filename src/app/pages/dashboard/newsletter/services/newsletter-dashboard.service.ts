@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { ApiResponse } from '../../../../core/models/api-response.model';
+import { ApiResponse } from '../../../../core/api/models/api-response.model';
 import { NewsletterDashboardDataDto } from '../models/newsletter-subscription.model';
 
 @Injectable({

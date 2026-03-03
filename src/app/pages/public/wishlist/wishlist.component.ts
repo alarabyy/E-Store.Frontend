@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 import { WishlistService } from './services/wishlist.service';
 import { CartService } from '../cart/services/cart.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
-import { ToastService } from '../../../core/services/toast.service';
-import { SeoService } from '../../../core/services/seo.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 import { ProductCardComponent } from '../../../components/product-card/product-card.component';
 import { Product } from '../catalog/models/product.model';
 
@@ -28,12 +28,12 @@ export class WishlistComponent implements OnInit {
             return {
                 id: item.id,
                 name: item.name,
-                slug: item.slug || item.id.toString(),
+                slug: (item as any).slug || item.id.toString(),
                 minPrice: item.price,
                 maxPrice: item.price,
-                categoryName: item.categoryName || 'Saved Item',
+                categoryName: (item as any).categoryName || 'Saved Item',
                 imageUrl: item.image,
-                averageRating: item.averageRating || 0,
+                averageRating: (item as any).averageRating || 0,
                 // defaults to satisfy interface
                 description: '',
                 isActive: true,
@@ -52,6 +52,6 @@ export class WishlistComponent implements OnInit {
             description: 'Save your favorite products for later. Keep track of what you love and buy them when you are ready.',
             keywords: 'wishlist, favorite products, save for later, e-store'
         });
-        this.wishlistService.loadFromBackend();
+        this.wishlistService.loadFromLocalStorage();
     }
 }

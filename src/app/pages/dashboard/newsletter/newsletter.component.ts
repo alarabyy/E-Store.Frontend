@@ -2,7 +2,7 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NewsletterDashboardService } from './services/newsletter-dashboard.service';
 import { NewsletterSubscriptionDto } from './models/newsletter-subscription.model';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 
 @Component({
     selector: 'app-newsletter-dashboard',

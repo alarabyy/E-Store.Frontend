@@ -4,13 +4,13 @@ import { RouterLink, Router } from '@angular/router';
 import { CartService } from '../cart/services/cart.service';
 import { WishlistService } from '../wishlist/services/wishlist.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
-import { StoreService } from '../../../core/services/store.service';
-import { HomeService, HomeDataDto, HomeProduct } from '../../../core/services/home.service';
+import { StoreService } from '../../dashboard/store/services/store.service';
+import { HomeService, HomeDataDto, HomeProduct } from './services/home.service';
 import { CollectionService } from '../catalog/services/collection.service';
 import { ProductCardComponent } from '../../../components/product-card/product-card.component';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 import { LoaderComponent } from '../../../components/loader/loader.component';
-import { SeoService } from '../../../core/services/seo.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 import { AutoScrollDirective } from '../../../core/directives/auto-scroll.directive';
 
 @Component({
@@ -113,7 +113,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
                     // Flatten and take first 8 products as featured
                     const allProducts: any[] = [];
-                    data.categories.forEach(cat => {
+                    data.categories.forEach((cat: any) => {
                         if (cat.products) {
                             allProducts.push(...cat.products.map((p: HomeProduct) => ({
                                 id: p.id,

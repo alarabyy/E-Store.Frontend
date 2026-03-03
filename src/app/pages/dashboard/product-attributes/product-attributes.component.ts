@@ -5,7 +5,7 @@ import { ProductAttributeService } from './product-attribute.service';
 import { ProductAttribute } from './product-attribute.models';
 import { CategoryService } from '../categories/category.service';
 import { Category } from '../categories/category.models';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 
 @Component({
     selector: 'app-product-attributes',

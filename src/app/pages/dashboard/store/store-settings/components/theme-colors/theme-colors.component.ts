@@ -1,10 +1,10 @@
 import { Component, inject, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { StoreSettings } from '../../../../../../core/models/store.models';
+import { StoreSettings } from '../../../models/store.models';
 import { GeneralInfoService } from '../general-info/general-info.service';
-import { ToastService } from '../../../../../../core/services/toast.service';
-import { ApiResponse } from '../../../../../../core/models/api-response.model';
+import { ToastService } from '../../../../../../components/toast/services/toast.service';
+import { ApiResponse } from '../../../../../../core/api/models/api-response.model';
 
 interface ColorGroup {
     title: string;

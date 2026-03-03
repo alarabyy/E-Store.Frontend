@@ -1,12 +1,15 @@
 <div class="auth-card animate-slide-up">
     <div class="auth-header">
-        <h1>Start Your Brand Journey</h1>
-        <p>Join millions of shoppers and unlock the ultimate retail experience today.</p>
+        <div class="header-icon">
+            <i class="ri-membership-line"></i>
+        </div>
+        <h1>Begin Your Legacy</h1>
+        <p>Join the Nizamek Elite and unlock a world of curated tech elegance.</p>
     </div>
 
     <!-- Error Alert -->
     <div *ngIf="errorMessage" class="error-alert">
-        <i class="ri-error-warning-line"></i>
+        <i class="ri-error-warning-fill"></i>
         <span>{{ errorMessage }}</span>
     </div>
 
@@ -15,108 +18,111 @@
         <!-- Name Inputs -->
         <div class="form-row">
             <div class="form-group half-width">
-                <label for="firstName">First Name</label>
+                <label for="firstName">Given Name</label>
                 <div class="input-wrapper"
                     [class.error]="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched">
-                    <i class="ri-user-line input-icon"></i>
-                    <input type="text" id="firstName" formControlName="firstName" class="form-input" placeholder="John">
+                    <i class="ri-user-star-line input-icon"></i>
+                    <input type="text" id="firstName" formControlName="firstName" class="form-input"
+                        placeholder="e.g. John">
                 </div>
             </div>
             <div class="form-group half-width">
-                <label for="lastName">Last Name</label>
+                <label for="lastName">Family Name</label>
                 <div class="input-wrapper"
                     [class.error]="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched">
-                    <i class="ri-user-line input-icon"></i>
-                    <input type="text" id="lastName" formControlName="lastName" class="form-input" placeholder="Doe">
+                    <i class="ri-user-star-line input-icon"></i>
+                    <input type="text" id="lastName" formControlName="lastName" class="form-input"
+                        placeholder="e.g. Doe">
                 </div>
             </div>
         </div>
 
         <!-- Username Input -->
         <div class="form-group">
-            <label for="username">Username</label>
+            <label for="username">Elite Handle</label>
             <div class="input-wrapper"
                 [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
                 <i class="ri-at-line input-icon"></i>
-                <input type="text" id="username" formControlName="username" class="form-input" placeholder="johndoe">
+                <input type="text" id="username" formControlName="username" class="form-input"
+                    placeholder="johndoe_elite">
             </div>
         </div>
 
         <!-- Email Input -->
         <div class="form-group">
-            <label for="email">Email Address</label>
+            <label for="email">Formal Email</label>
             <div class="input-wrapper"
                 [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-                <i class="ri-mail-line input-icon"></i>
+                <i class="ri-mail-star-line input-icon"></i>
                 <input type="email" id="email" formControlName="email" class="form-input"
-                    placeholder="name@example.com">
+                    placeholder="name@exclusive.com">
             </div>
             <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-msg">
-                Email is required
+                Valid business email is required
             </div>
         </div>
 
         <!-- Password Input -->
         <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">Security Passphrase</label>
             <div class="input-wrapper"
                 [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-                <i class="ri-lock-line input-icon"></i>
+                <i class="ri-lock-password-line input-icon"></i>
                 <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-                    class="form-input" placeholder="Enter your password">
+                    class="form-input" placeholder="Minimum 8 characters">
                 <button type="button" class="toggle-password" (click)="togglePassword()">
                     <i [class]="showPassword ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
                 </button>
             </div>
             <div *ngIf="registerForm.get('password')?.errors?.['minlength'] && registerForm.get('password')?.touched"
                 class="error-msg">
-                Password must be at least 8 characters
+                Passphrase must be at least 8 characters
             </div>
         </div>
 
         <!-- Confirm Password Input -->
         <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
+            <label for="confirmPassword">Verify Passphrase</label>
             <div class="input-wrapper"
                 [class.error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
                 <i class="ri-lock-check-line input-icon"></i>
                 <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword"
-                    formControlName="confirmPassword" class="form-input" placeholder="Confirm your password">
+                    formControlName="confirmPassword" class="form-input" placeholder="Repeat your passphrase">
                 <button type="button" class="toggle-password" (click)="toggleConfirmPassword()">
                     <i [class]="showConfirmPassword ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
                 </button>
             </div>
             <div *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched"
                 class="error-msg">
-                Passwords do not match
+                Verification does not match
             </div>
         </div>
 
         <!-- Is Organization Checkbox -->
-        <div class="form-check">
+        <div class="form-check luxury-check">
             <input type="checkbox" id="isOrganization" formControlName="isOrganization" class="form-check-input">
-            <label for="isOrganization" class="form-check-label">Register as Organization</label>
+            <label for="isOrganization" class="form-check-label">Register as Elite Organization Partner</label>
         </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn-primary btn-block" [disabled]="isLoading || registerForm.invalid">
-            <span *ngIf="!isLoading">Register</span>
+            <span *ngIf="!isLoading">Initiate Membership</span>
             <div *ngIf="isLoading" class="spinner"></div>
         </button>
 
         <!-- Divider -->
         <div class="divider">
-            <span>Or sign up with</span>
+            <span>Or partner with</span>
         </div>
 
         <!-- Social Login -->
         <button type="button" class="btn-google btn-block" (click)="loginWithGoogle()">
             <i class="ri-google-fill social-icon"></i>
-            <span>Google</span>
+            <span>Partner via Google</span>
         </button>
     </form>
 
     <div class="auth-footer">
-        <p>Already have an account? <a routerLink="/auth/login" class="link-primary">Log in</a></p>
+        <p>Already an Elite? <a routerLink="/auth/login" class="link-primary">Sign In</a></p>
     </div>
 </div>

@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ApiResponse } from '../../../core/models/api-response.model';
-import { PagedResponse } from '../../../core/models/pagination.models';
+import { ApiResponse } from '../../../core/api/models/api-response.model';
+import { PagedResponse } from '../../../core/api/models/pagination.models';
 import { Product, CreateProductRequest, UpdateProductRequest, ProductsAnalytics, AddProductVariantRequest } from './product.models';
 
 @Injectable({

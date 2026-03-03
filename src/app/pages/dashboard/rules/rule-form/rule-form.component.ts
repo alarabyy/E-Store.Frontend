@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { ToastService } from '../../../../core/services/toast.service';
+import { ToastService } from '../../../../components/toast/services/toast.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -362,7 +362,7 @@ export class RuleFormComponent implements OnInit {
                     // Clear and reload permissions
                     this.permissions.clear();
                     if (res.data.permissions) {
-                        res.data.permissions.forEach(p => {
+                        res.data.permissions.forEach((p: any) => {
                             // Only add if it's not already there (safety check)
                             if (!this.hasPermission(p)) {
                                 this.permissions.push(this.fb.control(p));

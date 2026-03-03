@@ -7,7 +7,7 @@ import { Product, AddProductVariantRequest } from './product.models';
 import { environment } from '../../../../environments/environment';
 import { CategoryService } from '../categories/category.service';
 import { Category } from '../categories/category.models';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 import { ProductAttributeService } from '../product-attributes/product-attribute.service';
 import { ProductAttribute } from '../product-attributes/product-attribute.models';
 import { UrlPipe } from '../../../components/pipes/url.pipe';

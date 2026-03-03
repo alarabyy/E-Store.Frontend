@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StoreService } from '../store.service';
-import { StoreDashboardSettingsResponse } from '../../../../core/models/store.models';
+import { StoreDashboardSettingsResponse } from '../models/store.models';
 import { GeneralInfoComponent } from './components/general-info/general-info.component';
 import { HomeBannersComponent } from './components/home-banners/home-banners.component';
 import { ExclusiveOffersComponent } from './components/exclusive-offers/exclusive-offers.component';

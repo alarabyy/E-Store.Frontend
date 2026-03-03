@@ -1,269 +1,226 @@
-<div class="overview">
+<div class="overview animate-fade-in">
     <div class="overview-header">
         <div class="title-block">
             <h1>Dashboard Overview</h1>
-            <p class="subtitle">Key system metrics, distributions, and quick actions.</p>
+            <p class="subtitle">Real-time metrics and system intelligence</p>
         </div>
 
         <div class="header-actions">
             <div class="updated" *ngIf="lastUpdatedAt">
-                <i class="ri-time-line"></i>
-                Updated {{ lastUpdatedAt | date:'medium' }}
+                <i class="ri-history-line"></i>
+                Synced: {{ lastUpdatedAt | date:'shortTime' }}
             </div>
             <button class="btn-refresh" (click)="refresh()" [disabled]="isRefreshing">
                 <i class="ri-refresh-line" [class.spinning]="isRefreshing"></i>
-                Refresh
+                <span>Sync Data</span>
             </button>
         </div>
     </div>
 
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-icon primary"><i class="ri-user-3-line"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-label">Total Users</div>
-                <div class="kpi-value">{{ stats.totalUsers }}</div>
-                <div class="kpi-meta">Accounts in the system</div>
+    <!-- KPIs Grid -->
+    <div class="stats-grid">
+        <div class="stat-card gold-glow">
+            <div class="card-icon"><i class="ri-user-star-line"></i></div>
+            <div class="card-info">
+                <span class="card-label">Total Users</span>
+                <span class="card-value">{{ stats.totalUsers | number }}</span>
+                <span class="card-meta">Global account reach</span>
+            </div>
+            <div class="card-graph">
+                <div class="mini-bar" style="height: 40%"></div>
+                <div class="mini-bar" style="height: 60%"></div>
+                <div class="mini-bar" style="height: 50%"></div>
+                <div class="mini-bar" style="height: 80%"></div>
+                <div class="mini-bar active" style="height: 95%"></div>
             </div>
         </div>
 
-        <div class="kpi-card">
-            <div class="kpi-icon success"><i class="ri-mail-check-line"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-label">Verified Rate</div>
-                <div class="kpi-value">{{ verifiedRate | number:'1.0-1' }}%</div>
-                <div class="kpi-meta">{{ stats.verifiedEmails }} verified · {{ stats.unverifiedEmails }} unverified</div>
+        <div class="stat-card success-glow">
+            <div class="card-icon"><i class="ri-mail-check-line"></i></div>
+            <div class="card-info">
+                <span class="card-label">Verified Emails</span>
+                <span class="card-value">{{ verifiedRate | number:'1.0-1' }}%</span>
+                <span class="card-meta">{{ stats.verifiedEmails }} confirmed users</span>
+            </div>
+            <div class="progress-ring-custom">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="circle" [attr.stroke-dasharray]="verifiedRate + ', 100'"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
             </div>
         </div>
 
-        <div class="kpi-card">
-            <div class="kpi-icon info"><i class="ri-shield-check-line"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-label">Active Users</div>
-                <div class="kpi-value">{{ stats.activeUsers }}</div>
-                <div class="kpi-meta">Not currently locked</div>
+        <div class="stat-card info-glow">
+            <div class="card-icon"><i class="ri-shield-flash-line"></i></div>
+            <div class="card-info">
+                <span class="card-label">Active Users</span>
+                <span class="card-value">{{ stats.activeUsers }}</span>
+                <span class="card-meta">Current unrestricted access</span>
+            </div>
+            <div class="activity-dots">
+                <span class="dot pulse"></span>
+                <span class="dot"></span>
+                <span class="dot pulse"></span>
             </div>
         </div>
 
-        <div class="kpi-card">
-            <div class="kpi-icon danger"><i class="ri-lock-line"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-label">Locked Rate</div>
-                <div class="kpi-value">{{ lockedRate | number:'1.0-1' }}%</div>
-                <div class="kpi-meta">{{ stats.lockedUsers }} locked</div>
-            </div>
-        </div>
-
-        <div class="kpi-card">
-            <div class="kpi-icon warning"><i class="ri-folders-line"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-label">Categories</div>
-                <div class="kpi-value">{{ stats.totalCategories }}</div>
-                <div class="kpi-meta">Catalog organization</div>
-            </div>
-        </div>
-
-        <div class="kpi-card">
-            <div class="kpi-icon purple"><i class="ri-shield-user-line"></i></div>
-            <div class="kpi-body">
-                <div class="kpi-label">Top Role</div>
-                <div class="kpi-value">{{ topRole?.name || '—' }}</div>
-                <div class="kpi-meta" *ngIf="topRole">{{ topRole.count }} users</div>
-                <div class="kpi-meta" *ngIf="!topRole">No role data</div>
+        <div class="stat-card danger-glow">
+            <div class="card-icon"><i class="ri-lock-password-line"></i></div>
+            <div class="card-info">
+                <span class="card-label">Locked Accounts</span>
+                <span class="card-value">{{ stats.lockedUsers }}</span>
+                <span class="card-meta">{{ lockedRate | number:'1.0-1' }}% restriction rate</span>
             </div>
         </div>
     </div>
 
+    <!-- Insights Grid -->
     <div class="insights-grid">
-        <div class="panel">
+        <div class="insight-panel glass-panel">
             <div class="panel-header">
-                <div class="panel-title">
-                    <i class="ri-mail-line"></i>
-                    Email Providers
+                <div class="title-with-icon">
+                    <div class="icon-box"><i class="ri-pie-chart-2-line"></i></div>
+                    <div>
+                        <h3>Domain Distribution</h3>
+                        <p>Users by email provider</p>
+                    </div>
                 </div>
-                <div class="panel-subtitle">Distribution by provider</div>
             </div>
 
             <div class="panel-body split">
-                <div class="donut" [style.background]="stats.emailChartGradient">
-                    <div class="donut-hole">
-                        <div class="donut-main">{{ stats.emailDomains.length }}</div>
-                        <div class="donut-sub">Providers</div>
+                <div class="chart-container">
+                    <div class="donut-chart" [style.background]="stats.emailChartGradient">
+                        <div class="donut-center">
+                            <span class="total">{{ stats.totalUsers }}</span>
+                            <span class="txt">Total</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="legend">
-                    <div class="legend-row" *ngFor="let d of stats.emailDomains">
-                        <span class="dot" [style.background]="d.color"></span>
-                        <span class="name">{{ d.name }}</span>
-                        <span class="val">{{ d.percentage | number:'1.0-0' }}%</span>
+                <div class="stats-list">
+                    <div class="stat-item" *ngFor="let d of stats.emailDomains">
+                        <div class="stat-info">
+                            <span class="dot" [style.background]="d.color"></span>
+                            <span class="name">{{ d.name }}</span>
+                        </div>
+                        <div class="stat-val">
+                            <span class="count">{{ d.count }}</span>
+                            <span class="per">{{ d.percentage | number:'1.0-0' }}%</span>
+                        </div>
                     </div>
-                    <div class="empty" *ngIf="stats.emailDomains.length === 0">No email data available</div>
+                    <div class="empty-state" *ngIf="stats.emailDomains.length === 0">
+                        <i class="ri-inbox-line"></i>
+                        <p>No domain records found</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="panel">
+        <div class="insight-panel glass-panel">
             <div class="panel-header">
-                <div class="panel-title">
-                    <i class="ri-team-line"></i>
-                    Roles Breakdown
+                <div class="title-with-icon">
+                    <div class="icon-box"><i class="ri-user-settings-line"></i></div>
+                    <div>
+                        <h3>Security & Roles</h3>
+                        <p>System privilege allocation</p>
+                    </div>
                 </div>
-                <div class="panel-subtitle">Users by role</div>
             </div>
 
             <div class="panel-body">
-                <div class="bars" *ngIf="stats.roles.length > 0">
-                    <div class="bar-row" *ngFor="let r of stats.roles | slice:0:8">
-                        <div class="bar-top">
-                            <span class="bar-name">{{ r.name }}</span>
-                            <span class="bar-val">{{ r.count }}</span>
+                <div class="role-bars" *ngIf="stats.roles.length > 0">
+                    <div class="role-item" *ngFor="let r of stats.roles | slice:0:5">
+                        <div class="role-header">
+                            <span class="role-name">{{ r.name }}</span>
+                            <span class="role-count">{{ r.count }} users</span>
                         </div>
-                        <div class="bar-track">
-                            <div class="bar-fill" [style.width.%]="rolePercent(r.count)"></div>
+                        <div class="role-progress">
+                            <div class="progress-bar" [style.width.%]="rolePercent(r.count)"></div>
                         </div>
                     </div>
                 </div>
-                <div class="empty" *ngIf="stats.roles.length === 0">No role data available</div>
+                <div class="empty-state" *ngIf="stats.roles.length === 0">
+                    <i class="ri-shield-line"></i>
+                    <p>No role allocation recorded</p>
+                </div>
+
+                <div class="top-role-highlight" *ngIf="topRole">
+                    <i class="ri-vip-crown-line"></i>
+                    <span>Primary Role: <strong>{{ topRole.name }}</strong></span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="section-title">
-        <i class="ri-navigation-line"></i>
-        Quick Navigation
+    <!-- Quick Actions Section -->
+    <div class="section-divider">
+        <span class="divider-text">System Management</span>
     </div>
 
     <div class="nav-grid">
         <a routerLink="/dashboard/users" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-group-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Users</span>
-                <span class="nav-desc">Manage accounts</span>
+            <div class="nav-icon"><i class="ri-team-line"></i></div>
+            <div class="nav-content">
+                <h4>Users</h4>
+                <p>Manage access levels</p>
             </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
         <a routerLink="/dashboard/categories" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-folders-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Categories</span>
-                <span class="nav-desc">Organize catalog</span>
+            <div class="nav-icon"><i class="ri-archive-line"></i></div>
+            <div class="nav-content">
+                <h4>Categories</h4>
+                <p>Organize structure</p>
             </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
-        </a>
-
-        <a routerLink="/dashboard/collections" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-layout-grid-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Collections</span>
-                <span class="nav-desc">Product groupings</span>
-            </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
         <a routerLink="/dashboard/products" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-box-3-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Products</span>
-                <span class="nav-desc">Inventory list</span>
+            <div class="nav-icon"><i class="ri-shopping-bag-line"></i></div>
+            <div class="nav-content">
+                <h4>Products</h4>
+                <p>Catalogue management</p>
             </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
-        </a>
-
-        <a routerLink="/dashboard/product-attributes" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-list-settings-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Attributes</span>
-                <span class="nav-desc">Product traits</span>
-            </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
-        </a>
-
-        <a routerLink="/dashboard/product-reviews" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-star-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Reviews</span>
-                <span class="nav-desc">Customer feedback</span>
-            </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
-        </a>
-
-        <a routerLink="/dashboard/faqs" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-question-answer-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">FAQs</span>
-                <span class="nav-desc">Help center</span>
-            </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
-        </a>
-
-        <a routerLink="/dashboard/support-tickets" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-customer-service-2-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Support</span>
-                <span class="nav-desc">Customer inquiries</span>
-            </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
-        </a>
-
-        <a routerLink="/dashboard/rules" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-shield-keyhole-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Rules</span>
-                <span class="nav-desc">Logic config</span>
-            </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
         <a routerLink="/dashboard/promotions" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-discount-percent-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Promotions</span>
-                <span class="nav-desc">Manage offers</span>
+            <div class="nav-icon"><i class="ri-coupon-line"></i></div>
+            <div class="nav-content">
+                <h4>Promotions</h4>
+                <p>Marketing offers</p>
             </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
-        <a routerLink="/dashboard/payments" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-bank-card-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Payments</span>
-                <span class="nav-desc">Transaction history</span>
+        <a routerLink="/dashboard/support-tickets" class="nav-card">
+            <div class="nav-icon"><i class="ri-customer-service-line"></i></div>
+            <div class="nav-content">
+                <h4>Support</h4>
+                <p>Inquiry handling</p>
             </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
         <a routerLink="/dashboard/newsletter" class="nav-card">
-            <div class="hover-bg"></div>
             <div class="nav-icon"><i class="ri-mail-send-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Newsletter</span>
-                <span class="nav-desc">Email campaigns</span>
+            <div class="nav-content">
+                <h4>Campaigns</h4>
+                <p>Email outreach</p>
             </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
-        <a routerLink="/dashboard/store" class="nav-card">
-            <div class="hover-bg"></div>
-            <div class="nav-icon"><i class="ri-settings-4-line"></i></div>
-            <div class="nav-text">
-                <span class="nav-title">Settings</span>
-                <span class="nav-desc">Store options</span>
+        <a routerLink="/dashboard/store-settings" class="nav-card highlight">
+            <div class="nav-icon"><i class="ri-settings-line"></i></div>
+            <div class="nav-content">
+                <h4>Settings</h4>
+                <p>Store configuration</p>
             </div>
-            <div class="arrow-wrapper"><i class="ri-arrow-right-line nav-arrow"></i></div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
     </div>
-
 </div>

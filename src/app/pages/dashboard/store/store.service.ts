@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { ApiResponse } from '../../../core/models/api-response.model';
-import { StoreSettings, UpdateStoreSettingsRequest, StoreDashboardSettingsResponse } from '../../../core/models/store.models';
+import { ApiResponse } from '../../../core/api/models/api-response.model';
+import { StoreSettings, UpdateStoreSettingsRequest, StoreDashboardSettingsResponse } from './models/store.models';
 import { Observable } from 'rxjs';
 
 @Injectable({

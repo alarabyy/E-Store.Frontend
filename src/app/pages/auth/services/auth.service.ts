@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { ApiResponse } from '../../../components/models/api-response.model';
+import { ApiResponse } from '../../../core/api/models/api-response.model';
 import {
     AuthResponse,
     LoginRequest,
@@ -132,8 +132,29 @@ export class AuthService {
         return this.currentUserSubject.value?.accessToken;
     }
 
+    getRefreshToken(): string | undefined {
+        return this.currentUserSubject.value?.refreshToken;
+    }
+
     get currentUserValue(): AuthResponse | null {
         return this.currentUserSubject.value;
+    }
+
+    isTokenExpired(): boolean {
+        const token = this.getToken();
+        if (!token) return true;
+
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
+            if (!payload.exp) return false;
+
+            const expirationDate = payload.exp * 1000;
+            return Date.now() >= expirationDate;
+        } catch (e) {
+            return true;
+        }
     }
 
     getUserRole(): string {
@@ -141,7 +162,10 @@ export class AuthService {
         if (!token) return '';
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload.role || payload.Role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
+            return payload.role ||
+                payload.Role ||
+                payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+                '';
         } catch (e) {
             return '';
         }
@@ -152,8 +176,11 @@ export class AuthService {
         if (!token) return '';
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            // Try common username claims
-            return payload.unique_name || payload.name || payload.sub || '';
+            return payload.unique_name ||
+                payload.name ||
+                payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+                payload.sub ||
+                '';
         } catch (e) {
             return '';
         }
@@ -164,7 +191,10 @@ export class AuthService {
         if (!token) return 0;
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            return parseInt(payload.nameid || payload.sub || '0');
+            const id = payload.nameid ||
+                payload.sub ||
+                payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+            return id ? parseInt(id) : 0;
         } catch (e) {
             return 0;
         }

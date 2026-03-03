@@ -2,12 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LoginRequest, GoogleAuthRequest, AuthResponse } from '../../../core/models/auth.models';
+import { LoginRequest, GoogleAuthRequest, AuthResponse } from '../models/auth.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-social-login';
-import { ToastService } from '../../../core/services/toast.service';
-import { ApiResponse } from '../../../core/models/api-response.model';
-import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
+import { ApiResponse } from '../../../core/api/models/api-response.model';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-login',

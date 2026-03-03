@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CategoryService } from '../category.service';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../category.models';
-import { ToastService } from '../../../../core/services/toast.service';
+import { ToastService } from '../../../../components/toast/services/toast.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({

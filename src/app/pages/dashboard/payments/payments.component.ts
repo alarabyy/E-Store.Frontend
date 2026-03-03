@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { PaymentDashboardService } from './services/payment-dashboard.service';
 import { PaymentGatewayDto, GatewayEnvironment, PaymentGatewayType } from './models/payment-gateway.model';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 
 @Component({
     selector: 'app-payment-dashboard',

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ScrollToTopComponent } from '../../components/scroll-to-top/scroll-to-top.component';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../../pages/auth/services/auth.service';
 
 @Component({
     selector: 'app-public-layout',

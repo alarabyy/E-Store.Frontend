@@ -1,9 +1,9 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../pages/auth/services/auth.service';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
-import { ApiResponse } from '../models/api-response.model';
-import { AuthResponse } from '../models/auth.models';
+import { ApiResponse } from '../api/models/api-response.model';
+import { AuthResponse } from '../../pages/auth/models/auth.models';
 
 let isRefreshing = false;
 const refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);

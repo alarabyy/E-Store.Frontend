@@ -6,7 +6,7 @@ import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { ProductCardComponent } from '../../../components/product-card/product-card.component';
 import { LoaderComponent } from '../../../components/loader/loader.component';
 import { Title, Meta } from '@angular/platform-browser';
-import { SeoService } from '../../../core/services/seo.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 
 @Component({
     selector: 'app-collection-details',

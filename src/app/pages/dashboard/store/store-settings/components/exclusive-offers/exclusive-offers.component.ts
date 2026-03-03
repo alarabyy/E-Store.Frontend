@@ -2,9 +2,9 @@ import { Component, inject, Input, Output, EventEmitter, ChangeDetectorRef } fro
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ExclusiveOffersService } from './exclusive-offers.service';
-import { ToastService } from '../../../../../../core/services/toast.service';
+import { ToastService } from '../../../../../../components/toast/services/toast.service';
 import { ExclusiveOffer } from './exclusive-offers.model';
-import { ApiResponse } from '../../../../../../core/models/api-response.model';
+import { ApiResponse } from '../../../../../../core/api/models/api-response.model';
 
 import { UrlPipe } from '../../../../../../components/pipes/url.pipe';
 

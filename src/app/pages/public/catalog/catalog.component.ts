@@ -10,8 +10,8 @@ import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { Product as PublicProduct } from './models/product.model';
 import { ProductCardComponent } from '../../../components/product-card/product-card.component';
 import { LoaderComponent } from '../../../components/loader/loader.component';
-import { ToastService } from '../../../core/services/toast.service';
-import { SeoService } from '../../../core/services/seo.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 import { AutoScrollDirective } from '../../../core/directives/auto-scroll.directive';
 
 @Component({
@@ -493,7 +493,7 @@ export class CatalogComponent implements OnInit {
             price: this.selectedVariant ? (this.selectedVariant.salePrice || this.selectedVariant.price) : this.quickViewProduct.minPrice,
             image: this.selectedVariant?.imageUrl || this.quickViewProduct.imageUrl,
             variantId: this.selectedVariant?.id
-        }, this.quantity);
+        } as any, this.quantity);
         this.toastService.success('Added to cart!');
         this.closeQuickView();
     }

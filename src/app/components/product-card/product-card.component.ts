@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Product } from '../../pages/public/catalog/models/product.model';
 import { CartService } from '../../pages/public/cart/services/cart.service';
 import { WishlistService } from '../../pages/public/wishlist/services/wishlist.service';
-import { ToastService } from '../../core/services/toast.service';
+import { ToastService } from '../toast/services/toast.service';
 import { ProductService } from '../../pages/public/catalog/services/product.service';
 import { UrlPipe } from '../pipes/url.pipe';
 
@@ -169,7 +169,7 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
             price: this.selectedVariant ? (this.selectedVariant.salePrice || this.selectedVariant.price) : this.quickViewProduct.minPrice,
             image: this.selectedVariant?.imageUrl || this.quickViewProduct.imageUrl,
             variantId: this.selectedVariant?.id
-        }, this.quantity);
+        } as any, this.quantity);
         this.toastService.success('Added to cart!');
         this.closeQuickView();
     }

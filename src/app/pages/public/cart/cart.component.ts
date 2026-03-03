@@ -4,9 +4,9 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService } from './services/cart.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 import { LoaderComponent } from '../../../components/loader/loader.component';
-import { SeoService } from '../../../core/services/seo.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 
 export interface AddressForm {
     firstName: string;
@@ -59,7 +59,7 @@ export class CartComponent implements OnInit {
         });
 
         this.isLoading = true;
-        this.cartService.loadFromBackend();
+        this.cartService.loadFromLocalStorage();
         setTimeout(() => this.isLoading = false, 800);
     }
 
@@ -72,32 +72,28 @@ export class CartComponent implements OnInit {
     }
 
     increaseQuantity(item: any) {
-        this.cartService.updateQuantity(item.id, item.quantity + 1).then(() => {
-            this.toastService.show('Quantity updated ✓', 'info');
-        });
+        this.cartService.updateQuantity(item.id, item.quantity + 1);
+        this.toastService.show('Quantity updated ✓', 'info');
     }
 
     decreaseQuantity(item: any) {
         if (item.quantity > 1) {
-            this.cartService.updateQuantity(item.id, item.quantity - 1).then(() => {
-                this.toastService.show('Quantity updated ✓', 'info');
-            });
+            this.cartService.updateQuantity(item.id, item.quantity - 1);
+            this.toastService.show('Quantity updated ✓', 'info');
         } else {
             this.removeItem(item);
         }
     }
 
     removeItem(item: any) {
-        this.cartService.removeFromCart(item.id).then(() => {
-            this.toastService.success(`"${item.name}" removed from cart`);
-        });
+        this.cartService.removeFromCart(item.id);
+        this.toastService.success(`"${item.name}" removed from cart`);
     }
 
     clearCart() {
         if (!confirm('Are you sure you want to clear your entire cart?')) return;
-        this.cartService.clearCart().then(() => {
-            this.toastService.show('Cart cleared successfully', 'info');
-        });
+        this.cartService.clearCart();
+        this.toastService.show('Cart cleared successfully', 'info');
     }
 
     openCheckout() {

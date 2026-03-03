@@ -6,10 +6,10 @@ import { ProductService } from '../catalog/services/product.service';
 import { CartService } from '../cart/services/cart.service';
 import { WishlistService } from '../wishlist/services/wishlist.service';
 import { PromotionService } from '../../dashboard/promotions/promotion.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { environment } from '../../../../environments/environment';
-import { SeoService } from '../../../core/services/seo.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 
 @Component({
     selector: 'app-product-details',
@@ -261,7 +261,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
             price: finalPrice,
             image: this.activeImage,
             variantId: this.selectedVariant?.id
-        }, this.quantity);
+        } as any, this.quantity);
 
         this.toastService.success(`✓ "${this.product.name}" added to your cart!`);
 

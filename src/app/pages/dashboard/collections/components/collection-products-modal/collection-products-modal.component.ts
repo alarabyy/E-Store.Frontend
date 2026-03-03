@@ -7,7 +7,7 @@ import { Category } from '../../../categories/category.models';
 import { CollectionService } from '../../collection.service';
 import { ProductService } from '../../../products/product.service';
 import { CategoryService } from '../../../categories/category.service';
-import { ToastService } from '../../../../../core/services/toast.service';
+import { ToastService } from '../../../../../components/toast/services/toast.service';
 import { UrlPipe } from '../../../../../components/pipes/url.pipe';
 
 @Component({

@@ -1,71 +1,74 @@
 <div class="auth-card animate-slide-up">
     <div class="auth-header">
-        <h1>Welcome to the Revolution</h1>
-        <p>Login to your personalized portal for the world's best brand deals.</p>
+        <div class="header-icon">
+            <i class="ri-key-2-line"></i>
+        </div>
+        <h1>Welcome Back</h1>
+        <p>Enter your credentials to access your exclusive elite shopping world.</p>
     </div>
 
     <!-- Error Alert -->
     <div *ngIf="errorMessage" class="error-alert">
-        <i class="ri-error-warning-line"></i>
+        <i class="ri-error-warning-fill"></i>
         <span>{{ errorMessage }}</span>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
         <!-- Email Input -->
         <div class="form-group">
-            <label for="email">Email Address</label>
+            <label for="email">Membership Email</label>
             <div class="input-wrapper"
                 [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-                <i class="ri-mail-line input-icon"></i>
-                <input type="email" id="email" formControlName="email" placeholder="name@example.com"
+                <i class="ri-mail-star-line input-icon"></i>
+                <input type="email" id="email" formControlName="email" placeholder="e.g. elite@nizamek.com"
                     class="form-input">
             </div>
             <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-msg">
-                Email is required
+                Please enter a valid email address
             </div>
         </div>
 
         <!-- Password Input -->
         <div class="form-group">
             <div class="label-row">
-                <label for="password">Password</label>
+                <label for="password">Private Key</label>
             </div>
             <div class="input-wrapper"
                 [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-                <i class="ri-lock-line input-icon"></i>
+                <i class="ri-lock-password-line input-icon"></i>
                 <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-                    placeholder="Enter your password" class="form-input">
+                    placeholder="••••••••" class="form-input">
                 <button type="button" class="toggle-password" (click)="togglePassword()">
                     <i [class]="showPassword ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
                 </button>
             </div>
             <div class="forgot-password-link">
-                <a routerLink="/auth/forgot-password">Forgot Password?</a>
+                <a routerLink="/auth/forgot-password">Trouble signing in?</a>
             </div>
             <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-msg">
-                Password is required
+                Security key is required
             </div>
         </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn-primary btn-block" [disabled]="isLoading || loginForm.invalid">
-            <span *ngIf="!isLoading">Log In</span>
+            <span *ngIf="!isLoading">Authorize Access</span>
             <div *ngIf="isLoading" class="spinner"></div>
         </button>
 
         <!-- Divider -->
         <div class="divider">
-            <span>Or continue with</span>
+            <span>Or use luxury sign-in</span>
         </div>
 
         <!-- Social Login -->
         <button type="button" class="btn-google btn-block" (click)="loginWithGoogle()">
             <i class="ri-google-fill social-icon"></i>
-            <span>Google</span>
+            <span>Authenticate with Google</span>
         </button>
     </form>
 
     <div class="auth-footer">
-        <p>Don't have an account? <a routerLink="/auth/register" class="link-primary">Sign up</a></p>
+        <p>New to Nizamek? <a routerLink="/auth/register" class="link-primary">Join the Elite</a></p>
     </div>
 </div>

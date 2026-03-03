@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CollectionService } from './collection.service';
 import { Collection } from './collection.models';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 import { CollectionCardComponent } from './components/collection-card/collection-card.component';
 import { CollectionFormModalComponent } from './components/collection-form-modal/collection-form-modal.component';
 import { CollectionProductsModalComponent } from './components/collection-products-modal/collection-products-modal.component';

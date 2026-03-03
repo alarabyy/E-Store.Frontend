@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CategoryService } from '../category.service';
 import { Category } from '../category.models';
-import { ToastService } from '../../../../core/services/toast.service';
+import { ToastService } from '../../../../components/toast/services/toast.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({

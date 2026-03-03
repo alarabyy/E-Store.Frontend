@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Promotion, CreatePromotionRequest, UpdatePromotionRequest } from './promotion.models';
-import { ApiResponse } from '../../../core/models/api-response.model';
+import { ApiResponse } from '../../../core/api/models/api-response.model';
 import { Observable } from 'rxjs';
 
 @Injectable({

@@ -2,11 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProfileService } from './profile.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../auth/services/auth.service';
 import { UserProfileDto } from './profile.models';
 import { environment } from '../../../../environments/environment';
 import { LoaderComponent } from '../../../components/loader/loader.component';
-import { SeoService } from '../../../core/services/seo.service';
+import { SeoService } from '../../../core/seo/services/seo.service';
 
 @Component({
     selector: 'app-profile',

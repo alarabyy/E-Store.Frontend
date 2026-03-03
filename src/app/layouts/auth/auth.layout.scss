@@ -1,9 +1,9 @@
 :host {
     display: block;
     min-height: 100vh;
-    font-family: 'Inter', 'Outfit', sans-serif;
+    font-family: 'Outfit', sans-serif;
     overflow-x: hidden;
-    background-color: #f8fafc;
+    background-color: #fdfcfb;
 }
 
 .auth-layout {
@@ -18,31 +18,26 @@
     }
 }
 
-/* Sidebar Styling (Branding) */
+/* Sidebar Styling (E-commerce Elegance) */
 .auth-sidebar {
     flex: 0 0 45%;
     max-width: 600px;
-    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     padding: 4rem;
-    color: #1e293b;
+    color: #ffffff;
     z-index: 10;
     transition: all 0.5s ease;
-    border-right: 1px solid rgba(226, 232, 240, 0.8);
+    border-right: 1px solid rgba(197, 160, 89, 0.2);
 
     @media (max-width: 1024px) {
         flex: 0 0 auto;
         max-width: 100%;
         width: 100%;
-        min-height: auto;
         padding: 3rem 2rem;
-        align-items: center;
-        text-align: center;
-        border-right: none;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
     }
 }
 
@@ -53,45 +48,48 @@
     overflow: hidden;
 }
 
-.grid-pattern {
+.texture-overlay {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.05) 1px, transparent 0);
-    background-size: 40px 40px;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.glass-orb {
+.warm-glow {
     position: absolute;
     border-radius: 50%;
-    filter: blur(100px);
-    opacity: 0.3;
-    animation: drift 25s infinite alternate ease-in-out;
+    filter: blur(120px);
+    opacity: 0.15;
+    animation: drift 30s infinite alternate ease-in-out;
 }
 
-.orb-1 {
+.glow-1 {
     top: -10%;
     right: -10%;
-    width: 400px;
-    height: 400px;
-    background: #60a5fa;
-}
-
-.orb-2 {
-    bottom: -10%;
-    left: -10%;
     width: 500px;
     height: 500px;
-    background: #a78bfa;
-    animation-delay: -7s;
+    background: #c5a059;
+}
+
+.glow-2 {
+    bottom: -15%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: #eec170;
+    animation-delay: -10s;
 }
 
 @keyframes drift {
     0% {
-        transform: translate(0, 0) scale(1);
+        transform: translate(0, 0) rotate(0);
     }
 
     100% {
-        transform: translate(60px, 40px) scale(1.1);
+        transform: translate(100px, 60px) rotate(15deg);
     }
 }
 
@@ -102,20 +100,36 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 540px;
+    max-width: 480px;
+}
+
+.luxury-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(197, 160, 89, 0.15);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #eec170;
+    margin-bottom: 2rem;
 }
 
 .brand-header {
-    margin-bottom: 5rem;
+    margin-bottom: 4rem;
 
     .brand-name {
-        font-size: 2.5rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
         font-weight: 900;
-        color: #0f172a;
-        letter-spacing: -2px;
+        color: #ffffff;
+        letter-spacing: -1px;
         margin: 0;
-        text-transform: uppercase;
-        background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #c5a059 100%);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -126,30 +140,30 @@
     margin-bottom: 4rem;
 
     h2 {
-        font-size: 3.5rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 3.8rem;
         font-weight: 800;
-        line-height: 1.05;
-        color: #0f172a;
+        line-height: 1.1;
+        color: #ffffff;
         margin-bottom: 2rem;
-        letter-spacing: -2px;
 
         .text-gradient {
-            background: linear-gradient(to right, #2563eb, #7c3aed);
+            background: linear-gradient(to right, #eec170, #c5a059);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         @media (max-width: 768px) {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
         }
     }
 
     p {
-        font-size: 1.25rem;
-        color: #475569;
-        line-height: 1.6;
-        font-weight: 500;
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.7;
+        font-weight: 400;
     }
 }
 
@@ -158,58 +172,51 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
-    @media (max-width: 1024px) {
-        display: none;
-    }
 }
 
-.tech-card-showcase {
+.store-showcase {
     position: relative;
-    width: 300px;
-    height: 200px;
+    width: 320px;
+    height: 220px;
 
-    .card {
+    .floating-item {
         position: absolute;
-        width: 150px;
-        height: 150px;
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        border-radius: 28px;
+        width: 130px;
+        height: 130px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 35px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 3.5rem;
-        color: #3b82f6;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-        animation: cardFloat 4s ease-in-out infinite;
+        font-size: 3rem;
+        color: #c5a059;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        animation: itemFloat 5s ease-in-out infinite;
     }
 
-    .card-1 {
+    .item-1 {
         top: 0;
         left: 0;
         animation-delay: 0s;
-        color: #3b82f6;
     }
 
-    .card-2 {
+    .item-2 {
         top: 40px;
-        left: 80px;
-        animation-delay: -1.3s;
-        color: #8b5cf6;
-        background: rgba(255, 255, 255, 0.9);
+        left: 100px;
+        animation-delay: -1.5s;
+        background: rgba(197, 160, 89, 0.08);
     }
 
-    .card-3 {
-        top: -20px;
-        left: 160px;
-        animation-delay: -2.6s;
-        color: #10b981;
+    .item-3 {
+        top: -30px;
+        left: 200px;
+        animation-delay: -3s;
     }
 }
 
-@keyframes cardFloat {
+@keyframes itemFloat {
 
     0%,
     100% {
@@ -217,18 +224,19 @@
     }
 
     50% {
-        transform: translateY(-20px) rotate(3deg);
+        transform: translateY(-25px) rotate(5deg);
     }
 }
 
 .sidebar-footer {
     margin-top: auto;
-    font-size: 0.95rem;
-    color: #94a3b8;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
-/* Main Form Area */
+/* Main Form Area (Creamy Warmth) */
 .auth-main {
     flex: 1;
     min-width: 0;
@@ -238,7 +246,7 @@
     align-items: center;
     padding: 3rem;
     position: relative;
-    background: #ffffff;
+    background: #fdfcfb;
     overflow-y: auto;
     min-height: 100vh;
 
@@ -254,17 +262,17 @@
     inset-inline-start: 3rem;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     color: #64748b;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     z-index: 20;
 
     i {
-        font-size: 1.2rem;
-        color: #3b82f6;
+        font-size: 1.4rem;
+        color: #c5a059;
     }
 
     &:hover {
@@ -275,20 +283,17 @@
 
 .auth-wrapper {
     width: 100%;
-    max-width: 480px;
+    max-width: 440px;
     z-index: 10;
-    margin: 0;
 }
-
-
 
 /* Animations */
 .animate-fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
+    animation: fadeIn 1.2s ease-out forwards;
 }
 
 .animate-slide-up {
-    animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeIn {
@@ -304,7 +309,7 @@
 @keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(40px);
     }
 
     to {

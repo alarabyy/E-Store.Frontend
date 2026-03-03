@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { ToastService } from '../../../../core/services/toast.service';
+import { ToastService } from '../../../../components/toast/services/toast.service';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RulesService } from '../services/rules.service';
