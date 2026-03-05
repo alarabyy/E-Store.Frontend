@@ -1,0 +1,100 @@
+<div class="track-page">
+    <div class="container">
+        <div class="track-card">
+            <header class="card-header">
+                <h1>Track Your Shipment</h1>
+                <p>Enter your order number to see real-time updates from our couriers.</p>
+            </header>
+
+            <div class="search-box">
+                <div class="input-group">
+                    <i class="ri-search-line search-icon"></i>
+                    <input type="text" [(ngModel)]="orderNumber" placeholder="Order Number (e.g. 10245)"
+                        (keyup.enter)="track()">
+                </div>
+                <button class="btn-track" (click)="track()" [disabled]="isLoading || !orderNumber">
+                    @if (isLoading) {
+                    <span class="spinner"></span>
+                    } @else {
+                    Track Now
+                    }
+                </button>
+            </div>
+
+            @if (error) {
+            <div class="error-alert">
+                <i class="ri-error-warning-line"></i>
+                <span>{{ error }}</span>
+            </div>
+            }
+
+            @if (trackingResult) {
+            <div class="tracking-content" [@fadeIn]>
+                <!-- Status Overview -->
+                <div class="status-overview">
+                    <div class="current-status">
+                        <span class="label">Current Status</span>
+                        <h2 [class]="trackingResult.status.toLowerCase()">{{ trackingResult.status }}</h2>
+                    </div>
+                    @if (trackingResult.events.length > 0) {
+                    <div class="last-update">
+                        <span class="label">Last Update</span>
+                        <p>{{ trackingResult.events[0].occurredAt | date:'medium' }}</p>
+                        <small>{{ trackingResult.events[0].location }}</small>
+                    </div>
+                    }
+                </div>
+
+                <!-- Stepper -->
+                <div class="stepper">
+                    <div class="step" [ngClass]="getStepStatus(ShipmentStatus.Created)">
+                        <div class="icon-wrapper"><i class="ri-file-list-3-line"></i></div>
+                        <span class="step-label">Ordered</span>
+                    </div>
+                    <div class="step-line" [ngClass]="getStepStatus(ShipmentStatus.PickedUp)"></div>
+                    <div class="step" [ngClass]="getStepStatus(ShipmentStatus.PickedUp)">
+                        <div class="icon-wrapper"><i class="ri-handbox-line"></i></div>
+                        <span class="step-label">Picked Up</span>
+                    </div>
+                    <div class="step-line" [ngClass]="getStepStatus(ShipmentStatus.InTransit)"></div>
+                    <div class="step" [ngClass]="getStepStatus(ShipmentStatus.InTransit)">
+                        <div class="icon-wrapper"><i class="ri-truck-line"></i></div>
+                        <span class="step-label">In Transit</span>
+                    </div>
+                    <div class="step-line" [ngClass]="getStepStatus(ShipmentStatus.Delivered)"></div>
+                    <div class="step" [ngClass]="getStepStatus(ShipmentStatus.Delivered)">
+                        <div class="icon-wrapper"><i class="ri-checkbox-circle-line"></i></div>
+                        <span class="step-label">Delivered</span>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline-section">
+                    <h3>Shipment History</h3>
+                    <div class="timeline">
+                        @for (event of trackingResult.events; track $index) {
+                        <div class="timeline-item">
+                            <div class="time">
+                                <span class="date">{{ event.occurredAt | date:'MMM d' }}</span>
+                                <span class="hour">{{ event.occurredAt | date:'shortTime' }}</span>
+                            </div>
+                            <div class="separator">
+                                <div class="dot" [class.latest]="$first"></div>
+                                @if (!$last) { <div class="line"></div> }
+                            </div>
+                            <div class="event-details">
+                                <h4 [class.latest]="$first">{{ event.status }}</h4>
+                                <p>{{ event.description }}</p>
+                                @if (event.location) {
+                                <span class="location"><i class="ri-map-pin-line"></i> {{ event.location }}</span>
+                                }
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
