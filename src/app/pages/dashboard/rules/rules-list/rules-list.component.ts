@@ -325,7 +325,7 @@ export class RulesListComponent implements OnInit {
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         const msg = err?.error?.error?.message || err?.error?.message || 'Failed to load rules';
         this.toastService.error(msg);
         this.isLoading = false;
@@ -340,7 +340,7 @@ export class RulesListComponent implements OnInit {
           this.toastService.success('Rule deleted successfully');
           this.loadRules();
         },
-        error: (err) => {
+        error: (err: any) => {
           const msg = err?.error?.error?.message || err?.error?.message || 'Failed to delete rule';
           this.toastService.error(msg);
         }

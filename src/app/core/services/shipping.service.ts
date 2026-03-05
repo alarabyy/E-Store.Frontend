@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api-response.model';
-import { PagedResponse } from '../models/pagination.models';
+import { ApiResponse } from '../api/models/api-response.model';
+import { PagedResponse } from '../api/models/pagination.models';
 import {
     Courier,
     StoreCourierSetting,
@@ -14,7 +14,7 @@ import {
     ShipmentCreatedDto,
     ShipmentStatus,
     TrackingResult
-} from '../models/shipping.models';
+} from '../api/models/shipping.models';
 
 @Injectable({
     providedIn: 'root'

@@ -49,5 +49,9 @@ export const PUBLIC_ROUTES: Routes = [
     {
         path: 'categories/:slug',
         loadComponent: () => import('../pages/public/category-details/category-details.component').then(m => m.CategoryDetailsComponent)
+    },
+    {
+        path: 'track-order',
+        loadComponent: () => import('../pages/public/shipping/track-order/track-order.component').then(m => m.TrackOrderComponent)
     }
 ];
