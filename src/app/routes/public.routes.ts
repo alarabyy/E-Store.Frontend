@@ -35,6 +35,10 @@ export const PUBLIC_ROUTES: Routes = [
         loadComponent: () => import('../pages/public/profile/edit-profile/edit-profile.component').then(m => m.EditProfileComponent)
     },
     {
+        path: 'my-orders',
+        loadComponent: () => import('../pages/public/my-orders/my-orders.component').then(m => m.MyOrdersComponent)
+    },
+    {
         path: 'product/:slug',
         loadComponent: () => import('../pages/public/product-details/product-details.component').then(m => m.ProductDetailsComponent)
     },

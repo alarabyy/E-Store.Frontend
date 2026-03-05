@@ -1,0 +1,207 @@
+<div class="order-detail-container animate-fade-in" *ngIf="order">
+    <header class="detail-header">
+        <div class="back-wrap">
+            <button class="btn-back" routerLink="/dashboard/orders">
+                <i class="ri-arrow-left-line"></i>
+            </button>
+            <div class="title-info">
+                <h1>Order #{{ order.orderNumber }}</h1>
+                <p>Placed on {{ order.createdAt | date:'longDate' }} at {{ order.createdAt | date:'shortTime' }}</p>
+            </div>
+        </div>
+        <div class="status-actions">
+            <div class="current-status" [style.color]="getStatusColor(order.status)"
+                [style.background-color]="getStatusColor(order.status) + '15'">
+                <i [class]="getStatusIcon(order.status)"></i>
+                {{ getStatusLabel(order.status) }}
+            </div>
+            <div class="dropdown-wrap">
+                <button class="btn-action">Update Status <i class="ri-arrow-down-s-line"></i></button>
+                <div class="dropdown-menu">
+                    <button *ngFor="let s of orderStatuses" (click)="updateStatus(s.value)"
+                        [class.active]="order.status === s.value">
+                        <i [class]="s.icon" [style.color]="s.color"></i>
+                        {{ s.label }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="detail-grid">
+        <!-- Main Content (Left) -->
+        <div class="main-content">
+            <!-- Order Items -->
+            <section class="premium-card items-card">
+                <div class="card-header">
+                    <h2>Order Summary</h2>
+                    <span class="count">{{ order.items.length }} Items</span>
+                </div>
+                <div class="items-list">
+                    <div class="item-row" *ngFor="let item of order.items">
+                        <div class="item-image">
+                            <img [src]="item.productImageUrl || 'assets/placeholder-product.png'"
+                                [alt]="item.productName">
+                        </div>
+                        <div class="item-info">
+                            <h3 class="product-name">{{ item.productName }}</h3>
+                            <p class="product-meta">Qty: {{ item.quantity }} × {{ order.currency }} {{ item.unitPrice |
+                                number:'1.2-2' }}</p>
+                        </div>
+                        <div class="item-total">
+                            {{ order.currency }} {{ item.totalPrice | number:'1.2-2' }}
+                        </div>
+                    </div>
+                </div>
+                <div class="order-summary">
+                    <div class="summary-line">
+                        <span>Subtotal</span>
+                        <span>{{ order.currency }} {{ order.subTotal | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Shipping Cost</span>
+                        <span>{{ order.currency }} {{ order.shippingCost | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="summary-line total">
+                        <span>Total Amount</span>
+                        <span>{{ order.currency }} {{ order.totalAmount | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Addresses -->
+            <div class="address-grid">
+                <section class="premium-card">
+                    <div class="card-header">
+                        <h3><i class="ri-map-pin-line"></i> Shipping Address</h3>
+                    </div>
+                    <div class="address-content">
+                        <p class="name">{{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}</p>
+                        <p>{{ order.shippingAddress.streetAddress }}</p>
+                        <p *ngIf="order.shippingAddress.apartmentSuite">{{ order.shippingAddress.apartmentSuite }}</p>
+                        <p>{{ order.shippingAddress.city }}, {{ order.shippingAddress.state }}
+                            {{ order.shippingAddress.zipCode }}</p>
+                        <p>{{ order.shippingAddress.country }}</p>
+                        <div class="contact">
+                            <span><i class="ri-phone-line"></i> {{ order.shippingAddress.phoneNumber }}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="premium-card">
+                    <div class="card-header">
+                        <h3><i class="ri-bill-line"></i> Billing Address</h3>
+                    </div>
+                    <div class="address-content">
+                        <p class="name">{{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}</p>
+                        <p>{{ order.billingAddress.streetAddress }}</p>
+                        <p *ngIf="order.billingAddress.apartmentSuite">{{ order.billingAddress.apartmentSuite }}</p>
+                        <p>{{ order.billingAddress.city }}, {{ order.billingAddress.state }}
+                            {{ order.billingAddress.zipCode }}</p>
+                        <p>{{ order.billingAddress.country }}</p>
+                        <div class="contact">
+                            <span><i class="ri-phone-line"></i> {{ order.billingAddress.phoneNumber }}</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Sidebar (Right) -->
+        <aside class="sidebar-content">
+            <section class="premium-card customer-card">
+                <div class="card-header">
+                    <h3><i class="ri-user-3-line"></i> Customer Profile</h3>
+                </div>
+                <div class="customer-preview">
+                    <div class="avatar">{{ order.userFullName.charAt(0) }}</div>
+                    <div class="info">
+                        <p class="name">{{ order.userFullName }}</p>
+                        <p class="email">{{ order.userEmail }}</p>
+                        <span class="user-id">ID: #{{ order.userId }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="premium-card shipping-card">
+                <div class="card-header">
+                    <h3><i class="ri-truck-line"></i> Tracking & Logistics</h3>
+                    <button class="btn-edit-icon" (click)="toggleTrackingEdit()">
+                        <i [class]="isEditingTracking ? 'ri-close-line' : 'ri-pencil-line'"></i>
+                    </button>
+                </div>
+
+                <div class="shipping-info" *ngIf="!isEditingTracking">
+                    <div class="info-item">
+                        <label>Carrier</label>
+                        <span [class.not-assigned]="!order.carrier">{{ order.carrier || 'Not assigned' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Tracking ID</label>
+                        <span [class.not-assigned]="!order.trackingNumber">{{ order.trackingNumber || 'Awaiting
+                            dispatch' }}</span>
+                    </div>
+                </div>
+
+                <div class="shipping-edit-form" *ngIf="isEditingTracking">
+                    <div class="form-group">
+                        <label>Carrier</label>
+                        <input type="text" [(ngModel)]="editCarrier" placeholder="e.g. FedEx, UPS, DHL"
+                            class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Tracking ID</label>
+                        <input type="text" [(ngModel)]="editTracking" placeholder="Enter tracking number"
+                            class="form-input">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-primary" (click)="saveTracking()">Save Updates</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="premium-card payment-card" *ngIf="order.paymentId">
+                <div class="card-header">
+                    <h3><i class="ri-bank-card-line"></i> Payment Info</h3>
+                </div>
+                <div class="shipping-info">
+                    <div class="info-item">
+                        <label>Payment ID</label>
+                        <span>#{{ order.paymentId }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="premium-card notes-card" *ngIf="order.customerNotes">
+                <div class="card-header">
+                    <h3><i class="ri-chat-3-line"></i> Customer Notes</h3>
+                </div>
+                <p class="notes">{{ order.customerNotes }}</p>
+            </section>
+
+            <section class="premium-card timeline-card">
+                <div class="card-header">
+                    <h3><i class="ri-time-line"></i> Timeline</h3>
+                </div>
+                <div class="timeline-info">
+                    <div class="info-item">
+                        <label>Created</label>
+                        <span>{{ order.createdAt | date:'medium' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Last Updated</label>
+                        <span>{{ order.updatedAt | date:'medium' }}</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<div class="skeleton-loader" *ngIf="loading">
+    <div class="header-skeleton"></div>
+    <div class="grid-skeleton">
+        <div class="main-skeleton"></div>
+        <div class="side-skeleton"></div>
+    </div>
+</div>

@@ -1,0 +1,181 @@
+<div class="my-orders-page">
+
+    <!-- Not Authenticated -->
+    <div class="auth-prompt" *ngIf="!isAuthenticated && !loading()">
+        <div class="auth-content">
+            <div class="auth-icon">
+                <i class="ri-lock-line"></i>
+            </div>
+            <h2>Sign in to view your orders</h2>
+            <p>You need to be logged in to access your order history and tracking information.</p>
+            <a routerLink="/auth/login" class="btn-login">
+                <i class="ri-login-box-line"></i>
+                Sign In
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="orders-wrapper" *ngIf="isAuthenticated">
+
+        <!-- Header -->
+        <header class="orders-header">
+            <div class="header-left">
+                <h1>My Orders</h1>
+                <p>Track and manage your purchases</p>
+            </div>
+            <div class="header-right" *ngIf="!loading() && totalRecords() > 0">
+                <span class="order-count">
+                    <i class="ri-shopping-bag-3-line"></i>
+                    {{ totalRecords() }} {{ totalRecords() === 1 ? 'Order' : 'Orders' }}
+                </span>
+            </div>
+        </header>
+
+        <!-- Loading Skeleton -->
+        <div class="skeleton-container" *ngIf="loading()">
+            <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
+                <div class="skeleton-top">
+                    <div class="skeleton-line w30"></div>
+                    <div class="skeleton-badge"></div>
+                </div>
+                <div class="skeleton-items">
+                    <div class="skeleton-item" *ngFor="let j of [1,2]">
+                        <div class="skeleton-img"></div>
+                        <div class="skeleton-line w60"></div>
+                    </div>
+                </div>
+                <div class="skeleton-bottom">
+                    <div class="skeleton-line w40"></div>
+                    <div class="skeleton-line w20"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        <div class="orders-list" *ngIf="!loading() && orders().length > 0">
+            <div class="order-card" *ngFor="let order of orders()" [class.expanded]="expandedOrderId === order.id">
+
+                <!-- Order Card Header — clickable to expand -->
+                <div class="order-card-header" (click)="toggleOrder(order.id)">
+                    <div class="order-main-info">
+                        <div class="order-number">
+                            <span class="hash">#</span>{{ order.orderNumber }}
+                        </div>
+                        <div class="order-date">
+                            <i class="ri-calendar-event-line"></i>
+                            {{ order.createdAt | date:'mediumDate' }}
+                            <span class="time-ago">· {{ getTimeAgo(order.createdAt) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="order-right-info">
+                        <div class="order-total">
+                            <span class="currency">{{ order.currency }}</span>
+                            {{ order.totalAmount | number:'1.2-2' }}
+                        </div>
+                        <div class="status-badge" [style.background-color]="getStatusColor(order.status) + '15'"
+                            [style.color]="getStatusColor(order.status)">
+                            <i [class]="getStatusIcon(order.status)"></i>
+                            {{ getStatusLabel(order.status) }}
+                        </div>
+                        <button class="expand-btn" [class.rotated]="expandedOrderId === order.id">
+                            <i class="ri-arrow-down-s-line"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Description -->
+                <div class="status-description" [style.color]="getStatusColor(order.status)">
+                    <i [class]="getStatusIcon(order.status)"></i>
+                    {{ getStatusDescription(order.status) }}
+                </div>
+
+                <!-- Items Preview (always visible — compact) -->
+                <div class="items-preview">
+                    <div class="preview-images">
+                        <div class="preview-img" *ngFor="let item of order.items.slice(0, 3); let i = index"
+                            [style.z-index]="10 - i">
+                            <img [src]="resolveImageUrl(item.productImageUrl) || 'assets/placeholder-product.png'"
+                                [alt]="item.productName">
+                        </div>
+                        <div class="more-items" *ngIf="order.items.length > 3">
+                            +{{ order.items.length - 3 }}
+                        </div>
+                    </div>
+                    <span class="items-count-text">{{ order.items.length }} {{ order.items.length === 1 ? 'item' :
+                        'items' }}</span>
+                </div>
+
+                <!-- Expanded Details -->
+                <div class="order-details" *ngIf="expandedOrderId === order.id">
+                    <div class="details-divider"></div>
+
+                    <!-- Full Items List -->
+                    <div class="full-items-list">
+                        <div class="detail-item" *ngFor="let item of order.items">
+                            <div class="detail-item-image">
+                                <img [src]="resolveImageUrl(item.productImageUrl) || 'assets/placeholder-product.png'"
+                                    [alt]="item.productName">
+                            </div>
+                            <div class="detail-item-info">
+                                <a [routerLink]="['/product', item.productId]" class="product-link">
+                                    {{ item.productName }}
+                                </a>
+                                <div class="item-meta">
+                                    <span class="qty">Qty: {{ item.quantity }}</span>
+                                    <span class="unit-price">{{ order.currency }} {{ item.unitPrice | number:'1.2-2' }}
+                                        each</span>
+                                </div>
+                            </div>
+                            <div class="detail-item-total">
+                                {{ order.currency }} {{ item.totalPrice | number:'1.2-2' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Total Summary -->
+                    <div class="order-total-summary">
+                        <div class="total-line">
+                            <span>Total</span>
+                            <span class="total-amount">{{ order.currency }} {{ order.totalAmount | number:'1.2-2'
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loading() && orders().length === 0">
+            <div class="empty-icon">
+                <i class="ri-shopping-bag-line"></i>
+            </div>
+            <h2>No orders yet</h2>
+            <p>When you make a purchase, your orders will appear here.</p>
+            <a routerLink="/catalog" class="btn-shop">
+                Start Shopping <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+
+        <!-- Pagination -->
+        <footer class="pagination" *ngIf="totalRecords() > pageSize">
+            <div class="showing">
+                Showing {{ (currentPage - 1) * pageSize + 1 }}–{{ Math.min(currentPage * pageSize, totalRecords()) }}
+                of {{ totalRecords() }}
+            </div>
+            <div class="page-btns">
+                <button [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+                    <i class="ri-arrow-left-s-line"></i>
+                </button>
+                <button *ngFor="let p of pages" [class.active]="p === currentPage" (click)="onPageChange(p)"
+                    class="page-num">
+                    {{ p }}
+                </button>
+                <button [disabled]="currentPage >= totalPages" (click)="onPageChange(currentPage + 1)">
+                    <i class="ri-arrow-right-s-line"></i>
+                </button>
+            </div>
+        </footer>
+    </div>
+</div>

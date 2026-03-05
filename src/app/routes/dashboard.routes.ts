@@ -98,6 +98,19 @@ export const DASHBOARD_ROUTES: Routes = [
         loadComponent: () => import('../pages/dashboard/payments/payments.component').then(m => m.PaymentDashboardComponent)
     },
     {
+        path: 'orders',
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('../pages/dashboard/orders/orders.component').then(m => m.OrdersComponent)
+            },
+            {
+                path: ':id',
+                loadComponent: () => import('../pages/dashboard/orders/order-details/order-details.component').then(m => m.OrderDetailsComponent)
+            }
+        ]
+    },
+    {
         path: 'promotions',
         loadComponent: () => import('../pages/dashboard/promotions/promotions.component').then(m => m.PromotionsComponent)
     },

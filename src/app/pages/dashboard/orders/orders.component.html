@@ -1,0 +1,194 @@
+<div class="orders-container animate-fade-in">
+    <header class="page-header">
+        <div class="title-wrap">
+            <h1 class="page-title">Order Management</h1>
+            <p class="page-subtitle">Track and process customer orders efficiently</p>
+        </div>
+        <div class="actions">
+            <div class="order-stats" *ngIf="!loading()">
+                <span class="stat-chip">
+                    <i class="ri-shopping-bag-3-line"></i>
+                    {{ totalRecords() }} Total
+                </span>
+            </div>
+            <button class="btn-sync" (click)="loadOrders()" [class.loading]="loading()">
+                <i class="ri-refresh-line"></i>
+                <span>Sync List</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Filters Section -->
+    <section class="filters-card">
+        <div class="search-box">
+            <i class="ri-search-2-line"></i>
+            <input type="text" [(ngModel)]="searchText" (keyup.enter)="onSearch()"
+                placeholder="Search by order number, email or customer name...">
+            <button class="search-btn" *ngIf="searchText" (click)="searchText = ''; onSearch()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <div class="filter-group">
+            <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="status-select">
+                <option [ngValue]="undefined">All Statuses</option>
+                <option *ngFor="let s of orderStatuses" [ngValue]="s.value">{{ s.label }}</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Orders Table/List -->
+    <div class="orders-content">
+        <!-- Skeleton Loading -->
+        <div class="skeleton-wrap" *ngIf="loading()">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+                <div class="skeleton-cell id"></div>
+                <div class="skeleton-cell customer"></div>
+                <div class="skeleton-cell date"></div>
+                <div class="skeleton-cell amount"></div>
+                <div class="skeleton-cell status"></div>
+                <div class="skeleton-cell actions"></div>
+            </div>
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="table-responsive" *ngIf="!loading() && orders().length > 0">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let order of orders()" class="order-row">
+                        <td>
+                            <div class="order-id">
+                                <span class="hash">#</span>{{ order.orderNumber }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="customer-info">
+                                <span class="name">{{ order.userFullName }}</span>
+                                <span class="email">{{ order.userEmail }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="date-info">
+                                {{ order.createdAt | date:'mediumDate' }}
+                                <span class="time">{{ order.createdAt | date:'shortTime' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="items-count">
+                                <i class="ri-shopping-bag-line"></i>
+                                {{ order.items.length }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="price-info">
+                                <span class="currency">{{ order.currency }}</span>
+                                <span class="amount">{{ order.totalAmount | number:'1.2-2' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="status-badge" [style.background-color]="getStatusColor(order.status) + '20'"
+                                [style.color]="getStatusColor(order.status)">
+                                <i [class]="getStatusIcon(order.status)"></i>
+                                {{ getStatusLabel(order.status) }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="action-btn view" title="View Details"
+                                    [routerLink]="['/dashboard/orders', order.id]">
+                                    <i class="ri-eye-line"></i>
+                                </button>
+                                <div class="status-dropdown">
+                                    <button class="action-btn" title="Update Status">
+                                        <i class="ri-more-2-fill"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-header">Change Status</div>
+                                        <button *ngFor="let s of orderStatuses"
+                                            (click)="updateStatus(order.id, s.value)"
+                                            [class.active]="order.status === s.value">
+                                            <i [class]="s.icon" [style.color]="s.color"></i>
+                                            {{ s.label }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile List View -->
+        <div class="mobile-order-list" *ngIf="!loading() && orders().length > 0">
+            <div *ngFor="let order of orders()" class="order-card-mobile"
+                [routerLink]="['/dashboard/orders', order.id]">
+                <div class="card-header">
+                    <span class="order-num">#{{ order.orderNumber }}</span>
+                    <div class="status-badge small" [style.background-color]="getStatusColor(order.status) + '20'"
+                        [style.color]="getStatusColor(order.status)">
+                        <i [class]="getStatusIcon(order.status)"></i>
+                        {{ getStatusLabel(order.status) }}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="customer">{{ order.userFullName }}</div>
+                    <div class="bottom-row">
+                        <span class="date">{{ order.createdAt | date:'short' }}</span>
+                        <span class="total">{{ order.currency }} {{ order.totalAmount | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loading() && orders().length === 0">
+            <div class="empty-icon-wrap">
+                <i class="ri-inbox-archive-line"></i>
+            </div>
+            <h3>No orders found</h3>
+            <p>Try adjusting your search or filters to find specific orders.</p>
+            <button class="btn-reset" (click)="searchText = ''; statusFilter = undefined; onFilterChange()">
+                <i class="ri-restart-line"></i> Reset Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <footer class="pagination-footer" *ngIf="totalRecords() > pageSize">
+        <div class="showing-info">
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalRecords()) }} of
+            {{ totalRecords() }} orders
+        </div>
+        <div class="btns">
+            <button [disabled]="currentPage === 1" (click)="onPageChange(1)" title="First Page">
+                <i class="ri-skip-back-mini-line"></i>
+            </button>
+            <button [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+                <i class="ri-arrow-left-s-line"></i>
+            </button>
+            <button *ngFor="let p of pages" [class.active]="p === currentPage" (click)="onPageChange(p)"
+                class="page-num">
+                {{ p }}
+            </button>
+            <button [disabled]="currentPage * pageSize >= totalRecords()" (click)="onPageChange(currentPage + 1)">
+                <i class="ri-arrow-right-s-line"></i>
+            </button>
+            <button [disabled]="currentPage >= totalPages" (click)="onPageChange(totalPages)" title="Last Page">
+                <i class="ri-skip-forward-mini-line"></i>
+            </button>
+        </div>
+    </footer>
+</div>
