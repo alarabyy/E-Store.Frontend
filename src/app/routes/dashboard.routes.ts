@@ -100,5 +100,9 @@ export const DASHBOARD_ROUTES: Routes = [
     {
         path: 'promotions',
         loadComponent: () => import('../pages/dashboard/promotions/promotions.component').then(m => m.PromotionsComponent)
+    },
+    {
+        path: 'shipping',
+        loadComponent: () => import('../pages/dashboard/shipping/shipping.component').then(m => m.ShippingDashboardComponent)
     }
 ];

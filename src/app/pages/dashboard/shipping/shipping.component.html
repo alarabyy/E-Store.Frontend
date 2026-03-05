@@ -1,0 +1,114 @@
+<div class="dashboard-container">
+  <div class="header">
+    <div class="title-section">
+      <h1>Shipping Management</h1>
+      <p>Configure courier adapters and track active shipments</p>
+    </div>
+    <div class="actions">
+      <button class="btn-refresh" (click)="loadData()" [class.loading]="isLoading">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="icon-box transit">
+        <i class="fas fa-truck"></i>
+      </div>
+      <div class="stat-content">
+        <span class="label">Total Shipments</span>
+        <h2 class="value">{{ activeShipmentsCount }}</h2>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="icon-box active">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <span class="label">Enabled Couriers</span>
+        <h2 class="value">{{ courierSettings.filter(s => s.isEnabled).length }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- Courier Configuration Section -->
+    <section class="card-section">
+      <div class="section-header">
+        <h3>Courier Adapters</h3>
+      </div>
+      <div class="courier-list">
+        @for (setting of courierSettings; track setting.id) {
+          <div class="courier-item">
+            <div class="courier-info">
+              <div class="logo-placeholder">{{ setting.courierName.charAt(0) }}</div>
+              <div class="details">
+                <span class="name">{{ setting.courierName }}</span>
+                <span class="status-badge" [class.enabled]="setting.isEnabled">
+                  {{ setting.isEnabled ? 'Active' : 'Disabled' }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="courier-actions">
+              <button class="btn-icon" (click)="onConfigure(setting.courierName === 'Bosta' ? CourierCode.Bosta : setting.courierName === 'DHL' ? CourierCode.DHL : setting.courierName === 'Aramex' ? CourierCode.Aramex : CourierCode.FedEx)" title="Configure API">
+                <i class="fas fa-key"></i>
+              </button>
+              <div class="toggle-switch">
+                <input type="checkbox" [id]="'toggle-' + setting.id" [checked]="setting.isEnabled" (change)="toggleCourier(setting)">
+                <label [for]="'toggle-' + setting.id"></label>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">No couriers available.</div>
+        }
+      </div>
+    </section>
+
+    <!-- Recent Shipments Section -->
+    <section class="card-section">
+      <div class="section-header">
+        <h3>Recent Shipments</h3>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Tracking #</th>
+              <th>Order</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (shipment of shipments; track shipment.id) {
+              <tr>
+                <td><span class="tracking-code">{{ shipment.trackingNumber }}</span></td>
+                <td>#{{ shipment.orderId }}</td>
+                <td>
+                  <span class="status-pill" [ngClass]="getStatusClass(shipment.status)">
+                    {{ shipment.status }}
+                  </span>
+                </td>
+                <td>{{ shipment.createdAt | date:'short' }}</td>
+                <td>
+                  <a [href]="shipment.externalTrackingUrl" target="_blank" class="btn-link">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-td">No shipments found.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
