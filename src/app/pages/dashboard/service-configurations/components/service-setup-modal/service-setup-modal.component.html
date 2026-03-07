@@ -1,0 +1,48 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-info">
+                <i class="ri-terminal-box-line"></i>
+                <div class="text">
+                    <h2>Configure {{ serviceName }}</h2>
+                    <p>Enter the required API credentials and metadata</p>
+                </div>
+            </div>
+            <button class="close-btn" (click)="onClose()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <form [formGroup]="configForm" (ngSubmit)="onSave()" class="modal-body">
+            <div class="setup-notice">
+                <i class="ri-shield-keyhole-line"></i>
+                <span>These keys are encrypted at rest. Double check your credentials carefully.</span>
+            </div>
+
+            <div class="form-container" formArrayName="fields">
+                @for (field of configFields; track $index) {
+                <div [formGroupName]="$index" class="form-group config-field">
+                    <label>
+                        {{ field.get('key')?.value }}
+                        @if (field.get('value')?.invalid && field.get('value')?.touched) {
+                        <span class="required-badge">Required</span>
+                        }
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="ri-key-line"></i>
+                        <input type="text" formControlName="value" [placeholder]="'Enter ' + field.get('key')?.value">
+                    </div>
+                </div>
+                }
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" (click)="onClose()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="configForm.invalid">
+                    <i class="ri-checkbox-circle-line"></i>
+                    Apply Configuration
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

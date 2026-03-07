@@ -1,0 +1,160 @@
+<div class="dashboard-container fade-in">
+    <div class="header">
+        <div class="title-group">
+            <h1>Service Integrations</h1>
+            <p class="subtitle">Unified management for payments, shipping, and external providers</p>
+        </div>
+        <div class="actions">
+            <button class="btn-primary" (click)="openCreateModal()">
+                <i class="ri-add-line"></i>
+                Add New Service
+            </button>
+        </div>
+    </div>
+
+    <div class="stats-summary fade-in">
+        <div class="stat-card">
+            <div class="stat-icon total"><i class="ri-hub-line"></i></div>
+            <div class="stat-info">
+                <span class="value">{{stats.total}}</span>
+                <span class="label">Total Integrated</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active"><i class="ri-flashlight-line"></i></div>
+            <div class="stat-info">
+                <span class="value">{{stats.active}}</span>
+                <span class="label">Running Services</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="ri-shield-check-line"></i></div>
+            <div class="stat-info">
+                <span class="value">{{stats.configured}}</span>
+                <span class="label">Fully Configured</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon warning"><i class="ri-tools-line"></i></div>
+            <div class="stat-info">
+                <span class="value">{{stats.unconfigured}}</span>
+                <span class="label">Pending Setup</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <div class="tabs-list">
+            @for (tab of tabs; track tab.id) {
+            <button class="tab-item" [class.active]="activeTab === tab.id" (click)="setActiveTab(tab.id)">
+                <i [class]="tab.icon"></i>
+                {{tab.label}}
+            </button>
+            }
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        @if (isLoading) {
+        <div class="loading-state">
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row"></div>
+        </div>
+        } @else {
+        @if (filteredServices.length === 0) {
+        <div class="empty-state">
+            <i class="ri-extension-line empty-icon"></i>
+            <h4>No services found</h4>
+            <p>Add a new integration to get started with this category</p>
+        </div>
+        } @else {
+        <div class="services-grid">
+            @for (item of filteredServices; track item.id) {
+            <div class="service-card" [class.inactive]="!item.isActive"
+                [style.--brand-color]="getBrandColor(item.name)">
+                <div class="card-status">
+                    <span class="status-indicator" [class.active]="item.isActive">
+                        {{ item.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                    @if (activeTab === 'all') {
+                    <span class="type-badge">{{ getServiceTypeName(item.type) }}</span>
+                    }
+                    <div class="toggle-switch">
+                        <input type="checkbox" [id]="'toggle-' + item.id" [checked]="item.isActive"
+                            (change)="toggleService(item)">
+                        <label [for]="'toggle-' + item.id"></label>
+                    </div>
+                </div>
+
+                <div class="card-main">
+                    <div class="service-icon" [style.background-color]="getBrandColor(item.name) + '15'"
+                        [style.color]="getBrandColor(item.name)">
+                        <i [class]="getBrandIcon(item.name, item.type)">
+                        </i>
+                    </div>
+                    <div class="service-info">
+                        <h3>{{ item.name }}</h3>
+                        <div class="metrics">
+                            <span>Priority: {{ item.priority }}</span>
+                            <span class="dot"></span>
+                            <span>Weight: {{ item.weight }}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-details">
+                    <div class="detail-row">
+                        <span class="label">Currencies</span>
+                        <div class="badges">
+                            @for (cur of item.supportedCurrencies; track cur) {
+                            <span class="mini-badge">{{cur}}</span>
+                            }
+                        </div>
+                    </div>
+                    @if (item.isConfigured) {
+                    <div class="config-status success">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Integration Ready</span>
+                    </div>
+                    } @else {
+                    <div class="config-status error">
+                        <i class="ri-error-warning-line"></i>
+                        <span>Configuration Required</span>
+                    </div>
+                    }
+                </div>
+
+                <div class="card-footer">
+                    <button class="btn-icon-text" (click)="openEditModal(item)">
+                        <i class="ri-edit-box-line"></i>
+                        Modify
+                    </button>
+                    <button class="btn-primary-gradient" (click)="openConfigModal(item)">
+                        <i class="ri-terminal-box-line"></i>
+                        Setup Keys
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+        }
+    </div>
+</div>
+
+<!-- Service Creation/Edit Modal -->
+@if (isServiceModalOpen) {
+<app-service-form-modal [serviceData]="selectedService"
+    [initialType]="activeTab === 'all' ? ServiceType.Payment : activeTab" (save)="onSaveService($event)"
+    (close)="isServiceModalOpen = false">
+</app-service-form-modal>
+}
+
+<!-- Config Modal -->
+@if (isConfigModalOpen && configuringService) {
+<app-service-setup-modal [serviceName]="configuringService.name"
+    [configurationKeys]="configuringService.configurationKeys" [initialValues]="configuringService.values"
+    (save)="onSaveConfig($event)" (close)="isConfigModalOpen = false">
+</app-service-setup-modal>
+}

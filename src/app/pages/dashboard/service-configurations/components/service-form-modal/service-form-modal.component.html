@@ -1,0 +1,97 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-info">
+                <i [class]="serviceData ? 'ri-edit-box-line' : 'ri-add-circle-line'"></i>
+                <div class="text">
+                    <h2>{{ serviceData ? 'Edit Integration' : 'Add New Integration' }}</h2>
+                    <p>Configure global parameters for your external service</p>
+                </div>
+            </div>
+            <button class="close-btn" (click)="onClose()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <form [formGroup]="serviceForm" (ngSubmit)="onSave()" class="modal-body">
+            <!-- Type Selection Grid -->
+            <div class="section-title">Step 1: Select Service Type</div>
+            <div class="type-selection-grid">
+                @for (type of serviceTypes; track type.value) {
+                <div class="type-option" [class.selected]="serviceForm.get('type')?.value === type.value"
+                    (click)="selectType(type.value)">
+                    <i [class]="type.icon"></i>
+                    <span>{{type.label}}</span>
+                </div>
+                }
+            </div>
+
+            <div class="section-title">Step 2: General Information</div>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Provider Name</label>
+                    <div class="input-wrapper">
+                        <i class="ri-instance-line"></i>
+                        <input type="text" formControlName="name" placeholder="e.g. Stripe, DHL, Twilio">
+                    </div>
+                    @if (serviceForm.get('name')?.touched && serviceForm.get('name')?.invalid) {
+                    <small class="error-msg">Valid provider name is required (min 3 chars)</small>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label>Execution Priority</label>
+                    <div class="input-wrapper">
+                        <i class="ri-list-ordered"></i>
+                        <input type="number" formControlName="priority" placeholder="1">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Traffic Weight (%)</label>
+                    <div class="input-wrapper">
+                        <i class="ri-percent-line"></i>
+                        <input type="number" formControlName="weight" placeholder="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Supported Currencies</label>
+                    <div class="input-wrapper">
+                        <i class="ri-coins-line"></i>
+                        <input type="text" formControlName="supportedCurrencies" placeholder="USD, EUR, EGP">
+                    </div>
+                    <small>Comma-separated list</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Supported Countries</label>
+                    <div class="input-wrapper">
+                        <i class="ri-global-line"></i>
+                        <input type="text" formControlName="supportedCountries" placeholder="US, GB, EG">
+                    </div>
+                    <small>ISO Alpha-2 codes</small>
+                </div>
+
+                <div class="form-group full">
+                    <label>Configuration Keys (Schema Definition)</label>
+                    <div class="input-wrapper textarea">
+                        <i class="ri-key-2-line"></i>
+                        <input type="text" formControlName="configurationKeys"
+                            placeholder="ApiKey, SecretToken, MerchantID">
+                    </div>
+                    <small>Define the names of the keys this service requires. These will be used to generate the setup
+                        form.</small>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" (click)="onClose()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="serviceForm.invalid">
+                    <i class="ri-save-3-line"></i>
+                    {{ serviceData ? 'Update Integration' : 'Register Service' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

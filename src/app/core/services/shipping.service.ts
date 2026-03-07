@@ -23,22 +23,6 @@ export class ShippingDashboardService {
     private apiUrl = `${environment.apiUrl}/shipping-dashboard`;
     private http = inject(HttpClient);
 
-    getStoreCouriers(): Observable<ApiResponse<StoreCourierSetting[]>> {
-        return this.http.get<ApiResponse<StoreCourierSetting[]>>(`${this.apiUrl}/couriers`);
-    }
-
-    configureCourier(req: ConfigureCourierRequest): Observable<ApiResponse<void>> {
-        return this.http.post<ApiResponse<void>>(`${this.apiUrl}/configure`, req);
-    }
-
-    enableCourier(courierId: number): Observable<ApiResponse<void>> {
-        return this.http.post<ApiResponse<void>>(`${this.apiUrl}/enable/${courierId}`, {});
-    }
-
-    disableCourier(courierId: number): Observable<ApiResponse<void>> {
-        return this.http.post<ApiResponse<void>>(`${this.apiUrl}/disable/${courierId}`, {});
-    }
-
     createShipment(req: CreateShipmentRequest): Observable<ApiResponse<ShipmentCreatedDto>> {
         return this.http.post<ApiResponse<ShipmentCreatedDto>>(`${this.apiUrl}/create`, req);
     }
@@ -49,18 +33,22 @@ export class ShippingDashboardService {
 
     getShipments(page: number = 1, pageSize: number = 10, status?: ShipmentStatus): Observable<PagedResponse<Shipment>> {
         let params = new HttpParams()
-            .set('pageNumber', page.toString())
+            .set('page', page.toString())
             .set('pageSize', pageSize.toString());
 
         if (status) {
             params = params.set('status', status);
         }
 
-        return this.http.get<PagedResponse<Shipment>>(`${this.apiUrl}/shipments`, { params });
+        return this.http.get<PagedResponse<Shipment>>(`${this.apiUrl}/list`, { params });
     }
 
     getShipmentDetails(shipmentId: number): Observable<ApiResponse<ShipmentDetails>> {
-        return this.http.get<ApiResponse<ShipmentDetails>>(`${this.apiUrl}/shipments/${shipmentId}`);
+        return this.http.get<ApiResponse<ShipmentDetails>>(`${this.apiUrl}/${shipmentId}`);
+    }
+
+    updateShipmentStatus(shipmentId: number, newStatus: ShipmentStatus, description?: string): Observable<ApiResponse<void>> {
+        return this.http.patch<ApiResponse<void>>(`${this.apiUrl}/${shipmentId}/status`, { newStatus, description });
     }
 }
 

@@ -94,8 +94,8 @@ export const DASHBOARD_ROUTES: Routes = [
         loadComponent: () => import('../pages/dashboard/store/store-settings/store-settings.component').then(m => m.StoreSettingsComponent)
     },
     {
-        path: 'payments',
-        loadComponent: () => import('../pages/dashboard/payments/payments.component').then(m => m.PaymentDashboardComponent)
+        path: 'services',
+        loadComponent: () => import('../pages/dashboard/service-configurations/service-configurations.component').then(m => m.ServiceConfigurationsComponent)
     },
     {
         path: 'orders',
@@ -113,9 +113,5 @@ export const DASHBOARD_ROUTES: Routes = [
     {
         path: 'promotions',
         loadComponent: () => import('../pages/dashboard/promotions/promotions.component').then(m => m.PromotionsComponent)
-    },
-    {
-        path: 'shipping',
-        loadComponent: () => import('../pages/dashboard/shipping/shipping.component').then(m => m.ShippingDashboardComponent)
     }
 ];
