@@ -8,6 +8,7 @@ export enum ServiceType {
 export interface ServiceConfigurationDto {
     id: number;
     name: string;
+    logoUrl?: string;
     type: ServiceType;
     priority: number;
     weight: number;

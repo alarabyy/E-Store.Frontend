@@ -6,6 +6,7 @@ import { ServiceConfigurationDto, ServiceType } from './models/service-configura
 import { ToastService } from '../../../components/toast/services/toast.service';
 import { ServiceFormModalComponent } from './components/service-form-modal/service-form-modal.component';
 import { ServiceSetupModalComponent } from './components/service-setup-modal/service-setup-modal.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-service-configurations',
@@ -18,6 +19,7 @@ export class ServiceConfigurationsComponent implements OnInit {
     private service = inject(ServiceConfigurationService);
     private cdr = inject(ChangeDetectorRef);
     private toastService = inject(ToastService);
+    private backendUrl = environment.backendUrl;
 
     services: ServiceConfigurationDto[] = [];
     filteredServices: ServiceConfigurationDto[] = [];
@@ -103,6 +105,11 @@ export class ServiceConfigurationsComponent implements OnInit {
         } else {
             this.filteredServices = this.services.filter(s => s.type === this.activeTab);
         }
+    }
+
+    getFullLogoUrl(path: string | undefined): string | null {
+        if (!path) return null;
+        return path.startsWith('http') ? path : `${this.backendUrl}/${path}`;
     }
 
     getBrandIcon(name: string, type: ServiceType): string {

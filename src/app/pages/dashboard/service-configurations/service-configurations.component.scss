@@ -315,6 +315,13 @@
             justify-content: center;
             font-size: 2rem;
             flex-shrink: 0;
+            overflow: hidden;
+
+            .service-logo-img {
+                width: 70%;
+                height: 70%;
+                object-fit: contain;
+            }
         }
 
         .service-info {

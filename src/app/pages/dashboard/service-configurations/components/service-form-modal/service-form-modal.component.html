@@ -39,6 +39,27 @@
                     }
                 </div>
 
+                <div class="form-group full">
+                    <label>Service Logo</label>
+                    <div class="logo-upload-container">
+                        @if (logoPreview) {
+                        <div class="logo-preview">
+                            <img [src]="logoPreview" alt="Logo preview">
+                            <button type="button" class="remove-logo" (click)="removeLogo()">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </div>
+                        } @else {
+                        <label class="logo-dropzone">
+                            <input type="file" (change)="onFileChange($event)" accept="image/*" hidden>
+                            <i class="ri-upload-cloud-2-line"></i>
+                            <span>Upload Logo</span>
+                            <small>PNG, JPG up to 2MB</small>
+                        </label>
+                        }
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Execution Priority</label>
                     <div class="input-wrapper">

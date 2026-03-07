@@ -22,18 +22,45 @@ export class ServiceConfigurationService {
     }
 
     createService(payload: any): Observable<ApiResponse<number>> {
-        return this.http.post<ApiResponse<number>>(`${this.apiUrl}/create`, payload);
+        const formData = this.toFormData(payload);
+        return this.http.post<ApiResponse<number>>(`${this.apiUrl}/create`, formData);
     }
 
     updateService(payload: any): Observable<ApiResponse> {
-        return this.http.put<ApiResponse>(`${this.apiUrl}/update`, payload);
+        const formData = this.toFormData(payload);
+        return this.http.put<ApiResponse>(`${this.apiUrl}/update`, formData);
+    }
+
+    private toFormData(payload: any): FormData {
+        const formData = new FormData();
+        Object.keys(payload).forEach(key => {
+            const value = payload[key];
+            // Map camelCase to PascalCase for the backend command
+            const pascalKey = key.charAt(0).toUpperCase() + key.slice(1);
+
+            if (value instanceof File) {
+                formData.append(pascalKey, value);
+            } else if (Array.isArray(value)) {
+                // .NET model binding prefers repeated keys for List<string>
+                value.forEach(v => formData.append(pascalKey, v));
+            } else if (value !== null && value !== undefined) {
+                formData.append(pascalKey, value.toString());
+            }
+        });
+        return formData;
     }
 
     toggleService(id: number, enable: boolean): Observable<ApiResponse> {
         return this.http.post<ApiResponse>(`${this.apiUrl}/toggle`, { id, enable });
     }
 
-    configureService(id: number, values: Record<string, string>): Observable<ApiResponse> {
-        return this.http.post<ApiResponse>(`${this.apiUrl}/configure`, { id, values });
+    configureService(serviceConfigurationId: number, values: Record<string, string>): Observable<ApiResponse> {
+        return this.http.post<ApiResponse>(`${this.apiUrl}/configure`, {
+            serviceConfigurationId,
+            values,
+            encryptedValues: {},
+            metadata: {},
+            isActive: true
+        });
     }
 }
