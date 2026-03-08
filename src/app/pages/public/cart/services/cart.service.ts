@@ -1,4 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 export interface CartItem {
     id: number;
@@ -12,6 +15,7 @@ export interface CartItem {
     providedIn: 'root'
 })
 export class CartService {
+    private http = inject(HttpClient);
     private cartItems = signal<CartItem[]>([]);
 
     // Expose as readonly signal
@@ -97,7 +101,14 @@ export class CartService {
     }
 
     async checkout(data: any): Promise<any> {
-        // Dummy implementation for build
-        return { isSuccess: true, data: { orderNumber: 'dummy-' + Date.now() } };
+        return firstValueFrom(
+            this.http.post<any>(`${environment.apiUrl}/cart/checkout`, data)
+        );
+    }
+
+    async getActiveGateways(): Promise<any> {
+        return firstValueFrom(
+            this.http.get<any>(`${environment.apiUrl}/payments/list`)
+        );
     }
 }

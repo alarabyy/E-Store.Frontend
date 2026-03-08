@@ -7,6 +7,8 @@ import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { ToastService } from '../../../components/toast/services/toast.service';
 import { LoaderComponent } from '../../../components/loader/loader.component';
 import { SeoService } from '../../../core/seo/services/seo.service';
+import { StripeService } from '../../../core/services/stripe.service';
+import { environment } from '../../../../environments/environment';
 
 export interface AddressForm {
     firstName: string;
@@ -31,6 +33,7 @@ export class CartComponent implements OnInit {
     public cartService = inject(CartService);
     private toastService = inject(ToastService);
     private seoService = inject(SeoService);
+    private stripeService = inject(StripeService);
 
     isLoading = false;
     showCheckoutModal = false;
@@ -44,6 +47,8 @@ export class CartComponent implements OnInit {
     sameAsShipping = true;
     selectedCurrency = 'EGP';
     selectedCountry = 'EG';
+    activeGateways: any[] = [];
+    selectedPaymentMethod = 'CashOnDelivery';
     creditCard = {
         number: '',
         expiry: '',
@@ -60,7 +65,36 @@ export class CartComponent implements OnInit {
 
         this.isLoading = true;
         this.cartService.loadFromLocalStorage();
+        this.loadAddressesFromLocal();
         setTimeout(() => this.isLoading = false, 800);
+    }
+
+    private saveAddressesToLocal() {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('checkout_shipping', JSON.stringify(this.shippingAddress));
+            localStorage.setItem('checkout_billing', JSON.stringify(this.billingAddress));
+            localStorage.setItem('checkout_same_as_shipping', JSON.stringify(this.sameAsShipping));
+        }
+    }
+
+    private loadAddressesFromLocal() {
+        if (typeof window !== 'undefined') {
+            const ship = localStorage.getItem('checkout_shipping');
+            const bill = localStorage.getItem('checkout_billing');
+            const same = localStorage.getItem('checkout_same_as_shipping');
+
+            if (ship) this.shippingAddress = JSON.parse(ship);
+            if (bill) this.billingAddress = JSON.parse(bill);
+            if (same) this.sameAsShipping = JSON.parse(same);
+        }
+    }
+
+    private clearCachedAddresses() {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('checkout_shipping');
+            localStorage.removeItem('checkout_billing');
+            localStorage.removeItem('checkout_same_as_shipping');
+        }
     }
 
     private emptyAddress(): AddressForm {
@@ -96,11 +130,32 @@ export class CartComponent implements OnInit {
         this.toastService.show('Cart cleared successfully', 'info');
     }
 
-    openCheckout() {
+    async openCheckout() {
         if (this.cartService.itemCount === 0) {
             this.toastService.error('Your cart is empty!');
             return;
         }
+
+        this.isLoading = true;
+        try {
+            const resp = await this.cartService.getActiveGateways();
+            if (resp.isSuccess) {
+                this.activeGateways = resp.data || [];
+                // Default to first gateway if available, else CoD
+                if (this.activeGateways.length > 0) {
+                    this.selectedPaymentMethod = this.activeGateways[0].name;
+                } else {
+                    this.selectedPaymentMethod = 'CashOnDelivery';
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load gateways', error);
+            this.activeGateways = [];
+            this.selectedPaymentMethod = 'CashOnDelivery';
+        } finally {
+            this.isLoading = false;
+        }
+
         this.showCheckoutModal = true;
         this.currentStep = 1;
         this.checkoutSuccess = null;
@@ -109,10 +164,11 @@ export class CartComponent implements OnInit {
 
     closeCheckout() {
         this.showCheckoutModal = false;
+        this.stripeService.destroyElements();
         document.body.style.overflow = '';
     }
 
-    nextStep() {
+    async nextStep() {
         this.showErrors = true;
         if (this.currentStep === 1) {
             if (!this.validateAddress(this.shippingAddress)) {
@@ -122,11 +178,31 @@ export class CartComponent implements OnInit {
             if (this.sameAsShipping) {
                 this.billingAddress = { ...this.shippingAddress };
             }
+            this.saveAddressesToLocal();
         }
-        if (this.currentStep === 2 && !this.sameAsShipping) {
-            if (!this.validateAddress(this.billingAddress)) {
+        if (this.currentStep === 2) {
+            if (!this.sameAsShipping && !this.validateAddress(this.billingAddress)) {
                 this.toastService.error('Please fill in all required billing fields correctly.');
                 return;
+            }
+            this.saveAddressesToLocal();
+
+            // Prepare Stripe if selected
+            if (this.selectedPaymentMethod === 'Stripe') {
+                const stripeGw = this.activeGateways.find(g => g.name === 'Stripe');
+                const apiKey = stripeGw?.apiKey || stripeGw?.ApiKey || environment.stripePublicKey;
+
+                if (apiKey) {
+                    await this.stripeService.initialize(apiKey);
+                    // Minimal delay to ensure element is in DOM if using [hidden]
+                    setTimeout(() => {
+                        this.stripeService.initializeElements('stripe-card-element');
+                    }, 50);
+                } else {
+                    console.error('Stripe Configuration is missing. Gateway Object:', stripeGw);
+                    this.toastService.error('Stripe configuration is missing. Please check backend settings.');
+                    return;
+                }
             }
         }
         this.showErrors = false;
@@ -154,81 +230,88 @@ export class CartComponent implements OnInit {
         );
     }
 
-    validateCard(): boolean {
-        const nr = this.creditCard.number.replace(/\s/g, '');
-        if (nr.length < 15 || nr.length > 16 || !/^\d+$/.test(nr)) return false;
-        if (!this.creditCard.name?.trim()) return false;
-        if (!/^\d{2}\/\d{2}$/.test(this.creditCard.expiry)) return false;
-        if (!/^\d{3,4}$/.test(this.creditCard.cvv)) return false;
-        return true;
-    }
-
-    formatCardNumber(event: any) {
-        let val = event.target.value.replace(/\D/g, '');
-        let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
-        this.creditCard.number = formatted;
-        event.target.value = formatted;
-    }
-
-    formatExpiry(event: any) {
-        let val = event.target.value.replace(/\D/g, '');
-        if (val.length >= 2) {
-            val = val.substring(0, 2) + '/' + val.substring(2, 4);
-        }
-        this.creditCard.expiry = val;
-        event.target.value = val;
-    }
-
-    formatCVV(event: any) {
-        let val = event.target.value.replace(/\D/g, '');
-        this.creditCard.cvv = val;
-        event.target.value = val;
-    }
-
-    isInvalidCardNumber(): boolean {
-        const nr = this.creditCard.number.replace(/\s/g, '');
-        return nr.length < 15 || nr.length > 16 || !/^\d+$/.test(nr);
-    }
-
-    isInvalidExpiry(): boolean {
-        return !/^\d{2}\/\d{2}$/.test(this.creditCard.expiry);
-    }
-
-    isInvalidCVV(): boolean {
-        return !/^\d{3,4}$/.test(this.creditCard.cvv);
-    }
 
     async placeOrder() {
         this.showErrors = true;
-        if (!this.validateCard()) {
-            this.toastService.error('Please enter valid credit card details.');
-            return;
-        }
 
         const billing = this.sameAsShipping ? this.shippingAddress : this.billingAddress;
-
         this.isCheckingOut = true;
-        this.toastService.show('Processing your order...', 'info');
+        let paymentMethodId = null;
 
         try {
+            // Stripe payment method creation
+            if (this.selectedPaymentMethod === 'Stripe') {
+                this.toastService.show('Verifying card details...', 'info');
+                try {
+                    const pm = await this.stripeService.createPaymentMethod({
+                        name: `${billing.firstName} ${billing.lastName}`,
+                        email: '', // add email if available
+                        phone: billing.phoneNumber,
+                        address: {
+                            line1: billing.streetAddress,
+                            city: billing.city,
+                            state: billing.state,
+                            postal_code: billing.zipCode,
+                            country: 'EG' // Map properly if needed
+                        }
+                    });
+                    paymentMethodId = pm.id;
+                } catch (err: any) {
+                    this.toastService.error(err.message || 'Card verification failed.');
+                    this.isCheckingOut = false;
+                    return;
+                }
+            }
+
+            this.toastService.show('Processing your order...', 'info');
+
             const result = await this.cartService.checkout({
                 currency: this.selectedCurrency,
                 country: this.selectedCountry,
                 idempotencyKey: `order-${Date.now()}`,
                 shippingAddress: this.shippingAddress,
                 billingAddress: billing,
-                paymentDetails: {
-                    cardName: this.creditCard.name,
-                    cardNumber: this.creditCard.number,
-                    expiry: this.creditCard.expiry,
-                    cvv: this.creditCard.cvv
-                }
+                paymentMethod: this.selectedPaymentMethod,
+                paymentMethodId: paymentMethodId,
+                paymentDetails: null // No longer sending raw card details
             });
 
             if (result?.isSuccess && result?.data) {
-                this.checkoutSuccess = result.data;
+                const checkoutData = result.data;
+
+                // Handle Asynchronous Actions (Redirects, Stripe 3DS)
+                if (checkoutData.status === 'RequiresAction' || checkoutData.redirectUrl) {
+                    if (checkoutData.redirectUrl) {
+                        this.toastService.show('Redirecting to payment provider...', 'info');
+                        window.location.href = checkoutData.redirectUrl;
+                        return;
+                    }
+
+                    if (this.selectedPaymentMethod === 'Stripe' && checkoutData.actionData?.client_secret) {
+                        this.toastService.show('Completing 3D Secure verification...', 'info');
+                        try {
+                            await this.stripeService.confirmCardPayment(checkoutData.actionData.client_secret);
+                            // If it doesn't throw, it's successful (Stripe.js handles redirect/popups)
+                            this.checkoutSuccess = checkoutData;
+                            this.currentStep = 4;
+                            this.cartService.clearCart();
+                            this.clearCachedAddresses();
+                            this.stripeService.destroyElements();
+                            this.toastService.success(`Order placed! #${checkoutData.orderNumber}`);
+                        } catch (err: any) {
+                            this.toastService.error(err.message || 'Payment authentication failed.');
+                        }
+                        return;
+                    }
+                }
+
+                // Normal Success
+                this.checkoutSuccess = checkoutData;
                 this.currentStep = 4; // success step
-                this.toastService.success(`Order placed! #${result.data.orderNumber}`);
+                this.cartService.clearCart();
+                this.clearCachedAddresses();
+                this.stripeService.destroyElements();
+                this.toastService.success(`Order placed! #${checkoutData.orderNumber}`);
             } else {
                 this.toastService.error(result?.error?.message || 'Checkout failed. Please try again.');
             }

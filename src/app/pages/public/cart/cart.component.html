@@ -337,56 +337,79 @@
 
                     <!-- ── Payment Method ── -->
                     <div class="payment-method-wrap">
-                        <h4 class="pm-title"><i class="ri-bank-card-line"></i> Secure Payment Method</h4>
+                        <h4 class="pm-title"><i class="ri-bank-card-line"></i> Choose Payment Method</h4>
 
-                        <div class="visual-card" [class.gold]="selectedCurrency === 'EGP'">
-                            <div class="vc-chip"></div>
-                            <div class="vc-logo"><i class="ri-visa-line"></i></div>
-                            <div class="vc-number">
-                                {{ creditCard.number || '•••• •••• •••• ••••' }}
+                        <div class="payment-gateways-list">
+                            <!-- Dynamic Gateways -->
+                            <label class="gateway-option" *ngFor="let gw of activeGateways"
+                                [class.selected]="selectedPaymentMethod === gw.name">
+                                <input type="radio" name="paymentMethod" [value]="gw.name"
+                                    [(ngModel)]="selectedPaymentMethod">
+                                <div class="gateway-content">
+                                    <div class="gateway-icon" *ngIf="!gw.logoUrl">
+                                        <i class="ri-bank-card-line"></i>
+                                    </div>
+                                    <img [src]="gw.logoUrl" *ngIf="gw.logoUrl" class="gw-logo-small" [alt]="gw.name">
+                                    <div class="gateway-info">
+                                        <span class="gateway-name">{{ gw.name }}</span>
+                                        <span class="gateway-desc">Pay securely via {{ gw.name }}</span>
+                                    </div>
+                                    <div class="selection-indicator"></div>
+                                </div>
+                            </label>
+
+                            <!-- Always show Cash on Delivery -->
+                            <label class="gateway-option" [class.selected]="selectedPaymentMethod === 'CashOnDelivery'">
+                                <input type="radio" name="paymentMethod" value="CashOnDelivery"
+                                    [(ngModel)]="selectedPaymentMethod">
+                                <div class="gateway-content">
+                                    <div class="gateway-icon"><i class="ri-truck-line"></i></div>
+                                    <div class="gateway-info">
+                                        <span class="gateway-name">Cash on Delivery</span>
+                                        <span class="gateway-desc">Pay when you receive your order</span>
+                                    </div>
+                                    <div class="selection-indicator"></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Stripe.js Card Element -->
+                        <div class="card-details-section" [hidden]="selectedPaymentMethod !== 'Stripe'">
+                            <div class="visual-card" [class.gold]="selectedCurrency === 'EGP'">
+                                <div class="vc-chip"></div>
+                                <div class="vc-logo"><i class="ri-visa-line"></i></div>
+                                <div class="vc-number">
+                                    •••• •••• •••• ••••
+                                </div>
+                                <div class="vc-bottom">
+                                    <div class="vc-name">
+                                        <label>Secure Payment</label>
+                                        <span>Powered by Stripe</span>
+                                    </div>
+                                    <div class="vc-expiry">
+                                        <label>Status</label>
+                                        <span>Encrypted</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="vc-bottom">
-                                <div class="vc-name">
-                                    <label>Card Holder</label>
-                                    <span>{{ creditCard.name || 'Your Name' }}</span>
-                                </div>
-                                <div class="vc-expiry">
-                                    <label>Expires</label>
-                                    <span>{{ creditCard.expiry || 'MM/YY' }}</span>
-                                </div>
+
+                            <div class="stripe-card-mount">
+                                <label class="stripe-label">Credit or Debit Card</label>
+                                <div id="stripe-card-element"></div>
+                                <div id="card-errors" role="alert" class="stripe-errors"></div>
                             </div>
                         </div>
 
-                        <div class="payment-form">
-                            <div class="form-group full" [class.has-error]="showErrors && !creditCard.name.trim()">
-                                <label>Cardholder Name</label>
-                                <input type="text" [(ngModel)]="creditCard.name" placeholder="John Doe">
-                                <span class="error-msg">Name is required</span>
-                            </div>
-                            <div class="form-group full" [class.has-error]="showErrors && isInvalidCardNumber()">
-                                <label>Card Number</label>
-                                <div class="input-with-icon">
-                                    <i class="ri-bank-card-line"></i>
-                                    <input type="text" [(ngModel)]="creditCard.number"
-                                        (input)="formatCardNumber($event)" placeholder="4242 •••• •••• ••••"
-                                        maxlength="19">
-                                </div>
-                                <span class="error-msg">Valid card number is required</span>
-                            </div>
-                            <div class="form-row-multi">
-                                <div class="form-group" [class.has-error]="showErrors && isInvalidExpiry()">
-                                    <label>Expiry (MM/YY)</label>
-                                    <input type="text" [(ngModel)]="creditCard.expiry" (input)="formatExpiry($event)"
-                                        placeholder="12/28" maxlength="5">
-                                    <span class="error-msg">Invalid format (MM/YY)</span>
-                                </div>
-                                <div class="form-group" [class.has-error]="showErrors && isInvalidCVV()">
-                                    <label>CVV</label>
-                                    <input type="password" [(ngModel)]="creditCard.cvv" (input)="formatCVV($event)"
-                                        placeholder="•••" maxlength="4">
-                                    <span class="error-msg">Invalid CVV</span>
-                                </div>
-                            </div>
+                        <!-- PayPal Info -->
+                        <div class="gateway-extra-info" *ngIf="selectedPaymentMethod === 'PayPal'">
+                            <p><i class="ri-information-line"></i> You will be redirected to PayPal to complete your
+                                purchase securely.</p>
+                        </div>
+
+                        <!-- COD Info -->
+                        <div class="gateway-extra-info" *ngIf="selectedPaymentMethod === 'CashOnDelivery'">
+                            <p><i class="ri-information-line"></i> Please have the exact amount ready for the courier
+                                when they arrive.</p>
                         </div>
                     </div>
 
