@@ -160,11 +160,29 @@
     </div>
 
     <div class="nav-grid">
-        <a routerLink="/dashboard/users" class="nav-card">
-            <div class="nav-icon"><i class="ri-team-line"></i></div>
+        <a routerLink="/dashboard/orders" class="nav-card highlight">
+            <div class="nav-icon"><i class="ri-shopping-cart-2-line"></i></div>
             <div class="nav-content">
-                <h4>Users</h4>
-                <p>Manage access levels</p>
+                <h4>Orders</h4>
+                <p>Transactions & tracking</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/products-analytics" class="nav-card">
+            <div class="nav-icon"><i class="ri-bar-chart-2-line"></i></div>
+            <div class="nav-content">
+                <h4>Analytics</h4>
+                <p>Sales performance</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/products" class="nav-card">
+            <div class="nav-icon"><i class="ri-shopping-bag-line"></i></div>
+            <div class="nav-content">
+                <h4>Catalogue</h4>
+                <p>Product inventory</p>
             </div>
             <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
@@ -173,16 +191,34 @@
             <div class="nav-icon"><i class="ri-archive-line"></i></div>
             <div class="nav-content">
                 <h4>Categories</h4>
-                <p>Organize structure</p>
+                <p>Global taxonomy</p>
             </div>
             <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
-        <a routerLink="/dashboard/products" class="nav-card">
-            <div class="nav-icon"><i class="ri-shopping-bag-line"></i></div>
+        <a routerLink="/dashboard/collections" class="nav-card">
+            <div class="nav-icon"><i class="ri-stack-line"></i></div>
             <div class="nav-content">
-                <h4>Products</h4>
-                <p>Catalogue management</p>
+                <h4>Collections</h4>
+                <p>Grouped sets</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/users" class="nav-card">
+            <div class="nav-icon"><i class="ri-team-line"></i></div>
+            <div class="nav-content">
+                <h4>Users</h4>
+                <p>Access control</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/product-reviews" class="nav-card">
+            <div class="nav-icon"><i class="ri-chat-voice-line"></i></div>
+            <div class="nav-content">
+                <h4>Feedback</h4>
+                <p>Customer reviews</p>
             </div>
             <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
@@ -190,17 +226,8 @@
         <a routerLink="/dashboard/promotions" class="nav-card">
             <div class="nav-icon"><i class="ri-coupon-line"></i></div>
             <div class="nav-content">
-                <h4>Promotions</h4>
-                <p>Marketing offers</p>
-            </div>
-            <i class="ri-arrow-right-up-line nav-arrow"></i>
-        </a>
-
-        <a routerLink="/dashboard/support-tickets" class="nav-card">
-            <div class="nav-icon"><i class="ri-customer-service-line"></i></div>
-            <div class="nav-content">
-                <h4>Support</h4>
-                <p>Inquiry handling</p>
+                <h4>Marketing</h4>
+                <p>Global offers</p>
             </div>
             <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
@@ -209,16 +236,79 @@
             <div class="nav-icon"><i class="ri-mail-send-line"></i></div>
             <div class="nav-content">
                 <h4>Campaigns</h4>
-                <p>Email outreach</p>
+                <p>Newsletter focus</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/support-tickets" class="nav-card">
+            <div class="nav-icon"><i class="ri-customer-service-line"></i></div>
+            <div class="nav-content">
+                <h4>Support</h4>
+                <p>Service tickets</p>
             </div>
             <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>
 
         <a routerLink="/dashboard/store-settings" class="nav-card highlight">
-            <div class="nav-icon"><i class="ri-settings-line"></i></div>
+            <div class="nav-icon"><i class="ri-store-2-line"></i></div>
             <div class="nav-content">
-                <h4>Settings</h4>
-                <p>Store configuration</p>
+                <h4>Store Front</h4>
+                <p>UI & Identity</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/store-settings" [queryParams]="{tab: 'banners'}" class="nav-card">
+            <div class="nav-icon"><i class="ri-image-line"></i></div>
+            <div class="nav-content">
+                <h4>Home Banners</h4>
+                <p>Hero sections</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/store-settings" [queryParams]="{tab: 'offers'}" class="nav-card">
+            <div class="nav-icon"><i class="ri-coupon-3-line"></i></div>
+            <div class="nav-content">
+                <h4>Featured Offers</h4>
+                <p>Exclusive deals</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/product-attributes" class="nav-card">
+            <div class="nav-icon"><i class="ri-price-tag-3-line"></i></div>
+            <div class="nav-content">
+                <h4>Attributes</h4>
+                <p>Specs & Variants</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/faqs" class="nav-card">
+            <div class="nav-icon"><i class="ri-question-answer-line"></i></div>
+            <div class="nav-content">
+                <h4>FAQs</h4>
+                <p>Support knowledge</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/services" class="nav-card">
+            <div class="nav-icon"><i class="ri-settings-5-line"></i></div>
+            <div class="nav-content">
+                <h4>Services</h4>
+                <p>External configs</p>
+            </div>
+            <i class="ri-arrow-right-up-line nav-arrow"></i>
+        </a>
+
+        <a routerLink="/dashboard/rules" class="nav-card">
+            <div class="nav-icon"><i class="ri-shield-keyhole-line"></i></div>
+            <div class="nav-content">
+                <h4>Rules</h4>
+                <p>Role policies</p>
             </div>
             <i class="ri-arrow-right-up-line nav-arrow"></i>
         </a>

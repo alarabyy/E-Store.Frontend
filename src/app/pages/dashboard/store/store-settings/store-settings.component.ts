@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { StoreService } from '../store.service';
 import { StoreDashboardSettingsResponse } from '../models/store.models';
 import { GeneralInfoComponent } from './components/general-info/general-info.component';
@@ -26,8 +27,15 @@ export class StoreSettingsComponent implements OnInit {
     settingsResponse: StoreDashboardSettingsResponse | null = null;
 
     private storeService = inject(StoreService);
+    private route = inject(ActivatedRoute);
 
     ngOnInit(): void {
+        this.route.queryParams.subscribe(params => {
+            const tab = params['tab'];
+            if (['general', 'banners', 'offers', 'items'].includes(tab)) {
+                this.activeTab = tab as any;
+            }
+        });
         this.loadSettings();
     }
 

@@ -110,5 +110,9 @@ export const DASHBOARD_ROUTES: Routes = [
     {
         path: 'promotions',
         loadComponent: () => import('../pages/dashboard/promotions/promotions.component').then(m => m.PromotionsComponent)
+    },
+    {
+        path: 'store-settings',
+        loadComponent: () => import('../pages/dashboard/store/store-settings/store-settings.component').then(m => m.StoreSettingsComponent)
     }
 ];
