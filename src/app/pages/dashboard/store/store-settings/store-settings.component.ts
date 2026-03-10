@@ -6,7 +6,6 @@ import { GeneralInfoComponent } from './components/general-info/general-info.com
 import { HomeBannersComponent } from './components/home-banners/home-banners.component';
 import { ExclusiveOffersComponent } from './components/exclusive-offers/exclusive-offers.component';
 import { ShopByItemsComponent } from './components/shop-by-items/shop-by-items.component';
-import { ThemeColorsComponent } from './components/theme-colors/theme-colors.component';
 
 @Component({
     selector: 'app-store-settings',
@@ -16,14 +15,13 @@ import { ThemeColorsComponent } from './components/theme-colors/theme-colors.com
         GeneralInfoComponent,
         HomeBannersComponent,
         ExclusiveOffersComponent,
-        ShopByItemsComponent,
-        ThemeColorsComponent
+        ShopByItemsComponent
     ],
     templateUrl: './store-settings.component.html',
     styleUrl: './store-settings.component.scss'
 })
 export class StoreSettingsComponent implements OnInit {
-    activeTab: 'general' | 'colors' | 'banners' | 'offers' | 'items' = 'general';
+    activeTab: 'general' | 'banners' | 'offers' | 'items' = 'general';
     isLoading = true;
     settingsResponse: StoreDashboardSettingsResponse | null = null;
 
@@ -49,7 +47,7 @@ export class StoreSettingsComponent implements OnInit {
         });
     }
 
-    setTab(tab: 'general' | 'colors' | 'banners' | 'offers' | 'items'): void {
+    setTab(tab: 'general' | 'banners' | 'offers' | 'items'): void {
         this.activeTab = tab;
     }
 }

@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { WishlistService } from './services/wishlist.service';
+import { AuthService } from '../../auth/services/auth.service';
 import { CartService } from '../cart/services/cart.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
 import { ToastService } from '../../../components/toast/services/toast.service';
@@ -21,6 +22,8 @@ export class WishlistComponent implements OnInit {
     cartService = inject(CartService);
     toastService = inject(ToastService);
     seoService = inject(SeoService);
+    authService = inject(AuthService);
+    router = inject(Router);
 
     // Computed signal to map WishlistItems to Product format for ProductCardComponent
     mappedProducts = computed(() => {
@@ -32,7 +35,7 @@ export class WishlistComponent implements OnInit {
                 minPrice: item.price,
                 maxPrice: item.price,
                 categoryName: (item as any).categoryName || 'Saved Item',
-                imageUrl: item.image,
+                imageUrl: item.image || (item as any).imageUrl || '',
                 averageRating: (item as any).averageRating || 0,
                 // defaults to satisfy interface
                 description: '',
@@ -47,6 +50,12 @@ export class WishlistComponent implements OnInit {
     });
 
     ngOnInit() {
+        if (!this.authService.isAuthenticated()) {
+            this.toastService.info('Please log in to see your saved items.', 'Authentication Required');
+            this.router.navigate(['/auth/login']);
+            return;
+        }
+
         this.seoService.setSeoData({
             title: 'Your Wishlist',
             description: 'Save your favorite products for later. Keep track of what you love and buy them when you are ready.',

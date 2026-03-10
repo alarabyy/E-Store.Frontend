@@ -1,493 +1,440 @@
-<div class="cart-page">
-    <app-loader [show]="isLoading"></app-loader>
+<div class="cart-page" [class.is-loading]="isLoading()">
+    <app-loader [show]="isLoading()"></app-loader>
 
-    <div class="cart-container" *ngIf="!isLoading">
-        <!-- Header -->
-        <div class="cart-header">
-            <div class="cart-header-left">
-                <h1><i class="ri-shopping-bag-3-line"></i> Shopping Cart</h1>
-                <p *ngIf="cartService.itemCount > 0">
-                    {{ cartService.itemCount }} item{{ cartService.itemCount !== 1 ? 's' : '' }} in your cart
-                </p>
-                <p *ngIf="cartService.itemCount === 0">Your cart is empty</p>
-            </div>
-            <div class="cart-header-actions" *ngIf="cartService.itemCount > 0">
-                <button class="btn-clear-cart" (click)="clearCart()" title="Clear all items">
-                    <i class="ri-delete-bin-2-line"></i> Clear Cart
-                </button>
+    <header class="cart-hero">
+        <div class="hero-bg-accent"></div>
+        <div class="hero-inner">
+            <nav class="breadcrumb">
+                <a routerLink="/"><i class="ri-home-4-line"></i> Home</a>
+                <i class="ri-arrow-right-s-line separator"></i>
+                <a routerLink="/catalog">Collections</a>
+                <i class="ri-arrow-right-s-line separator"></i>
+                <span class="active">Your Selection</span>
+            </nav>
+
+            <div class="hero-main-content">
+                <div class="label-badge">Checkout Experience</div>
+                <h1 class="hero-title">Curate Your <br><span class="gold-text">Timeless Space.</span></h1>
+                <p class="hero-subtitle">Review your chosen pieces before they begin their journey to your home.
+                    Precision and care in every detail.</p>
+
+                <div class="hero-stats" *ngIf="cartService.itemCount() > 0">
+                    <div class="stat-item">
+                        <strong>{{ cartService.itemCount() }}</strong>
+                        <span>Pieces Selected</span>
+                    </div>
+                    <div class="stat-sep"></div>
+                    <div class="stat-item">
+                        <strong>{{ cartService.totalPrice() | number:'1.0-0' }}</strong>
+                        <span>Total EGP</span>
+                    </div>
+                </div>
             </div>
         </div>
+    </header>
 
-        <!-- Cart Content -->
-        <div class="cart-content" *ngIf="cartService.itemCount > 0">
-
-            <!-- Items List -->
-            <div class="cart-items">
-                <div class="cart-item" *ngFor="let item of cartService.items()">
-                    <div class="item-image">
-                        <img [src]="item.image | url" [alt]="item.name" loading="lazy">
+    <main class="cart-main-content" *ngIf="!isLoading()">
+        <div class="cart-grid-container" *ngIf="cartService.itemCount() > 0">
+            <div class="cart-items-column">
+                <div class="cart-filter-engine">
+                    <div class="engine-search">
+                        <i class="ri-search-2-line"></i>
+                        <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                            placeholder="Find a piece in your selection...">
                     </div>
-                    <div class="item-details">
-                        <h3>{{ item.name }}</h3>
-                        <p class="item-variant" *ngIf="$any(item).variantName">
-                            <i class="ri-price-tag-3-line"></i> {{ $any(item).variantName }}
-                        </p>
-                        <p class="item-price">{{ item.price | number:'1.0-0' }} EGP <span>/ unit</span></p>
-                    </div>
-                    <div class="item-quantity">
-                        <button (click)="decreaseQuantity(item)" class="qty-btn" [disabled]="item.quantity <= 0">
-                            <i class="ri-subtract-line"></i>
+                    <div class="engine-actions">
+                        <button class="btn-clear-all" (click)="clearCart()">
+                            <i class="ri-delete-bin-7-line"></i> Clear Collection
                         </button>
-                        <span class="qty">{{ item.quantity }}</span>
-                        <button (click)="increaseQuantity(item)" class="qty-btn">
-                            <i class="ri-add-line"></i>
+                    </div>
+                </div>
+
+                <div class="selection-list" #itemsList>
+                    <div class="selection-item-card" *ngFor="let item of filteredItems; trackBy: trackById">
+                        <div class="card-inner">
+                            <div class="item-visual">
+                                <div class="img-container">
+                                    <img [src]="item.image | url" [alt]="item.name" loading="lazy">
+                                    <div class="img-overlay"></div>
+                                </div>
+                            </div>
+
+                            <div class="item-info">
+                                <div class="info-top">
+                                    <span class="category-tag">Premium Furniture</span>
+                                    <h3 class="item-name">{{ item.name }}</h3>
+                                    <p class="item-details" *ngIf="$any(item).variantName">
+                                        <i class="ri-palette-line"></i> {{ $any(item).variantName }}
+                                    </p>
+                                </div>
+                                <div class="info-bottom">
+                                    <div class="price-block">
+                                        <span class="unit-price">{{ item.price | number:'1.0-0' }} EGP</span>
+                                        <span class="price-label">Per Unit</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="item-controls">
+                                <div class="qty-stepper">
+                                    <button (click)="decreaseQuantity(item)" [disabled]="item.quantity <= 1"><i
+                                            class="ri-subtract-line"></i></button>
+                                    <span class="qty-value">{{ item.quantity }}</span>
+                                    <button (click)="increaseQuantity(item)"><i class="ri-add-line"></i></button>
+                                </div>
+                                <div class="item-price-section">
+                                    <div class="item-total-price">{{ item.price * item.quantity | number:'1.0-0' }} EGP
+                                    </div>
+                                    <button (click)="removeItem(item)" class="btn-remove-new"
+                                        title="Remove from selection">
+                                        <i class="ri-delete-bin-line"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="cart-summary-column">
+                <div class="premium-summary-card">
+                    <div class="card-header">
+                        <i class="ri-shield-flash-line"></i>
+                        <h2>Order Summary</h2>
+                    </div>
+                    <div class="summary-body">
+                        <div class="summary-line">
+                            <span class="label">Subtotal</span>
+                            <span class="value">{{ cartService.totalPrice() | number:'1.0-0' }} EGP</span>
+                        </div>
+                        <div class="summary-line">
+                            <span class="label">Shipping</span>
+                            <span class="value gold-status">Complimentary</span>
+                        </div>
+                        <div class="summary-line">
+                            <span class="label">Estimated Tax</span>
+                            <span class="value">Included</span>
+                        </div>
+                        <div class="promo-engine">
+                            <div class="promo-input-wrap">
+                                <input type="text" placeholder="Access Code / Promo">
+                                <button>Apply</button>
+                            </div>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="total-line">
+                            <span class="label">Grand Total</span>
+                            <div class="total-value">
+                                <span class="currency">EGP</span>
+                                <span class="amount">{{ grandTotal | number:'1.0-0' }}</span>
+                            </div>
+                        </div>
+                        <button class="btn-checkout-primary" (click)="openCheckout()">
+                            <span>Secure Checkout</span>
+                            <i class="ri-arrow-right-up-line"></i>
                         </button>
-                    </div>
-                    <div class="item-total">
-                        <p class="total-price">{{ item.price * item.quantity | number:'1.0-0' }} EGP</p>
-                    </div>
-                    <button (click)="removeItem(item)" class="remove-btn" title="Remove item">
-                        <i class="ri-delete-bin-line"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Order Summary -->
-            <div class="cart-summary">
-                <div class="summary-header">
-                    <i class="ri-receipt-line"></i>
-                    <h2>Order Summary</h2>
-                </div>
-
-                <div class="summary-items-preview">
-                    <div class="preview-item" *ngFor="let item of cartService.items() | slice:0:3">
-                        <img [src]="item.image | url" [alt]="item.name">
-                        <span class="preview-qty">×{{ item.quantity }}</span>
-                    </div>
-                    <div class="preview-more" *ngIf="cartService.itemCount > 3">
-                        +{{ cartService.itemCount - 3 }} more
-                    </div>
-                </div>
-
-                <div class="summary-divider"></div>
-
-                <div class="summary-row">
-                    <span><i class="ri-shopping-bag-line"></i> Subtotal</span>
-                    <span>{{ cartService.totalPrice | number:'1.0-0' }} EGP</span>
-                </div>
-                <div class="summary-row">
-                    <span><i class="ri-truck-line"></i> Shipping</span>
-                    <span class="free-badge">FREE</span>
-                </div>
-                <div class="summary-row">
-                    <span><i class="ri-shield-check-line"></i> Tax</span>
-                    <span>Included</span>
-                </div>
-
-                <!-- Promo Code -->
-                <div class="promo-code-box">
-                    <div class="promo-input-group">
-                        <i class="ri-coupon-3-line"></i>
-                        <input type="text" placeholder="Enter promo code">
-                        <button class="btn-apply">APPLY</button>
-                    </div>
-                </div>
-
-                <div class="summary-divider"></div>
-
-                <div class="summary-row total">
-                    <span>Grand Total</span>
-                    <span class="grand-total-price">{{ grandTotal | number:'1.0-0' }} EGP</span>
-                </div>
-
-                <button class="checkout-btn" (click)="openCheckout()">
-                    <span class="btn-content">
-                        <i class="ri-secure-payment-line"></i>
-                        Proceed to Secure Checkout
-                    </span>
-                    <i class="ri-arrow-right-line arrow-hover"></i>
-                </button>
-
-                <!-- Trust Badges -->
-                <div class="trust-badges">
-                    <span><i class="ri-lock-2-line"></i> Secure Payment</span>
-                    <span><i class="ri-shield-check-line"></i> Buyer Protected</span>
-                    <span><i class="ri-truck-line"></i> Free Delivery</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Empty Cart State -->
-        <div class="empty-cart" *ngIf="cartService.itemCount === 0">
-            <div class="empty-cart-visual">
-                <i class="ri-shopping-bag-line"></i>
-                <div class="empty-glow"></div>
-            </div>
-            <h2>Your cart is empty</h2>
-            <p>Looks like you haven't added anything yet. Explore our collections and find something you love.</p>
-            <div class="empty-actions">
-                <button class="shop-now-btn" routerLink="/catalog">
-                    <i class="ri-store-2-line"></i> Explore Catalog
-                </button>
-                <button class="shop-now-btn secondary" routerLink="/">
-                    <i class="ri-home-4-line"></i> Go Home
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ════════════════════════════════════════════════════════════
-     CHECKOUT MODAL
-════════════════════════════════════════════════════════════ -->
-<div class="checkout-overlay" *ngIf="showCheckoutModal" (click)="closeCheckout()">
-    <div class="checkout-modal" (click)="$event.stopPropagation()">
-
-        <!-- Modal Header -->
-        <div class="modal-header">
-            <div class="modal-title">
-                <i class="ri-secure-payment-line"></i>
-                <h2>Secure Checkout</h2>
-            </div>
-            <button class="modal-close" (click)="closeCheckout()">
-                <i class="ri-close-line"></i>
-            </button>
-        </div>
-
-        <!-- Progress Steps -->
-        <div class="checkout-steps" *ngIf="currentStep < 4">
-            <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
-                <div class="step-circle"><i class="ri-map-pin-line"></i></div>
-                <span>Shipping</span>
-            </div>
-            <div class="step-line" [class.done]="currentStep > 1"></div>
-            <div class="step" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
-                <div class="step-circle"><i class="ri-file-list-3-line"></i></div>
-                <span>Billing</span>
-            </div>
-            <div class="step-line" [class.done]="currentStep > 2"></div>
-            <div class="step" [class.active]="currentStep >= 3" [class.done]="currentStep > 3">
-                <div class="step-circle"><i class="ri-bank-card-line"></i></div>
-                <span>Payment</span>
-            </div>
-        </div>
-
-        <div class="modal-body">
-
-            <!-- ── STEP 1: Shipping Address ── -->
-            <div class="form-section" *ngIf="currentStep === 1">
-                <h3 class="section-label"><i class="ri-map-pin-2-line"></i> Shipping Address</h3>
-                <div class="form-grid">
-                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.firstName.trim()">
-                        <label>First Name *</label>
-                        <input type="text" [(ngModel)]="shippingAddress.firstName" placeholder="John">
-                        <span class="error-msg">First name is required</span>
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.lastName.trim()">
-                        <label>Last Name *</label>
-                        <input type="text" [(ngModel)]="shippingAddress.lastName" placeholder="Doe">
-                        <span class="error-msg">Last name is required</span>
-                    </div>
-                    <div class="form-group full"
-                        [class.has-error]="showErrors && !shippingAddress.streetAddress.trim()">
-                        <label>Street Address *</label>
-                        <input type="text" [(ngModel)]="shippingAddress.streetAddress" placeholder="123 Main St">
-                        <span class="error-msg">Street address is required</span>
-                    </div>
-                    <div class="form-group full">
-                        <label>Apartment / Suite (optional)</label>
-                        <input type="text" [(ngModel)]="shippingAddress.apartmentSuite" placeholder="Apt 4B">
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.city.trim()">
-                        <label>City *</label>
-                        <input type="text" [(ngModel)]="shippingAddress.city" placeholder="Cairo">
-                        <span class="error-msg">City is required</span>
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.state.trim()">
-                        <label>State / Governorate *</label>
-                        <input type="text" [(ngModel)]="shippingAddress.state" placeholder="Cairo">
-                        <span class="error-msg">State is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label>ZIP / Postal Code</label>
-                        <input type="text" [(ngModel)]="shippingAddress.zipCode" placeholder="11511">
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !shippingAddress.country.trim()">
-                        <label>Country *</label>
-                        <input type="text" [(ngModel)]="shippingAddress.country" placeholder="Egypt">
-                        <span class="error-msg">Country is required</span>
-                    </div>
-                    <div class="form-group full"
-                        [class.has-error]="showErrors && (!shippingAddress.phoneNumber.trim() || !shippingAddress.phoneNumber.match('^[+0-9\\\s-]{8,20}$'))">
-                        <label>Phone Number *</label>
-                        <input type="tel" [(ngModel)]="shippingAddress.phoneNumber" placeholder="+20 10 0000 0000">
-                        <span class="error-msg">Valid phone number is required</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ── STEP 2: Billing Address ── -->
-            <div class="form-section" *ngIf="currentStep === 2">
-                <h3 class="section-label"><i class="ri-file-list-3-line"></i> Billing Address</h3>
-                <div class="same-as-shipping">
-                    <label class="toggle-label">
-                        <input type="checkbox" [(ngModel)]="sameAsShipping">
-                        <span class="toggle-text">Same as shipping address</span>
-                    </label>
-                </div>
-                <div class="form-grid" *ngIf="!sameAsShipping">
-                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.firstName.trim()">
-                        <label>First Name *</label>
-                        <input type="text" [(ngModel)]="billingAddress.firstName" placeholder="John">
-                        <span class="error-msg">First name is required</span>
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.lastName.trim()">
-                        <label>Last Name *</label>
-                        <input type="text" [(ngModel)]="billingAddress.lastName" placeholder="Doe">
-                        <span class="error-msg">Last name is required</span>
-                    </div>
-                    <div class="form-group full" [class.has-error]="showErrors && !billingAddress.streetAddress.trim()">
-                        <label>Street Address *</label>
-                        <input type="text" [(ngModel)]="billingAddress.streetAddress" placeholder="123 Main St">
-                        <span class="error-msg">Street address is required</span>
-                    </div>
-                    <div class="form-group full">
-                        <label>Apartment / Suite (optional)</label>
-                        <input type="text" [(ngModel)]="billingAddress.apartmentSuite" placeholder="Apt 4B">
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.city.trim()">
-                        <label>City *</label>
-                        <input type="text" [(ngModel)]="billingAddress.city" placeholder="Cairo">
-                        <span class="error-msg">City is required</span>
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.state.trim()">
-                        <label>State *</label>
-                        <input type="text" [(ngModel)]="billingAddress.state" placeholder="Cairo">
-                        <span class="error-msg">State is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label>ZIP / Postal Code</label>
-                        <input type="text" [(ngModel)]="billingAddress.zipCode" placeholder="11511">
-                    </div>
-                    <div class="form-group" [class.has-error]="showErrors && !billingAddress.country.trim()">
-                        <label>Country *</label>
-                        <input type="text" [(ngModel)]="billingAddress.country" placeholder="Egypt">
-                        <span class="error-msg">Country is required</span>
-                    </div>
-                    <div class="form-group full"
-                        [class.has-error]="showErrors && (!billingAddress.phoneNumber.trim() || !billingAddress.phoneNumber.match('^[+0-9\\\s-]{8,20}$'))">
-                        <label>Phone Number *</label>
-                        <input type="tel" [(ngModel)]="billingAddress.phoneNumber" placeholder="+20 10 0000 0000">
-                        <span class="error-msg">Valid phone number is required</span>
-                    </div>
-                </div>
-                <div class="same-address-confirmed" *ngIf="sameAsShipping">
-                    <i class="ri-checkbox-circle-line"></i>
-                    <p>Billing address is the same as shipping address</p>
-                    <small>{{ shippingAddress.streetAddress }}, {{ shippingAddress.city }}, {{ shippingAddress.country
-                        }}</small>
-                </div>
-            </div>
-
-            <!-- ── STEP 3: Order Review & Payment ── -->
-            <div class="form-section" *ngIf="currentStep === 3">
-                <h3 class="section-label"><i class="ri-bank-card-line"></i> Review & Confirm Order</h3>
-
-                <div class="order-review">
-                    <!-- Items -->
-                    <div class="review-items">
-                        <div class="review-item" *ngFor="let item of cartService.items()">
-                            <img [src]="item.image | url" [alt]="item.name">
-                            <div class="review-item-info">
-                                <span class="ri-name">{{ item.name }}</span>
-                                <span class="ri-qty">×{{ item.quantity }}</span>
-                            </div>
-                            <span class="ri-price">{{ item.price * item.quantity | number:'1.0-0' }} EGP</span>
-                        </div>
-                    </div>
-
-                    <!-- Totals -->
-                    <div class="review-totals">
-                        <div class="rt-row">
-                            <span>Subtotal</span>
-                            <span>{{ cartService.totalPrice | number:'1.0-0' }} EGP</span>
-                        </div>
-                        <div class="rt-row">
-                            <span>Shipping</span>
-                            <span class="free-text">FREE</span>
-                        </div>
-                        <div class="rt-divider"></div>
-                        <div class="rt-row grand">
-                            <span>Total to Pay</span>
-                            <span>{{ grandTotal | number:'1.0-0' }} EGP</span>
-                        </div>
-                    </div>
-
-                    <!-- Currency -->
-                    <div class="currency-select">
-                        <label><i class="ri-currency-line"></i> Currency</label>
-                        <select [(ngModel)]="selectedCurrency">
-                            <option value="EGP">EGP — Egyptian Pound</option>
-                            <option value="USD">USD — US Dollar</option>
-                            <option value="EUR">EUR — Euro</option>
-                            <option value="SAR">SAR — Saudi Riyal</option>
-                            <option value="AED">AED — UAE Dirham</option>
-                        </select>
-                    </div>
-
-                    <!-- ── Payment Method ── -->
-                    <div class="payment-method-wrap">
-                        <h4 class="pm-title"><i class="ri-bank-card-line"></i> Choose Payment Method</h4>
-
-                        <div class="payment-gateways-list">
-                            <!-- Dynamic Gateways -->
-                            <label class="gateway-option" *ngFor="let gw of activeGateways"
-                                [class.selected]="selectedPaymentMethod === gw.name">
-                                <input type="radio" name="paymentMethod" [value]="gw.name"
-                                    [(ngModel)]="selectedPaymentMethod">
-                                <div class="gateway-content">
-                                    <div class="gateway-icon" *ngIf="!gw.logoUrl">
-                                        <i class="ri-bank-card-line"></i>
-                                    </div>
-                                    <img [src]="gw.logoUrl" *ngIf="gw.logoUrl" class="gw-logo-small" [alt]="gw.name">
-                                    <div class="gateway-info">
-                                        <span class="gateway-name">{{ gw.name }}</span>
-                                        <span class="gateway-desc">Pay securely via {{ gw.name }}</span>
-                                    </div>
-                                    <div class="selection-indicator"></div>
-                                </div>
-                            </label>
-
-                            <!-- Always show Cash on Delivery -->
-                            <label class="gateway-option" [class.selected]="selectedPaymentMethod === 'CashOnDelivery'">
-                                <input type="radio" name="paymentMethod" value="CashOnDelivery"
-                                    [(ngModel)]="selectedPaymentMethod">
-                                <div class="gateway-content">
-                                    <div class="gateway-icon"><i class="ri-truck-line"></i></div>
-                                    <div class="gateway-info">
-                                        <span class="gateway-name">Cash on Delivery</span>
-                                        <span class="gateway-desc">Pay when you receive your order</span>
-                                    </div>
-                                    <div class="selection-indicator"></div>
-                                </div>
-                            </label>
-                        </div>
-
-                        <!-- Stripe.js Card Element -->
-                        <div class="card-details-section" [hidden]="selectedPaymentMethod !== 'Stripe'">
-                            <div class="visual-card" [class.gold]="selectedCurrency === 'EGP'">
-                                <div class="vc-chip"></div>
-                                <div class="vc-logo"><i class="ri-visa-line"></i></div>
-                                <div class="vc-number">
-                                    •••• •••• •••• ••••
-                                </div>
-                                <div class="vc-bottom">
-                                    <div class="vc-name">
-                                        <label>Secure Payment</label>
-                                        <span>Powered by Stripe</span>
-                                    </div>
-                                    <div class="vc-expiry">
-                                        <label>Status</label>
-                                        <span>Encrypted</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="stripe-card-mount">
-                                <label class="stripe-label">Credit or Debit Card</label>
-                                <div id="stripe-card-element"></div>
-                                <div id="card-errors" role="alert" class="stripe-errors"></div>
+                        <div class="trust-indicators">
+                            <div class="indicator"><i class="ri-lock-password-line"></i><span>SSL Encrypted</span></div>
+                            <div class="indicator"><i class="ri-exchange-funds-line"></i><span>30-Day Returns</span>
                             </div>
                         </div>
-
-                        <!-- PayPal Info -->
-                        <div class="gateway-extra-info" *ngIf="selectedPaymentMethod === 'PayPal'">
-                            <p><i class="ri-information-line"></i> You will be redirected to PayPal to complete your
-                                purchase securely.</p>
-                        </div>
-
-                        <!-- COD Info -->
-                        <div class="gateway-extra-info" *ngIf="selectedPaymentMethod === 'CashOnDelivery'">
-                            <p><i class="ri-information-line"></i> Please have the exact amount ready for the courier
-                                when they arrive.</p>
-                        </div>
-                    </div>
-
-                    <!-- Shipping Address Recap -->
-                    <div class="recap-address">
-                        <div class="recap-block">
-                            <h4><i class="ri-map-pin-line"></i> Ships to</h4>
-                            <p>{{ shippingAddress.firstName }} {{ shippingAddress.lastName }}</p>
-                            <p>{{ shippingAddress.streetAddress }}<span *ngIf="shippingAddress.apartmentSuite">, {{
-                                    shippingAddress.apartmentSuite }}</span></p>
-                            <p>{{ shippingAddress.city }}, {{ shippingAddress.state }}, {{ shippingAddress.country }}
-                            </p>
-                            <p>📞 {{ shippingAddress.phoneNumber }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Security Notice -->
-                    <div class="security-notice">
-                        <i class="ri-lock-2-line"></i>
-                        <span>Your payment is processed securely. We never store card details.</span>
                     </div>
                 </div>
-            </div>
+            </aside>
+        </div>
 
-            <!-- ── STEP 4: Success ── -->
-            <div class="success-section" *ngIf="currentStep === 4 && checkoutSuccess">
-                <div class="success-animation">
-                    <div class="success-circle">
+        <div class="empty-selection-state" *ngIf="cartService.itemCount() === 0">
+            <div class="empty-content">
+                <div class="empty-icon-box">
+                    <i class="ri-shopping-bag-2-line"></i>
+                    <div class="ripple"></div>
+                </div>
+                <h2>Your selection is currently empty.</h2>
+                <p>Begin your journey through our curated collections and discover pieces that define your heritage.</p>
+                <div class="empty-actions">
+                    <button class="btn-explore" routerLink="/catalog">Navigate Collections</button>
+                    <button class="btn-home" routerLink="/">Back to Home</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="checkout-overlay" *ngIf="showCheckoutModal()" (click)="closeCheckout()">
+        <div class="checkout-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title"><i class="ri-secure-payment-line"></i>
+                    <h2>Secure Checkout</h2>
+                </div>
+                <button class="modal-close" (click)="closeCheckout()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="checkout-steps" *ngIf="currentStep() < 4">
+                <div class="step" [class.active]="currentStep() >= 1" [class.done]="currentStep() > 1">
+                    <div class="step-circle"><i class="ri-map-pin-line"></i></div>
+                    <span>Shipping</span>
+                </div>
+                <div class="step-line" [class.done]="currentStep() > 1"></div>
+                <div class="step" [class.active]="currentStep() >= 2" [class.done]="currentStep() > 2">
+                    <div class="step-circle"><i class="ri-file-list-3-line"></i></div>
+                    <span>Billing</span>
+                </div>
+                <div class="step-line" [class.done]="currentStep() > 2"></div>
+                <div class="step" [class.active]="currentStep() >= 3" [class.done]="currentStep() > 3">
+                    <div class="step-circle"><i class="ri-bank-card-line"></i></div>
+                    <span>Payment</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form-section" *ngIf="currentStep() === 1">
+                    <h3 class="section-label"><i class="ri-map-pin-2-line"></i> Shipping Address</h3>
+                    <div class="form-grid">
+                        <div class="form-group" [class.has-error]="showErrors() && !shippingAddress().firstName.trim()">
+                            <label>First Name *</label>
+                            <input type="text" [ngModel]="shippingAddress().firstName"
+                                (ngModelChange)="updateShippingAddress('firstName', $event)" placeholder="John">
+                            <span class="error-msg">First name is required</span>
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !shippingAddress().lastName.trim()">
+                            <label>Last Name *</label>
+                            <input type="text" [ngModel]="shippingAddress().lastName"
+                                (ngModelChange)="updateShippingAddress('lastName', $event)" placeholder="Doe">
+                            <span class="error-msg">Last name is required</span>
+                        </div>
+                        <div class="form-group full"
+                            [class.has-error]="showErrors() && !shippingAddress().streetAddress.trim()">
+                            <label>Street Address *</label>
+                            <input type="text" [ngModel]="shippingAddress().streetAddress"
+                                (ngModelChange)="updateShippingAddress('streetAddress', $event)"
+                                placeholder="123 Main St">
+                            <span class="error-msg">Street address is required</span>
+                        </div>
+                        <div class="form-group full">
+                            <label>Apartment / Suite (optional)</label>
+                            <input type="text" [ngModel]="shippingAddress().apartmentSuite"
+                                (ngModelChange)="updateShippingAddress('apartmentSuite', $event)" placeholder="Apt 4B">
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !shippingAddress().city.trim()">
+                            <label>City *</label>
+                            <input type="text" [ngModel]="shippingAddress().city"
+                                (ngModelChange)="updateShippingAddress('city', $event)" placeholder="Cairo">
+                            <span class="error-msg">City is required</span>
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !shippingAddress().state.trim()">
+                            <label>State / Governorate *</label>
+                            <input type="text" [ngModel]="shippingAddress().state"
+                                (ngModelChange)="updateShippingAddress('state', $event)" placeholder="Cairo">
+                            <span class="error-msg">State is required</span>
+                        </div>
+                        <div class="form-group">
+                            <label>ZIP / Postal Code</label>
+                            <input type="text" [ngModel]="shippingAddress().zipCode"
+                                (ngModelChange)="updateShippingAddress('zipCode', $event)" placeholder="11511">
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !shippingAddress().country.trim()">
+                            <label>Country *</label>
+                            <input type="text" [ngModel]="shippingAddress().country"
+                                (ngModelChange)="updateShippingAddress('country', $event)" placeholder="Egypt">
+                            <span class="error-msg">Country is required</span>
+                        </div>
+                        <div class="form-group full"
+                            [class.has-error]="showErrors() && (!shippingAddress().phoneNumber.trim() || !shippingAddress().phoneNumber.match('^[+0-9\\\\s-]{8,20}$'))">
+                            <label>Phone Number *</label>
+                            <input type="tel" [ngModel]="shippingAddress().phoneNumber"
+                                (ngModelChange)="updateShippingAddress('phoneNumber', $event)"
+                                placeholder="+20 10 0000 0000">
+                            <span class="error-msg">Valid phone number is required</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section" *ngIf="currentStep() === 2">
+                    <h3 class="section-label"><i class="ri-file-list-3-line"></i> Billing Address</h3>
+                    <div class="same-as-shipping">
+                        <label class="toggle-label">
+                            <input type="checkbox" [ngModel]="sameAsShipping()"
+                                (ngModelChange)="sameAsShipping.set($event)">
+                            <span class="toggle-text">Same as shipping address</span>
+                        </label>
+                    </div>
+                    <div class="form-grid" *ngIf="!sameAsShipping()">
+                        <div class="form-group" [class.has-error]="showErrors() && !billingAddress().firstName.trim()">
+                            <label>First Name *</label>
+                            <input type="text" [ngModel]="billingAddress().firstName"
+                                (ngModelChange)="updateBillingAddress('firstName', $event)">
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !billingAddress().lastName.trim()">
+                            <label>Last Name *</label>
+                            <input type="text" [ngModel]="billingAddress().lastName"
+                                (ngModelChange)="updateBillingAddress('lastName', $event)">
+                        </div>
+                        <div class="form-group full"
+                            [class.has-error]="showErrors() && !billingAddress().streetAddress.trim()">
+                            <label>Street Address *</label>
+                            <input type="text" [ngModel]="billingAddress().streetAddress"
+                                (ngModelChange)="updateBillingAddress('streetAddress', $event)">
+                        </div>
+                        <div class="form-group full">
+                            <label>Apartment / Suite (optional)</label>
+                            <input type="text" [ngModel]="billingAddress().apartmentSuite"
+                                (ngModelChange)="updateBillingAddress('apartmentSuite', $event)">
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !billingAddress().city.trim()">
+                            <label>City *</label>
+                            <input type="text" [ngModel]="billingAddress().city"
+                                (ngModelChange)="updateBillingAddress('city', $event)">
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !billingAddress().state.trim()">
+                            <label>State *</label>
+                            <input type="text" [ngModel]="billingAddress().state"
+                                (ngModelChange)="updateBillingAddress('state', $event)">
+                        </div>
+                        <div class="form-group">
+                            <label>ZIP / Postal Code</label>
+                            <input type="text" [ngModel]="billingAddress().zipCode"
+                                (ngModelChange)="updateBillingAddress('zipCode', $event)">
+                        </div>
+                        <div class="form-group" [class.has-error]="showErrors() && !billingAddress().country.trim()">
+                            <label>Country *</label>
+                            <input type="text" [ngModel]="billingAddress().country"
+                                (ngModelChange)="updateBillingAddress('country', $event)">
+                        </div>
+                        <div class="form-group full"
+                            [class.has-error]="showErrors() && (!billingAddress().phoneNumber.trim() || !billingAddress().phoneNumber.match('^[+0-9\\\\s-]{8,20}$'))">
+                            <label>Phone Number *</label>
+                            <input type="tel" [ngModel]="billingAddress().phoneNumber"
+                                (ngModelChange)="updateBillingAddress('phoneNumber', $event)">
+                        </div>
+                    </div>
+                    <div class="same-address-confirmed" *ngIf="sameAsShipping()">
                         <i class="ri-checkbox-circle-line"></i>
+                        <p>Billing address is the same as shipping address</p>
+                        <small>{{ shippingAddress().streetAddress }}, {{ shippingAddress().city }}, {{
+                            shippingAddress().country }}</small>
                     </div>
                 </div>
-                <h2>Order Placed Successfully! 🎉</h2>
-                <p>Thank you for your order. We'll start preparing it right away.</p>
-                <div class="success-details">
-                    <div class="detail-row">
-                        <span>Order Number</span>
-                        <strong>#{{ checkoutSuccess.orderNumber }}</strong>
-                    </div>
-                    <div class="detail-row">
-                        <span>Payment Gateway</span>
-                        <strong>{{ checkoutSuccess.gatewayUsed || 'Standard' }}</strong>
-                    </div>
-                    <div class="detail-row">
-                        <span>Status</span>
-                        <strong class="status-badge">{{ checkoutSuccess.status }}</strong>
-                    </div>
-                    <div class="detail-row" *ngIf="checkoutSuccess.externalTransactionId">
-                        <span>Transaction ID</span>
-                        <strong>{{ checkoutSuccess.externalTransactionId }}</strong>
+
+                <div class="form-section" *ngIf="currentStep() === 3">
+                    <h3 class="section-label"><i class="ri-bank-card-line"></i> Review & Confirm Order</h3>
+
+                    <div class="order-review">
+                        <div class="review-items">
+                            <div class="review-item" *ngFor="let item of cartService.items(); trackBy: trackById">
+                                <img [src]="item.image | url" [alt]="item.name">
+                                <div class="review-item-info">
+                                    <span class="ri-name">{{ item.name }}</span>
+                                    <span class="ri-qty">×{{ item.quantity }}</span>
+                                </div>
+                                <span class="ri-price">{{ item.price * item.quantity | number:'1.0-0' }} {{
+                                    selectedCurrency() }}</span>
+                            </div>
+                        </div>
+
+                        <div class="review-totals">
+                            <div class="rt-row">
+                                <span>Subtotal</span>
+                                <span>{{ cartService.totalPrice() | number:'1.0-0' }} {{ selectedCurrency() }}</span>
+                            </div>
+                            <div class="rt-row">
+                                <span>Shipping</span>
+                                <span class="free-text">FREE</span>
+                            </div>
+                            <div class="rt-divider"></div>
+                            <div class="rt-row grand">
+                                <span>Total to Pay</span>
+                                <span>{{ grandTotal | number:'1.0-0' }} {{ selectedCurrency() }}</span>
+                            </div>
+                        </div>
+
+                        <div class="currency-select" style="margin-top: 15px;">
+                            <label><i class="ri-currency-line"></i> Currency</label>
+                            <select [ngModel]="selectedCurrency()" (ngModelChange)="selectedCurrency.set($event)">
+                                <option value="EGP">EGP — Egyptian Pound</option>
+                                <option value="USD">USD — US Dollar</option>
+                                <option value="EUR">EUR — Euro</option>
+                                <option value="SAR">SAR — Saudi Riyal</option>
+                                <option value="AED">AED — UAE Dirham</option>
+                            </select>
+                        </div>
+
+                        <div class="payment-method-wrap">
+                            <h4 class="pm-title"><i class="ri-bank-card-line"></i> Choose Payment Method</h4>
+
+                            <div class="payment-gateways-list" style="display:flex; flex-direction:column; gap:10px;">
+                                <label class="gateway-option" *ngFor="let gw of activeGateways()"
+                                    [class.selected]="selectedPaymentMethod() === gw.name"
+                                    style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                    <input type="radio" name="paymentMethod" [value]="gw.name"
+                                        [ngModel]="selectedPaymentMethod()"
+                                        (ngModelChange)="selectedPaymentMethod.set($event)">
+                                    <div class="gateway-content" style="display:flex; align-items:center; gap:10px;">
+                                        <div class="gateway-icon" *ngIf="!gw.logoUrl">
+                                            <i class="ri-bank-card-line"></i>
+                                        </div>
+                                        <img [src]="gw.logoUrl" *ngIf="gw.logoUrl" class="gw-logo-small" [alt]="gw.name"
+                                            style="width: 40px;">
+                                        <div class="gateway-info">
+                                            <span class="gateway-name">{{ gw.name }}</span>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <label class="gateway-option"
+                                    [class.selected]="selectedPaymentMethod() === 'CashOnDelivery'"
+                                    style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                    <input type="radio" name="paymentMethod" value="CashOnDelivery"
+                                        [ngModel]="selectedPaymentMethod()"
+                                        (ngModelChange)="selectedPaymentMethod.set($event)">
+                                    <div class="gateway-content" style="display:flex; align-items:center; gap:10px;">
+                                        <div class="gateway-icon"><i class="ri-truck-line"></i></div>
+                                        <div class="gateway-info">
+                                            <span class="gateway-name">Cash on Delivery</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="card-details-section" [hidden]="selectedPaymentMethod() !== 'Stripe'"
+                                style="margin-top: 20px;">
+                                <div class="stripe-card-mount">
+                                    <label class="stripe-label">Credit or Debit Card</label>
+                                    <div id="stripe-card-element"
+                                        style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; background: #fff;">
+                                    </div>
+                                    <div id="card-errors" role="alert" class="stripe-errors"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button class="btn-continue-shop" (click)="closeCheckout()" routerLink="/catalog">
-                    <i class="ri-store-2-line"></i> Continue Shopping
+
+                <div class="success-section" *ngIf="currentStep() === 4 && checkoutSuccess()">
+                    <div class="success-animation">
+                        <div class="success-circle">
+                            <i class="ri-checkbox-circle-line"></i>
+                        </div>
+                    </div>
+                    <h2>Order Placed Successfully! 🎉</h2>
+                    <div class="success-details">
+                        <div class="detail-row"><span>Order Number</span><strong>#{{ checkoutSuccess()?.orderNumber
+                                }}</strong></div>
+                        <div class="detail-row"><span>Status</span><strong class="status-badge">{{
+                                checkoutSuccess()?.status }}</strong></div>
+                    </div>
+                    <button class="btn-continue-shop" (click)="closeCheckout()" routerLink="/catalog">Continue
+                        Shopping</button>
+                </div>
+
+            </div>
+
+            <div class="modal-footer" *ngIf="currentStep() < 4">
+                <button class="btn-back" (click)="prevStep()" *ngIf="currentStep() > 1">Back</button>
+                <div class="footer-spacer" *ngIf="currentStep() === 1"></div>
+                <button class="btn-next" (click)="nextStep()" *ngIf="currentStep() < 3">Continue</button>
+                <button class="btn-place-order" (click)="placeOrder()" *ngIf="currentStep() === 3"
+                    [disabled]="isCheckingOut()">
+                    <span *ngIf="!isCheckingOut()">Place Order</span>
+                    <span *ngIf="isCheckingOut()"><i class="ri-loader-4-line spin"></i> Processing...</span>
                 </button>
             </div>
-        </div>
-
-        <!-- Modal Footer with Actions -->
-        <div class="modal-footer" *ngIf="currentStep < 4">
-            <button class="btn-back" (click)="prevStep()" *ngIf="currentStep > 1">
-                <i class="ri-arrow-left-line"></i> Back
-            </button>
-            <div class="footer-spacer" *ngIf="currentStep === 1"></div>
-
-            <!-- Steps 1 & 2: Next -->
-            <button class="btn-next" (click)="nextStep()" *ngIf="currentStep < 3">
-                Continue <i class="ri-arrow-right-line"></i>
-            </button>
-
-            <!-- Step 3: Place Order -->
-            <button class="btn-place-order" (click)="placeOrder()" *ngIf="currentStep === 3" [disabled]="isCheckingOut">
-                <span *ngIf="!isCheckingOut">
-                    <i class="ri-secure-payment-line"></i> Place Order
-                </span>
-                <span *ngIf="isCheckingOut">
-                    <i class="ri-loader-4-line spin"></i> Processing...
-                </span>
-            </button>
         </div>
     </div>
 </div>

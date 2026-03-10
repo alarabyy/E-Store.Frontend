@@ -7,9 +7,9 @@ import { Toast, ToastType } from '../models/toast.model';
 export class ToastService {
     toasts = signal<Toast[]>([]);
 
-    show(message: string, type: ToastType = 'info', duration: number = 3000, position: 'top-right' | 'center' = 'top-right') {
+    show(message: string, type: ToastType = 'info', title?: string, duration: number = 3000, position: 'top-right' | 'center' = 'top-right') {
         const id = Math.random().toString(36).substring(2, 9);
-        const toast: Toast = { id, message, type, duration, position };
+        const toast: Toast = { id, message, title, type, duration, position };
 
         this.toasts.update(current => [...current, toast]);
 
@@ -20,16 +20,16 @@ export class ToastService {
         }
     }
 
-    success(message: string, duration: number = 3000) {
-        this.show(message, 'success', duration, 'center');
+    success(message: string, title: string = 'Success!', duration: number = 3000) {
+        this.show(message, 'success', title, duration, 'center');
     }
 
-    error(message: string, duration: number = 3000) {
-        this.show(message, 'error', duration, 'center');
+    error(message: string, title: string = 'Error!', duration: number = 3000) {
+        this.show(message, 'error', title, duration, 'center');
     }
 
-    info(message: string, duration: number = 3000) {
-        this.show(message, 'info', duration, 'top-right');
+    info(message: string, title: string = 'Information', duration: number = 3000, position: 'top-right' | 'center' = 'top-right') {
+        this.show(message, 'info', title, duration, position);
     }
 
     remove(id: string) {

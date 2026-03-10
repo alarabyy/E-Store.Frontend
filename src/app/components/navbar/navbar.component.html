@@ -61,7 +61,7 @@
                 (click)="isMobileMenuOpen.set(false)">
                 <i class="ri-heart-line"></i>
                 <span class="wishlist-text">Wishlist</span>
-                <span class="wishlist-badge" *ngIf="wishlistService.itemCount > 0">{{ wishlistService.itemCount
+                <span class="wishlist-badge" *ngIf="wishlistService.itemCount() > 0">{{ wishlistService.itemCount()
                     }}</span>
             </a>
 
@@ -70,7 +70,7 @@
                 (click)="isMobileMenuOpen.set(false)">
                 <i class="ri-shopping-cart-2-line"></i>
                 <span class="cart-text">Cart</span>
-                <span class="cart-badge" *ngIf="cartService.itemCount > 0">{{ cartService.itemCount }}</span>
+                <span class="cart-badge" *ngIf="cartService.itemCount() > 0">{{ cartService.itemCount() }}</span>
             </a>
 
             <!-- Divider -->
@@ -79,10 +79,10 @@
             <!-- Auth Buttons -->
             <ng-container *ngIf="!(authService.currentUser$ | async); else loggedInTpl">
                 <a routerLink="/auth/login" class="nav-btn-login" (click)="isMobileMenuOpen.set(false)">
-                    Login
+                    <i class="ri-login-box-line"></i> Login
                 </a>
                 <a routerLink="/auth/register" class="nav-btn-register" (click)="isMobileMenuOpen.set(false)">
-                    Register
+                    <i class="ri-user-add-line"></i> Register
                 </a>
             </ng-container>
 
@@ -122,8 +122,11 @@
                                 <li *ngFor="let cat of categories; let i = index"
                                     (mouseenter)="setActiveCategory(cat.id)"
                                     [class.active]="activeCategory() === cat.id || (activeCategory() === null && i === 0)">
-                                    <span>{{ cat.name }}</span>
-                                    <i *ngIf="cat.children.length" class="ri-arrow-right-s-line"></i>
+                                    <a [routerLink]="['/categories', cat.slug]"
+                                        (click)="isCategoriesMenuOpen.set(false)" class="parent-link">
+                                        <span>{{ cat.name }}</span>
+                                        <i *ngIf="cat.children.length" class="ri-arrow-right-s-line"></i>
+                                    </a>
                                 </li>
                             </ul>
 
@@ -168,10 +171,15 @@
             <div class="cat-shortcuts">
                 <ng-container *ngIf="storeService.categories$ | async as categories">
                     <a *ngFor="let cat of categories | slice:0:6" [routerLink]="['/categories', cat.slug]"
-                        class="cat-link">{{ cat.name }}</a>
+                        class="cat-link">
+                        <i class="ri-arrow-right-s-line icon-hover"></i>
+                        {{ cat.name }}
+                    </a>
                 </ng-container>
 
-                <a routerLink="/catalog" class="cat-link special">Exclusive Offers 🔥</a>
+                <a routerLink="/catalog" class="cat-link special">
+                    <i class="ri-fire-fill fire-icon"></i> Exclusive Offers
+                </a>
             </div>
         </div>
     </div>

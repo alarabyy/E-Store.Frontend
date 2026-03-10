@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { GoogleLoginProvider, SocialAuthService, SocialLoginModule, SocialAuthServiceConfig, SOCIAL_AUTH_CONFIG } from '@abacritt/angularx-social-login';
 import { provideHttpClient, withFetch, withInterceptors, HttpClient } from '@angular/common/http';
@@ -15,6 +15,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZonelessChangeDetection(),
     provideRouter(routes, withInMemoryScrolling({
       scrollPositionRestoration: 'enabled',
       anchorScrolling: 'enabled'

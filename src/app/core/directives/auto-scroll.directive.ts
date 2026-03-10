@@ -29,8 +29,10 @@ export class AutoScrollDirective implements OnInit, OnDestroy {
     }
 
     private addEventHandlers() {
-        // Attach to parent to cover the navigation arrows as well
-        const target = this.el.nativeElement.parentElement || this.el.nativeElement;
+        // Attach to the grandparent (section) to cover navigation arrows
+        const target = this.el.nativeElement.closest('.catalog-section') ||
+            this.el.nativeElement.parentElement ||
+            this.el.nativeElement;
 
         // Pause on hover
         this.listeners.push(this.renderer.listen(target, 'mouseenter', () => {
@@ -57,12 +59,13 @@ export class AutoScrollDirective implements OnInit, OnDestroy {
         const scrollStep = () => {
             if (!this.isPaused) {
                 const container = this.el.nativeElement;
-                container.scrollLeft += this.speed;
 
-                // Reset to start if we reach the very end
-                // Added +1 to account for fractional pixels in scrollWidth
-                if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 1) {
-                    container.scrollLeft = 0;
+                // If we've reached near the end, reset to start smoothly
+                if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 4) {
+                    container.scrollTo({ left: 0, behavior: 'smooth' });
+                    this.pauseTemporarily(); // Pause a bit after reset
+                } else {
+                    container.scrollLeft += this.speed;
                 }
             }
             this.animationFrameId = requestAnimationFrame(scrollStep);

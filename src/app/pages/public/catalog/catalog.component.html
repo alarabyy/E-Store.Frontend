@@ -1,758 +1,437 @@
-<div class="catalog-page">
+<div class="catalog-page" [class.is-loading]="isLoading()">
+    <!-- Page background decoration -->
+    <div class="page-deco deco-1"></div>
+    <div class="page-deco deco-2"></div>
 
-    <!-- ══════════════════════════════════════════════════════
-         CINEMATIC HEADER
-    ══════════════════════════════════════════════════════ -->
-    <header class="catalog-header">
-        <div class="header-bg-grid"></div>
-        <div class="header-orbs">
-            <div class="orb o1"></div>
-            <div class="orb o2"></div>
-        </div>
-        <div class="header-inner">
-            <div class="header-badge">
-                <i class="ri-store-3-line"></i>
-                <span>Full Collection</span>
+    <!-- ══════════════════════════════════════════════════════════
+         HERO SECTION
+    ══════════════════════════════════════════════════════════ -->
+    <header class="catalog-hero">
+        <div class="hero-bg-accent"></div>
+        <div class="hero-inner">
+            <nav class="breadcrumb">
+                <a routerLink="/"><i class="ri-home-4-line"></i> Home</a>
+                <i class="ri-arrow-right-s-line separator"></i>
+                <span class="active">Collections</span>
+            </nav>
+
+            <div class="hero-main-content">
+                <div class="label-badge">Modern Heritage</div>
+                <h1 class="hero-title">Refined Living.<br><span class="gold-text">Timeless Design.</span></h1>
+                <p class="hero-subtitle">Explore our 2026 Curated Selection of Italian Craftsmanship and Contemporary
+                    Artistry.</p>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <strong>{{ allBookProducts.length }}+</strong>
+                        <span>Pieces</span>
+                    </div>
+                    <div class="stat-sep"></div>
+                    <div class="stat-item">
+                        <strong>{{ catalogSections().length }}</strong>
+                        <span>Categories</span>
+                    </div>
+                </div>
             </div>
-            <h1>Elite Store <span class="gold-word">Catalog</span></h1>
-            <p>Browse every collection in one place — where luxury meets modern design.</p>
-
-            <!-- Quick Hero Stats -->
-            <div class="header-stats" *ngIf="!isLoading">
-                <div class="h-stat">
-                    <strong>{{ totalProducts }}</strong>
-                    <span>Products</span>
-                </div>
-                <div class="h-stat-sep"></div>
-                <div class="h-stat">
-                    <strong>{{ totalCategories }}</strong>
-                    <span>Categories</span>
-                </div>
-                <div class="h-stat-sep"></div>
-                <div class="h-stat">
-                    <strong>Free</strong>
-                    <span>Shipping</span>
-                </div>
-            </div>
-
         </div>
     </header>
 
-    <!-- ══════════════════════════════════════════════════════
-         SKELETON LOADER
-    ══════════════════════════════════════════════════════ -->
-    <div class="catalog-layout loading-state" *ngIf="isLoading" id="catalog-content">
-        <!-- Skeleton Pills -->
-        <div class="category-pills-wrapper">
-            <div class="filter-categories-scroll">
-                <div class="skel-pill" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    <!-- ══════════════════════════════════════════════════════════
+         PREMIUM FILTER TOOLBAR
+    ══════════════════════════════════════════════════════════ -->
+    <div class="catalog-toolbar-wrapper" [class.is-sticky]="isSticky()">
+        <div class="catalog-toolbar-inner">
+            <!-- Search Part -->
+            <div class="toolbar-search">
+                <i class="ri-search-2-line search-icon"></i>
+                <input type="text" [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)"
+                    placeholder="Search the collection...">
             </div>
-        </div>
 
-        <div class="skeleton-toolbar">
-            <div class="skel-box small"></div>
-            <div class="skel-box small"></div>
-        </div>
-
-        <div class="sections-wrap">
-            <section class="catalog-section">
-                <div class="section-head skeleton-head">
-                    <div class="skel-box skel-icon"></div>
-                    <div>
-                        <div class="skel-text title"></div>
-                        <div class="skel-text sub"></div>
+            <!-- Filters Part -->
+            <div class="toolbar-actions">
+                <!-- Category -->
+                <div class="toolbar-dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="ri-layout-grid-line"></i>
+                        <span>{{ activeCategory() === 'all' ? 'All Classes' : activeCategory() }}</span>
+                        <i class="ri-arrow-down-s-line arrow"></i>
                     </div>
-                </div>
-                <div class="products-grid">
-                    <div class="skeleton-card" *ngFor="let i of skeletonArray">
-                        <div class="skel-img"></div>
-                        <div class="skel-content">
-                            <div class="skel-text cat"></div>
-                            <div class="skel-text title"></div>
-                            <div class="skel-text stars"></div>
-                            <div class="skel-footer">
-                                <div class="skel-text price"></div>
-                                <div class="skel-box btn"></div>
-                            </div>
+                    <div class="dropdown-menu">
+                        <div class="menu-item" (click)="setCategory('all')" [class.active]="activeCategory() === 'all'">
+                            All Classes
+                        </div>
+                        <div class="menu-item" *ngFor="let cat of catalogSections()" (click)="setCategory(cat.slug)"
+                            [class.active]="activeCategory() === cat.slug">
+                            {{ cat.name }}
                         </div>
                     </div>
                 </div>
-            </section>
-        </div>
-    </div>
-    <!-- ══════════════════════════════════════════════════════
-         MAIN LAYOUT: Content Only
-    ══════════════════════════════════════════════════════ -->
-    <div class="catalog-layout" *ngIf="!isLoading" id="catalog-content">
 
-        <!-- ── Content Area ── -->
-        <main class="catalog-content">
-
-            <!-- ── Category Pills ── -->
-            <div class="category-pills-wrapper">
-                <div class="filter-categories-scroll">
-                    <button class="cat-pill" [class.active]="activeCategory === 'all'" (click)="setCategory('all')">
-                        <i class="ri-apps-fill"></i> All
-                    </button>
-                    <button class="cat-pill" *ngFor="let section of catalogSections"
-                        [class.active]="activeCategory === section.slug" (click)="setCategory(section.slug)">
-                        {{ section.name }}
-                        <span class="badge">{{ section.products.length }}</span>
-                    </button>
+                <!-- Price -->
+                <div class="toolbar-dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="ri-hand-coin-line"></i>
+                        <span>{{ (minPrice() || maxPrice()) ? 'Budget: Set' : 'Any Budget' }}</span>
+                        <i class="ri-arrow-down-s-line arrow"></i>
+                    </div>
+                    <div class="dropdown-menu wide">
+                        <div class="price-presets">
+                            <button (click)="setPriceRange(null, 5000)">Under 5k</button>
+                            <button (click)="setPriceRange(5000, 15000)">5k - 15k</button>
+                            <button (click)="setPriceRange(15000, null)">15k+</button>
+                        </div>
+                        <div class="price-inputs">
+                            <input type="number" [ngModel]="minPrice()" (ngModelChange)="minPrice.set($event)"
+                                placeholder="Min">
+                            <span class="sep">to</span>
+                            <input type="number" [ngModel]="maxPrice()" (ngModelChange)="maxPrice.set($event)"
+                                placeholder="Max">
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- ── Top Filters Bar ── -->
-            <div class="top-filters-wrapper" [class.filters-open]="filtersOpen">
-                <!-- Mobile Filter Toggle -->
-                <button class="mobile-filter-toggle" (click)="toggleFilters()">
-                    <i class="ri-filter-3-line"></i>
-                    <span>Filters & Sort</span>
-                    <span class="active-count" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
-                    <i class="ri-arrow-down-s-line toggle-arrow" [class.rotated]="filtersOpen"></i>
+                <!-- Sort -->
+                <div class="toolbar-dropdown">
+                    <div class="dropdown-trigger">
+                        <i class="ri-sort-desc"></i>
+                        <span>Sort</span>
+                        <i class="ri-arrow-down-s-line arrow"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="menu-item" (click)="sortBy.set('featured')"
+                            [class.active]="sortBy() === 'featured'">
+                            Default</div>
+                        <div class="menu-item" (click)="sortBy.set('price-asc')"
+                            [class.active]="sortBy() === 'price-asc'">
+                            Price: Low - High</div>
+                        <div class="menu-item" (click)="sortBy.set('price-desc')"
+                            [class.active]="sortBy() === 'price-desc'">
+                            Price: High - Low</div>
+                        <div class="menu-item" (click)="sortBy.set('rating-desc')"
+                            [class.active]="sortBy() === 'rating-desc'">
+                            Top Reviewed</div>
+                    </div>
+                </div>
+
+                <div class="v-divider"></div>
+
+                <button class="btn-more-filters" (click)="toggleFilters()">
+                    <i class="ri-equalizer-line"></i>
+                    <span>Refine</span>
                 </button>
-
-                <div class="filter-controls-inner">
-                    <div class="filter-controls-row">
-                        <!-- Search Input -->
-                        <div class="search-input-wrap">
-                            <i class="ri-search-line sel-icon"></i>
-                            <input type="text" [(ngModel)]="searchQuery" placeholder="Search products...">
-                            <button class="clear-search" *ngIf="searchQuery" (click)="searchQuery = ''">
-                                <i class="ri-close-line"></i>
-                            </button>
-                        </div>
-
-                        <!-- Price Filter -->
-                        <div class="custom-select-wrap">
-                            <i class="ri-money-dollar-circle-line sel-icon"></i>
-                            <select class="modern-select" (change)="onPriceFilterSelect($event)">
-                                <option value="all" [selected]="selectedPriceRange === 'all'">All Prices</option>
-                                <option value="under500" [selected]="selectedPriceRange === 'under500'">Under 500 EGP
-                                </option>
-                                <option value="500to1000" [selected]="selectedPriceRange === '500to1000'">500 - 1,000
-                                    EGP
-                                </option>
-                                <option value="1000to5000" [selected]="selectedPriceRange === '1000to5000'">1,000 -
-                                    5,000 EGP</option>
-                                <option value="above5000" [selected]="selectedPriceRange === 'above5000'">5,000 EGP &
-                                    Above</option>
-                            </select>
-                            <i class="ri-arrow-down-s-line arrow-icon"></i>
-                        </div>
-
-                        <!-- Rating Filter -->
-                        <div class="custom-select-wrap">
-                            <i class="ri-star-line sel-icon"></i>
-                            <select class="modern-select" (change)="onRatingFilterSelect($event)">
-                                <option value="0" [selected]="selectedRating === 0">All Ratings</option>
-                                <option value="4" [selected]="selectedRating === 4">4+ Stars</option>
-                                <option value="3" [selected]="selectedRating === 3">3+ Stars</option>
-                                <option value="2" [selected]="selectedRating === 2">2+ Stars</option>
-                                <option value="1" [selected]="selectedRating === 1">1+ Stars</option>
-                            </select>
-                            <i class="ri-arrow-down-s-line arrow-icon"></i>
-                        </div>
-
-                        <!-- Sort -->
-                        <div class="custom-select-wrap">
-                            <i class="ri-sort-desc sel-icon"></i>
-                            <select class="modern-select" (change)="onSortChange($event)">
-                                <option value="default" [selected]="sortBy === 'default'">Sort: Recommended</option>
-                                <option value="price-asc" [selected]="sortBy === 'price-asc'">Price: Low to High
-                                </option>
-                                <option value="price-desc" [selected]="sortBy === 'price-desc'">Price: High to Low
-                                </option>
-                                <option value="rating-desc" [selected]="sortBy === 'rating-desc'">Highest Rated</option>
-                                <option value="name-asc" [selected]="sortBy === 'name-asc'">Name: A → Z</option>
-                                <option value="name-desc" [selected]="sortBy === 'name-desc'">Name: Z → A</option>
-                                <option value="most-sold" [selected]="sortBy === 'most-sold'">Most Sold</option>
-                                <option value="most-reviewed" [selected]="sortBy === 'most-reviewed'">Most Reviewed
-                                </option>
-                            </select>
-                            <i class="ri-arrow-down-s-line arrow-icon"></i>
-                        </div>
-                    </div>
-
-                    <div class="filter-controls-row secondary-row">
-                        <!-- Custom Price -->
-                        <div class="custom-price-inputs">
-                            <input type="number" [(ngModel)]="customMinPrice" placeholder="Min EGP">
-                            <span>-</span>
-                            <input type="number" [(ngModel)]="customMaxPrice" placeholder="Max EGP">
-                            <button class="btn-go" (click)="applyCustomPriceRange()">Go</button>
-                        </div>
-
-                        <!-- Toggle Switches Row -->
-                        <div class="toggles-row">
-                            <label class="toggle-switch">
-                                <input type="checkbox" [checked]="inStockOnly" (change)="toggleInStock()">
-                                <span class="slider"></span>
-                                <span class="label-text">In Stock</span>
-                            </label>
-
-                            <label class="toggle-switch">
-                                <input type="checkbox" [checked]="onSaleOnly" (change)="toggleOnSale()">
-                                <span class="slider"></span>
-                                <span class="label-text">On Sale</span>
-                            </label>
-
-                            <label class="toggle-switch">
-                                <input type="checkbox" [checked]="featuredOnly" (change)="toggleFeatured()">
-                                <span class="slider"></span>
-                                <span class="label-text">Featured</span>
-                            </label>
-                        </div>
-
-                        <button class="clear-filters-btn" *ngIf="hasActiveFilters" (click)="clearFilters()">
-                            <i class="ri-refresh-line"></i> Clear All
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Toolbar -->
-            <div class="catalog-toolbar">
-                <div class="toolbar-left">
-                    <span class="results-count" *ngIf="!hasActiveFilters">
-                        {{ totalProducts }} products
-                    </span>
-                    <span class="results-count filtered" *ngIf="hasActiveFilters">
-                        <i class="ri-filter-line"></i>
-                        {{ filteredCount }} of {{ totalProducts }} results
-                    </span>
-                </div>
-                <div class="toolbar-right">
-                    <button class="view-btn" [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'"
-                        title="Grid view">
-                        <i class="ri-grid-fill"></i>
-                    </button>
-                    <button class="view-btn" [class.active]="viewMode === 'list'" (click)="viewMode = 'list'"
-                        title="List view">
-                        <i class="ri-list-unordered"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Active Filter Chips -->
-            <div class="active-filters" *ngIf="hasActiveFilters">
-                <span class="filter-chip" *ngIf="activeCategory !== 'all'">
-                    <i class="ri-folder-line"></i>
-                    {{ getSectionName(activeCategory) }}
-                    <button (click)="activeCategory = 'all'"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="filter-chip search" *ngIf="searchQuery">
-                    <i class="ri-search-line"></i>
-                    "{{ searchQuery }}"
-                    <button (click)="searchQuery = ''"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="filter-chip price" *ngIf="selectedPriceRange !== 'all'">
-                    <i class="ri-money-dollar-circle-line"></i>
-                    {{ getPriceRangeLabel() }}
-                    <button (click)="setPriceFilter('all', null, null)"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="filter-chip rating" *ngIf="selectedRating > 0">
-                    <i class="ri-star-fill"></i>
-                    {{ selectedRating }}+ Stars
-                    <button (click)="setRatingFilter(0)"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="filter-chip stock" *ngIf="inStockOnly">
-                    <i class="ri-checkbox-circle-line"></i>
-                    In Stock
-                    <button (click)="toggleInStock()"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="filter-chip sale" *ngIf="onSaleOnly">
-                    <i class="ri-percent-line"></i>
-                    On Sale
-                    <button (click)="toggleOnSale()"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="filter-chip featured" *ngIf="featuredOnly">
-                    <i class="ri-award-line"></i>
-                    Featured
-                    <button (click)="toggleFeatured()"><i class="ri-close-line"></i></button>
-                </span>
-                <span class="filter-chip sort" *ngIf="sortBy !== 'default'">
-                    <i class="ri-sort-desc"></i>
-                    {{ getSortLabel() }}
-                    <button (click)="sortBy = 'default'"><i class="ri-close-line"></i></button>
-                </span>
-            </div>
-
-            <!-- No Results -->
-            <div class="empty-state" *ngIf="filteredSections.length === 0">
-                <div class="empty-icon">
-                    <i class="ri-search-eye-line"></i>
-                </div>
-                <h3>No results found</h3>
-                <p>We couldn't find any products matching your filters. Try clearing them.</p>
-                <button class="btn-clear-all" (click)="clearFilters()">
-                    <i class="ri-refresh-line"></i> Clear Filters
-                </button>
-            </div>
-
-            <!-- Category Sections -->
-            <div class="sections-wrap">
-                <section class="catalog-section" *ngFor="let section of filteredSections; let si = index"
-                    [id]="section.slug" [style.animation-delay]="si * 0.08 + 's'">
-
-                    <!-- Section Header -->
-                    <div class="section-head">
-                        <div class="section-head-left">
-                            <div class="section-icon-wrap">
-                                <i class="ri-folder-open-line"></i>
-                            </div>
-                            <div>
-                                <h2>{{ section.name }}</h2>
-                                <p>{{ section.products.length }} product{{ section.products.length !== 1 ? 's' : '' }}
-                                    available</p>
-                            </div>
-                        </div>
-                        <a [routerLink]="['/categories', section.slug]" class="view-all-link">
-                            View All <i class="ri-arrow-right-line"></i>
-                        </a>
-                    </div>
-
-                    <!-- Products -->
-                    <div class="carousel-container">
-                        <button class="nav-btn left" (click)="scrollContainer(catScroll, -1)"
-                            [class.disabled]="!canScrollLeft(catScroll)" *ngIf="viewMode !== 'list'">
-                            <i class="ri-arrow-left-s-line"></i>
-                        </button>
-                        <div class="products-grid" [class.list-view]="viewMode === 'list'"
-                            [class.scrollable]="viewMode !== 'list'" #catScroll appAutoScroll (scroll)="0">
-                            <app-product-card *ngFor="let product of section.products; let pi = index"
-                                [product]="product" [categoryName]="section.name"
-                                [style.animation-delay]="(si * 0.08) + (pi * 0.05) + 's'" [useInternalQuickView]="false"
-                                (quickView)="openQuickView($event, product)">
-                            </app-product-card>
-                        </div>
-                        <button class="nav-btn right" (click)="scrollContainer(catScroll, 1)"
-                            [class.disabled]="!canScrollRight(catScroll)" *ngIf="viewMode !== 'list'">
-                            <i class="ri-arrow-right-s-line"></i>
-                        </button>
-                    </div>
-
-                    <!-- Section Footer -->
-                    <div class="section-footer" *ngIf="section.products.length >= 6">
-                        <a [routerLink]="['/categories', section.slug]" class="see-more-btn">
-                            <i class="ri-store-line"></i>
-                            See All {{ section.name }} →
-                        </a>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════
-         REVIEW MODAL
-    ══════════════════════════════════════════════════════ -->
-    <div class="review-overlay" *ngIf="isReviewModalOpen" (click)="closeReviewModal()">
-        <div class="review-modal" (click)="$event.stopPropagation()">
-            <div class="review-modal-header">
-                <div class="review-modal-title">
-                    <i class="ri-star-fill"></i>
-                    <h3>Write a Review</h3>
-                </div>
-                <button class="close-btn" (click)="closeReviewModal()">
-                    <i class="ri-close-line"></i>
-                </button>
-            </div>
-
-            <div class="review-modal-body" *ngIf="selectedProductForReview">
-                <div class="review-product-card">
-                    <img [src]="selectedProductForReview.imageUrl | url" [alt]="selectedProductForReview.name">
-                    <div>
-                        <h5>{{ selectedProductForReview.name }}</h5>
-                        <p>{{ selectedProductForReview.minPrice | number:'1.0-0' }} EGP</p>
-                    </div>
-                </div>
-
-                <div class="review-form">
-                    <div class="form-group">
-                        <label>Your Rating</label>
-                        <div class="star-input">
-                            <i *ngFor="let i of [1,2,3,4,5]"
-                                [class]="i <= newReview.rating ? 'ri-star-fill active' : 'ri-star-line'"
-                                (click)="newReview.rating = i"></i>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Review Title</label>
-                        <input type="text" [(ngModel)]="newReview.title" placeholder="e.g. 'Excellent quality!'">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Your Experience</label>
-                        <textarea [(ngModel)]="newReview.comment" rows="4"
-                            placeholder="What did you like or dislike? Be honest."></textarea>
-                    </div>
-
-                    <button class="submit-review-btn" (click)="submitReview()" [disabled]="isSubmittingReview">
-                        <span *ngIf="!isSubmittingReview"><i class="ri-send-plane-line"></i> Post Review</span>
-                        <span *ngIf="isSubmittingReview"><i class="ri-loader-4-line spin"></i> Submitting...</span>
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════
+         CONTENT AREA
+    ══════════════════════════════════════════════════════════ -->
+    <main class="catalog-main" id="catalog-content">
+        <!-- Global Loader -->
+        <app-loader [show]="isLoading()"></app-loader>
 
-    <!-- ══════════════════════════════════════════════════════
-         📚 REALISTIC LUXURY FLIP-BOOK CATALOG
-    ══════════════════════════════════════════════════════ -->
-    <section class="fb-section" *ngIf="!isLoading && allBookProducts.length > 0">
-
-        <!-- Intro Header -->
-        <div class="fb-intro">
-            <div class="fb-badge"><i class="ri-book-open-line"></i> Premium Edition</div>
-            <h2>The <em>Paper</em> Experience</h2>
-            <p>Flip through our curated collection in a realistic 3D book</p>
-        </div>
-
-        <!-- ─── BOOK SCENE ─── -->
-        <div class="fb-scene luxe-float">
-
-            <!-- Book Container -->
-            <div class="fb-book" [class.book-closed]="isCoverVisible">
-
-                <!-- ════ STACKED PAGES (Thickness Illusion) ════ -->
-                <div class="fb-stack left-stack" *ngIf="!isCoverVisible">
-                    <div class="stack-edge" *ngFor="let i of [1,2,3,4,5,6]"></div>
-                </div>
-                <div class="fb-stack right-stack">
-                    <div class="stack-edge" *ngFor="let i of [1,2,3,4,5,6]"></div>
-                </div>
-
-                <!-- ════ COVER ════ -->
-                <div class="fb-cover" [class.open]="!isCoverVisible" (click)="isCoverVisible && flipNext()">
-                    <div class="fbc-front">
-                        <div class="fbc-grain"></div>
-                        <div class="fbc-spine-stripe"></div>
-                        <div class="fbc-emblem">
-                            <i class="ri-store-3-line"></i>
+        <ng-container *ngIf="!isLoading()">
+            <div class="catalog-container-full">
+                <!-- Products Area -->
+                <div class="catalog-results-area">
+                    <!-- Active Filter Chips -->
+                    <div class="active-filters"
+                        *ngIf="searchQuery() || activeCategory() !== 'all' || minPrice() || maxPrice() || minRating() > 0 || onlyInStock() || onlyOnSale() || onlyFeatured()">
+                        <div class="filter-chip search" *ngIf="searchQuery()">
+                            <i class="ri-search-line"></i> {{ searchQuery() }}
+                            <button (click)="removeFilter('search')"><i class="ri-close-line"></i></button>
                         </div>
-                        <div class="fbc-text">
-                            <div class="fbc-edition">2026 Edition</div>
-                            <h3>Elite<br>Store</h3>
-                            <div class="fbc-rule"></div>
-                            <p class="fbc-sub">Full Product Catalog</p>
-                            <p class="fbc-count">{{ totalProducts }} Curated Items</p>
+                        <div class="filter-chip category" *ngIf="activeCategory() !== 'all'">
+                            <i class="ri-folder-line"></i> {{ activeCategory() }}
+                            <button (click)="removeFilter('category')"><i class="ri-close-line"></i></button>
                         </div>
-                        <div class="fbc-footer-bar">Craftsmanship · Quality · Luxury</div>
-                        <div class="fbc-click-hint" *ngIf="isCoverVisible">
-                            <span>Flip to Open</span>
-                            <i class="ri-arrow-right-circle-fill"></i>
+                        <div class="filter-chip price" *ngIf="minPrice() || maxPrice()">
+                            <i class="ri-price-tag-3-line"></i> {{ minPrice() || 0 }} - {{ maxPrice() || '∞' }}
+                            <button (click)="removeFilter('price')"><i class="ri-close-line"></i></button>
+                        </div>
+                        <div class="filter-chip rating" *ngIf="minRating() > 0">
+                            <i class="ri-star-line"></i> {{ minRating() }}+ Stars
+                            <button (click)="removeFilter('rating')"><i class="ri-close-line"></i></button>
+                        </div>
+                        <div class="filter-chip stock" *ngIf="onlyInStock()">
+                            <i class="ri-checkbox-circle-line"></i> In Stock
+                            <button (click)="removeFilter('stock')"><i class="ri-close-line"></i></button>
+                        </div>
+                        <div class="filter-chip sale" *ngIf="onlyOnSale()">
+                            <i class="ri-percent-line"></i> On Sale
+                            <button (click)="removeFilter('sale')"><i class="ri-close-line"></i></button>
+                        </div>
+                        <div class="filter-chip featured" *ngIf="onlyFeatured()">
+                            <i class="ri-bookmark-line"></i> Featured
+                            <button (click)="removeFilter('featured')"><i class="ri-close-line"></i></button>
                         </div>
                     </div>
-                    <div class="fbc-back">
-                        <div class="fbc-back-pattern"></div>
-                        <div class="fbc-back-logo">
-                            <i class="ri-store-3-line"></i>
-                            <span>Elite Store</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- ════ OPEN BOOK BODY ════ -->
-                <div class="fb-body" *ngIf="!isCoverVisible && currentBookSpread">
-
-                    <!-- LEFT PAGE -->
-                    <div class="fb-page fb-left" [class.is-flipping]="isFlipping && flipDir === 'prev'">
-                        <div class="fp-layers">
-                            <div class="fp-layer" *ngFor="let l of [1,2,3]"></div>
-                        </div>
-                        <div class="fp-content">
-                            <div class="fp-header">
-                                <span class="fp-pg-label"><i class="ri-book-2-line"></i> {{ currentBookSpread.leftLabel
-                                    }}</span>
-                                <span class="fp-store-name">Elite Store™</span>
-                            </div>
-                            <div class="fp-grid">
-                                <a class="fp-item" *ngFor="let p of currentBookSpread.left"
-                                    [routerLink]="['/product', p.slug]" [state]="{ product: p }">
-                                    <div class="fp-img">
-                                        <div class="fp-discount" *ngIf="p.discountPercentage">{{ p.discountPercentage
-                                            }}% OFF</div>
-                                        <img [src]="p.imageUrl | url" [alt]="p.name" loading="lazy">
-                                        <div class="fp-price">{{ p.minPrice | number:'1.0-0' }} EGP</div>
-
-                                        <!-- Hover Actions for Flipbook -->
-                                        <div class="fp-hover-actions">
-                                            <button class="fp-action-btn" title="Quick View"
-                                                (click)="openQuickView($event, p)">
-                                                <i class="ri-eye-line"></i>
-                                            </button>
-                                            <button class="fp-action-btn" title="Wishlist"
-                                                (click)="toggleWishlist($event, p)"
-                                                [class.active]="wishlistService.isInWishlist(p.id)">
-                                                <i
-                                                    [class]="wishlistService.isInWishlist(p.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="fp-details">
-                                        <p class="fp-cat">{{ getCategoryForProduct(p) }}</p>
-                                        <h5>{{ p.name }}</h5>
-                                        <div class="fp-stars">
-                                            <i class="ri-star-fill" *ngFor="let star of [1,2,3,4,5]"
-                                                [style.color]="star <= (p.averageRating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
-                                        </div>
-                                        <button class="fp-cart" (click)="addToCart($event, p)"
-                                            [disabled]="p.totalStock === 0">
-                                            <i class="ri-shopping-bag-line"></i> {{ p.totalStock > 0 ? 'Add to Cart' :
-                                            'Out of Stock' }}
-                                        </button>
-                                    </div>
-                                </a>
-                                <div class="fp-item fp-empty"
-                                    *ngFor="let e of [].constructor(ITEMS_PER_PAGE - currentBookSpread.left.length)">
+                    <!-- Categorized Grid View -->
+                    <div class="section-grid-view">
+                        <div class="catalog-section" *ngFor="let section of filteredSections(); trackBy: trackById">
+                            <div class="section-head">
+                                <div class="head-info">
+                                    <h2 class="section-title">{{ section.name }}</h2>
+                                    <span class="count-badge">{{ section.products.length }} Items</span>
                                 </div>
-                            </div>
-                            <div class="fp-footer">
-                                <span class="pg-num">{{ currentBookSpread.leftLabel }}</span>
-                            </div>
-                        </div>
-                        <div class="fp-gutter-shadow"></div>
-                    </div>
-
-                    <!-- SPINE (The Crease) -->
-                    <div class="fb-spine">
-                        <div class="spine-line"></div>
-                        <div class="spine-center"></div>
-                        <div class="spine-line"></div>
-                    </div>
-
-                    <!-- RIGHT PAGE -->
-                    <div class="fb-page fb-right" [class.is-flipping]="isFlipping && flipDir === 'next'">
-                        <div class="fp-layers">
-                            <div class="fp-layer" *ngFor="let l of [1,2,3]"></div>
-                        </div>
-                        <div class="fp-content">
-                            <div class="fp-header">
-                                <span class="fp-store-name">Elite Store™</span>
-                                <span class="fp-pg-label">{{ currentBookSpread.rightLabel }} <i
-                                        class="ri-book-2-line"></i></span>
-                            </div>
-
-                            <div class="fp-grid" *ngIf="currentBookSpread.right.length > 0">
-                                <a class="fp-item" *ngFor="let p of currentBookSpread.right"
-                                    [routerLink]="['/product', p.slug]" [state]="{ product: p }">
-                                    <div class="fp-img">
-                                        <div class="fp-discount" *ngIf="p.discountPercentage">{{ p.discountPercentage
-                                            }}% OFF</div>
-                                        <img [src]="p.imageUrl | url" [alt]="p.name" loading="lazy">
-                                        <div class="fp-price">{{ p.minPrice | number:'1.0-0' }} EGP</div>
-
-                                        <!-- Hover Actions for Flipbook -->
-                                        <div class="fp-hover-actions">
-                                            <button class="fp-action-btn" title="Quick View"
-                                                (click)="openQuickView($event, p)">
-                                                <i class="ri-eye-line"></i>
-                                            </button>
-                                            <button class="fp-action-btn" title="Wishlist"
-                                                (click)="toggleWishlist($event, p)"
-                                                [class.active]="wishlistService.isInWishlist(p.id)">
-                                                <i
-                                                    [class]="wishlistService.isInWishlist(p.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="fp-details">
-                                        <p class="fp-cat">{{ getCategoryForProduct(p) }}</p>
-                                        <h5>{{ p.name }}</h5>
-                                        <div class="fp-stars">
-                                            <i class="ri-star-fill" *ngFor="let star of [1,2,3,4,5]"
-                                                [style.color]="star <= (p.averageRating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
-                                        </div>
-                                        <button class="fp-cart" (click)="addToCart($event, p)"
-                                            [disabled]="p.totalStock === 0">
-                                            <i class="ri-shopping-bag-line"></i> {{ p.totalStock > 0 ? 'Add to Cart' :
-                                            'Out of Stock' }}
-                                        </button>
-                                    </div>
-                                </a>
-                                <div class="fp-item fp-empty"
-                                    *ngFor="let e of [].constructor(ITEMS_PER_PAGE - currentBookSpread.right.length)">
+                                <div class="head-nav">
+                                    <button class="head-nav-btn prev" (click)="scrollContainer(scrollTarget, -1)"
+                                        [disabled]="!canScrollLeft(scrollTarget)"
+                                        [class.disabled]="!canScrollLeft(scrollTarget)">
+                                        <i class="ri-arrow-left-s-line"></i>
+                                    </button>
+                                    <button class="head-nav-btn next" (click)="scrollContainer(scrollTarget, 1)"
+                                        [disabled]="!canScrollRight(scrollTarget)"
+                                        [class.disabled]="!canScrollRight(scrollTarget)">
+                                        <i class="ri-arrow-right-s-line"></i>
+                                    </button>
                                 </div>
                             </div>
 
-                            <!-- End message -->
-                            <div class="fp-end" *ngIf="currentBookSpread.right.length === 0">
-                                <i class="ri-award-fill"></i>
-                                <h4>Full Experience</h4>
-                                <p>You've scrolled to the end.<br>Browse our catalog online.</p>
-                            </div>
-
-                            <div class="fp-footer">
-                                <span class="pg-num">{{ currentBookSpread.rightLabel }}</span>
+                            <div class="carousel-container">
+                                <div class="products-grid scrollable" #scrollTarget appAutoScroll
+                                    (scroll)="cdr.markForCheck()">
+                                    <app-product-card *ngFor="let p of section.products; trackBy: trackById"
+                                        [product]="p" [categoryName]="section.name" (click)="openQuickView($event, p)">
+                                    </app-product-card>
+                                </div>
                             </div>
                         </div>
-                        <div class="fp-gutter-shadow right"></div>
                     </div>
 
-                    <!-- ACTIVE FLIP PAGE (The Leaf) -->
-                    <div class="fb-flip-leaf" [class.leaf-active]="isFlipping" [class.leaf-next]="flipDir === 'next'"
-                        [class.leaf-prev]="flipDir === 'prev'">
-                        <div class="leaf-front">
-                            <div class="leaf-shading"></div>
+                    <!-- Flip Book Section (Featured) - MOVED TO BOTTOM -->
+                    <section class="book-section" *ngIf="bookSpreads.length > 0">
+                        <div class="book-container" #bookContainer>
+                            <div class="book-shell" [class.flipping]="isFlipping()"
+                                [class.flip-next]="flipDir() === 'next'" [class.flip-prev]="flipDir() === 'prev'">
+
+                                <!-- (Keep original Flip Logic here, just moved down) -->
+                                <!-- Front Cover -->
+                                <div class="book-cover front" *ngIf="isCoverVisible()">
+                                    <div class="cover-content">
+                                        <div class="cover-eyebrow">ELITE STORE</div>
+                                        <h2 class="cover-title">CASA ITALIANA</h2>
+                                        <div class="cover-year">{{ catalogSections().length }} Exclusive Categories
+                                        </div>
+                                        <div class="cover-divider"></div>
+                                        <p class="cover-desc">Volume IV — Spring Collection 2026</p>
+                                        <button class="open-book-btn" (click)="nextSpread()">
+                                            Explore Collection <i class="ri-arrow-right-line"></i>
+                                        </button>
+                                    </div>
+                                    <div class="cover-gold-strip"></div>
+                                </div>
+
+                                <!-- Inner Pages -->
+                                <div class="book-pages" *ngIf="!isCoverVisible()">
+                                    <!-- Left Page -->
+                                    <div class="page-side page-left">
+                                        <div class="page-content" *ngIf="currentBookSpread">
+                                            <div class="page-header">
+                                                <span class="page-num">{{ currentBookSpread.leftLabel }}</span>
+                                                <span class="page-tag">Elite Lookbook</span>
+                                            </div>
+                                            <div class="products-mini-grid">
+                                                <div class="item-card"
+                                                    *ngFor="let p of currentBookSpread.left; trackBy: trackById"
+                                                    (click)="openQuickView($event, p)">
+                                                    <div class="item-img-wrap"><img [src]="p.imageUrl | url"
+                                                            [alt]="p.name">
+                                                        <div class="item-overlay"><i class="ri-eye-line"></i></div>
+                                                    </div>
+                                                    <div class="item-info">
+                                                        <h4>{{ p.name }}</h4>
+                                                        <div class="item-price">{{ p.minPrice | number:'1.0-0' }} EGP
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Right Page -->
+                                    <div class="page-side page-right">
+                                        <div class="page-content" *ngIf="currentBookSpread">
+                                            <div class="page-header">
+                                                <span class="page-tag">Seasonal Special</span>
+                                                <span class="page-num">{{ currentBookSpread.rightLabel }}</span>
+                                            </div>
+                                            <div class="products-mini-grid">
+                                                <div class="item-card"
+                                                    *ngFor="let p of currentBookSpread.right; trackBy: trackById"
+                                                    (click)="openQuickView($event, p)">
+                                                    <div class="item-img-wrap"><img [src]="p.imageUrl | url"
+                                                            [alt]="p.name">
+                                                        <div class="item-overlay"><i class="ri-eye-line"></i></div>
+                                                    </div>
+                                                    <div class="item-info">
+                                                        <h4>{{ p.name }}</h4>
+                                                        <div class="item-price">{{ p.minPrice | number:'1.0-0' }} EGP
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Flipping Page -->
+                                    <div class="flipping-page">
+                                        <div class="flipping-front"></div>
+                                        <div class="flipping-back"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Navigation -->
+                                <div class="book-nav">
+                                    <button class="book-prev" (click)="prevSpread()"
+                                        [disabled]="currentSpread() === 0"><i class="ri-arrow-left-line"></i></button>
+                                    <button class="book-next" (click)="nextSpread()"
+                                        [disabled]="currentSpread() >= bookSpreads.length"><i
+                                            class="ri-arrow-right-line"></i></button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="leaf-back">
-                            <div class="leaf-shading"></div>
-                        </div>
+                    </section>
+
+                    <!-- No Results -->
+                    <div class="no-results" *ngIf="filteredSections().length === 0">
+                        <i class="ri-search-eye-line no-results-icon"></i>
+                        <h3>No pieces found</h3>
+                        <p>We couldn't find any products matching "{{ searchQuery() }}"</p>
+                        <button class="btn-clear" (click)="clearAllFilters()">Clear All Filters</button>
                     </div>
                 </div>
+            </div>
+        </ng-container>
+    </main>
 
-                <!-- ════ CLOSED STATE ════ -->
-                <div class="fb-closed-body" *ngIf="isCoverVisible">
-                    <div class="fb-page fb-left" style="opacity:0.3"></div>
-                    <div class="fb-page fb-right" style="opacity:0.3"></div>
-                </div>
+    <!-- ══════════════════════════════════════════════════════════
+         QUICK VIEW MODAL
+    ══════════════════════════════════════════════════════════ -->
+    <div class="quick-view-overlay" *ngIf="isQuickViewOpen()" (click)="closeQuickView()">
+        <div class="quick-view-card" (click)="$event.stopPropagation()">
+            <button class="quick-close" (click)="closeQuickView()"><i class="ri-close-line"></i></button>
 
-            </div><!-- /fb-book -->
-
-            <!-- Realistic External Shadow -->
-            <div class="fb-external-shadow"></div>
-        </div>
-
-        <!-- ─── CONTROLS ─── -->
-        <div class="fb-controls">
-            <button class="fb-btn prev" (click)="flipPrev()" [disabled]="currentSpread <= 0 || isFlipping"
-                [class.faded]="currentSpread <= 0">
-                <i class="ri-arrow-left-s-line"></i>
-                <span>Prev</span>
-            </button>
-
-            <div class="fb-status">
-                <div class="fb-progress-wrap">
-                    <div class="fb-progress-bar" [style.width.%]="bookProgress"></div>
-                </div>
-                <p class="status-text" *ngIf="currentSpread > 0">
-                    Spread {{ currentSpread }} of {{ totalSpreads }}
-                </p>
-                <p class="status-text hint" *ngIf="currentSpread === 0">Click cover to begin</p>
+            <div class="qv-loader" *ngIf="isLoadingProduct()">
+                <div class="qv-spinner"></div>
             </div>
 
-            <button class="fb-btn next" (click)="flipNext()"
-                [disabled]="(currentSpread >= totalSpreads && !isCoverVisible) || isFlipping"
-                [class.faded]="currentSpread >= totalSpreads && !isCoverVisible">
-                <span>Next</span>
-                <i class="ri-arrow-right-s-line"></i>
-            </button>
-        </div>
-
-        <!-- Spread Dots -->
-        <div class="fb-dots" *ngIf="totalSpreads > 0">
-            <button class="fb-dot" *ngFor="let sp of bookSpreads; let i = index"
-                [class.active]="i + 1 === currentSpread" (click)="currentSpread = i + 1; isCoverVisible = false">
-            </button>
-        </div>
-
-    </section>
-
-    <!-- ══════════════════════════════════════════════════════
-         QUICK VIEW MODAL (Catalog Level)
-    ══════════════════════════════════════════════════════ -->
-    <div class="qv-host" *ngIf="isQuickViewOpen">
-        <div class="qv-overlay-backdrop" (click)="closeQuickView()"></div>
-        <div class="qv-modal" (click)="$event.stopPropagation()">
-            <button class="close-btn" (click)="closeQuickView()">
-                <i class="ri-close-line"></i>
-            </button>
-
-            <div class="qv-loading" *ngIf="isLoadingProduct">
-                <div class="loader"></div>
-                <p>Loading Product Details...</p>
-            </div>
-
-            <div class="qv-content" *ngIf="!isLoadingProduct && quickViewProduct">
-                <!-- Left: Gallery -->
+            <div class="qv-content" *ngIf="!isLoadingProduct() && selectedProduct()">
                 <div class="qv-gallery">
-                    <div class="main-image">
-                        <img [src]="activeImage | url" [alt]="quickViewProduct.name">
-                    </div>
-                    <div class="thumbnails"
-                        *ngIf="quickViewProduct.imagesList && quickViewProduct.imagesList.length > 1">
-                        <div class="thumb" *ngFor="let img of quickViewProduct.imagesList"
-                            [class.active]="activeImage === img" (click)="setActiveImage(img)">
-                            <img [src]="img | url">
-                        </div>
+                    <div class="main-img">
+                        <img [src]="activeImage() | url" [alt]="selectedProduct().name">
                     </div>
                 </div>
 
-                <!-- Right: Details -->
                 <div class="qv-details">
-                    <div class="qv-header">
-                        <span class="qv-category-badge">{{ quickViewProduct.categoryName }}</span>
-                        <h2 class="qv-title">{{ quickViewProduct.name }}</h2>
-                        <div class="qv-rating-row">
-                            <div class="stars">
-                                <i class="ri-star-fill" *ngFor="let i of [1,2,3,4,5]"
-                                    [style.color]="i <= quickViewProduct.averageRating ? '#f59e0b' : '#e2e8f0'"></i>
-                            </div>
-                            <span class="count">({{ quickViewProduct.reviewCount }} reviews)</span>
-                            <span class="sold-count" *ngIf="quickViewProduct.totalSold > 0">
-                                <i class="ri-fire-line"></i> {{ quickViewProduct.totalSold }} sold
-                            </span>
+                    <span class="qv-category">{{ selectedProduct().categoryName }}</span>
+                    <h2 class="qv-title">{{ selectedProduct().name }}</h2>
+
+                    <div class="qv-rating">
+                        <div class="stars">
+                            <i class="ri-star-fill active"></i>
+                            <i class="ri-star-fill active"></i>
+                            <i class="ri-star-fill active"></i>
+                            <i class="ri-star-fill active"></i>
+                            <i class="ri-star-half-fill active"></i>
                         </div>
+                        <span class="rating-count">({{ selectedProduct().reviewCount || 0 }} Reviews)</span>
                     </div>
 
-                    <div class="qv-price-box">
-                        <div class="price-main">
-                            <span class="current">
-                                {{ (selectedVariant ? (selectedVariant.salePrice || selectedVariant.price) :
-                                quickViewProduct.minPrice) | number:'1.0-0' }}
-                                <small>EGP</small>
-                            </span>
-                            <span class="old" *ngIf="selectedVariant?.salePrice || quickViewProduct.discountPercentage">
-                                {{ (selectedVariant?.salePrice ? selectedVariant.price : originalPrice) | number:'1.0-0'
-                                }}
-                            </span>
-                        </div>
-                        <div class="stock-status" [class.out]="quickViewProduct.totalStock === 0">
+                    <div class="qv-price-row">
+                        <div class="qv-price">{{ selectedProduct().minPrice | number:'1.0-0' }} EGP</div>
+                        <div class="qv-stock" [class.out-of]="selectedProduct().totalStock === 0">
                             <i
-                                [class]="quickViewProduct.totalStock > 0 ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'"></i>
-                            {{ quickViewProduct.totalStock > 0 ? 'In Stock' : 'Out of Stock' }}
+                                [class]="selectedProduct().totalStock > 0 ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"></i>
+                            {{ selectedProduct().totalStock > 0 ? 'In Stock' : 'Out of Stock' }}
                         </div>
                     </div>
 
-                    <p class="qv-summary">{{ quickViewProduct.summary || quickViewProduct.description }}</p>
+                    <p class="qv-desc">{{ selectedProduct().description }}</p>
 
-                    <!-- Variants -->
-                    <div class="qv-variants" *ngIf="quickViewProduct.variants && quickViewProduct.variants.length > 0">
-                        <label>Available Options</label>
-                        <div class="v-grid">
-                            <div class="v-pill" *ngFor="let v of quickViewProduct.variants"
-                                [class.active]="selectedVariant?.id === v.id" (click)="selectVariant(v)">
-                                <img [src]="v.imageUrl | url" *ngIf="v.imageUrl" class="v-img">
-                                <span>{{ v.name }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Footer Actions -->
-                    <div class="qv-footer">
-                        <div class="qty-selector">
-                            <button (click)="quantity = quantity > 1 ? quantity - 1 : 1">-</button>
-                            <input type="number" [(ngModel)]="quantity" readonly>
-                            <button (click)="quantity = quantity + 1">+</button>
-                        </div>
-                        <button class="btn-add-main" (click)="addQuickToCart()"
-                            [disabled]="quickViewProduct.totalStock === 0">
-                            <i class="ri-shopping-basket-line"></i>
-                            Add to Cart
+                    <div class="qv-actions">
+                        <button class="btn-qv-cart" (click)="addToCart($event, selectedProduct())"
+                            [disabled]="selectedProduct().totalStock === 0">
+                            <i class="ri-shopping-cart-2-line"></i> Add to Cart
+                        </button>
+                        <button class="btn-qv-wish" (click)="toggleWishlist($event, selectedProduct())">
+                            <i class="ri-heart-line"></i>
                         </button>
                     </div>
 
-                    <a [routerLink]="['/product', quickViewProduct.slug]" (click)="closeQuickView()"
-                        class="full-details-link">
-                        View Full Product Details <i class="ri-arrow-right-line"></i>
-                    </a>
+                    <div class="qv-meta">
+                        <div class="meta-item"><i class="ri-truck-line"></i> Express Delivery</div>
+                        <div class="meta-item"><i class="ri-shield-check-line"></i> Premium Warranty</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Mobile Floating Filter Trigger -->
+    <button class="floating-filter-btn" (click)="toggleFilters()" *ngIf="!isLoading()">
+        <i class="ri-filter-3-line"></i>
+        <span>Filters</span>
+    </button>
+    <!-- Filter Drawer Overlay (Moved here to escape stacking context) -->
+    <div class="drawer-overlay" *ngIf="showFilters()" (click)="toggleFilters()"></div>
 
+    <!-- Refine Filter Drawer -->
+    <aside class="catalog-sidebar-drawer" [class.show-mobile]="showFilters()">
+        <div class="drawer-header">
+            <h3>Refine Options</h3>
+            <button class="close-drawer" (click)="toggleFilters()"><i class="ri-close-line"></i></button>
+        </div>
+
+        <div class="drawer-content">
+            <!-- Price Range -->
+            <div class="filter-group">
+                <h4>Price Range</h4>
+                <div class="price-inputs">
+                    <input type="number" placeholder="Min" [ngModel]="minPrice()"
+                        (ngModelChange)="setPriceRange($event, maxPrice())">
+                    <span class="sep">-</span>
+                    <input type="number" placeholder="Max" [ngModel]="maxPrice()"
+                        (ngModelChange)="setPriceRange(minPrice(), $event)">
+                </div>
+            </div>
+
+            <!-- Minimum Rating -->
+            <div class="filter-group">
+                <h4>Minimum Rating</h4>
+                <select [ngModel]="minRating()" (ngModelChange)="minRating.set(+$event); resetPagination()">
+                    <option [value]="0">Any Rating</option>
+                    <option [value]="4">4 Stars & Up</option>
+                    <option [value]="3">3 Stars & Up</option>
+                </select>
+            </div>
+
+            <!-- Toggles -->
+            <div class="filter-group toggles-group">
+                <label class="toggle-label custom-toggle">
+                    <input type="checkbox" [ngModel]="onlyInStock()"
+                        (ngModelChange)="onlyInStock.set($event); resetPagination()">
+                    <span class="custom-chk"></span>
+                    <span>In Stock Only</span>
+                </label>
+                <label class="toggle-label custom-toggle">
+                    <input type="checkbox" [ngModel]="onlyOnSale()"
+                        (ngModelChange)="onlyOnSale.set($event); resetPagination()">
+                    <span class="custom-chk"></span>
+                    <span>On Sale</span>
+                </label>
+                <label class="toggle-label custom-toggle">
+                    <input type="checkbox" [ngModel]="onlyFeatured()"
+                        (ngModelChange)="onlyFeatured.set($event); resetPagination()">
+                    <span class="custom-chk"></span>
+                    <span>Featured Items</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="drawer-footer">
+            <button class="btn-clear" (click)="clearAllFilters()">Clear All</button>
+            <button class="btn-apply" (click)="toggleFilters()">View Results</button>
+        </div>
+    </aside>
 </div>

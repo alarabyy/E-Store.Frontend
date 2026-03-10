@@ -4,7 +4,7 @@ import { RouterLink, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoginRequest, GoogleAuthRequest, AuthResponse } from '../models/auth.models';
 import { TranslateModule } from '@ngx-translate/core';
-import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { ToastService } from '../../../components/toast/services/toast.service';
 import { ApiResponse } from '../../../core/api/models/api-response.model';
 import { AuthService } from '../services/auth.service';
@@ -12,7 +12,7 @@ import { AuthService } from '../services/auth.service';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule],
+    imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule, GoogleSigninButtonModule],
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss']
 })
@@ -39,6 +39,36 @@ export class LoginComponent implements OnInit {
         if (this.authService.isAuthenticated()) {
             this.router.navigate(['/']);
         }
+
+        this.socialAuthService.authState.subscribe((user) => {
+            if (user && user.idToken) {
+                this.handleGoogleLoginSuccess(user.idToken);
+            }
+        });
+    }
+
+    handleGoogleLoginSuccess(idToken: string) {
+        this.isLoading = true;
+        const request: GoogleAuthRequest = { idToken };
+
+        this.authService.googleAuth(request).subscribe({
+            next: (response: ApiResponse<AuthResponse>) => {
+                this.isLoading = false;
+                if (response.isSuccess && response.data) {
+                    this.toastService.success('Logged in successfully with Google!');
+                    this.router.navigate(['/']);
+                } else {
+                    this.errorMessage = response.error?.message || 'Google login failed';
+                    this.toastService.error(this.errorMessage!);
+                }
+            },
+            error: (err: any) => {
+                this.isLoading = false;
+                this.errorMessage = 'Google authentication error';
+                this.toastService.error(this.errorMessage!);
+                console.error(err);
+            }
+        });
     }
 
     togglePassword() {
@@ -88,34 +118,8 @@ export class LoginComponent implements OnInit {
     }
 
     loginWithGoogle() {
-        this.isLoading = true;
-        this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(user => {
-            const request: GoogleAuthRequest = {
-                idToken: user.idToken || ''
-            };
-            this.authService.googleAuth(request).subscribe({
-                next: (response: ApiResponse<AuthResponse>) => {
-                    this.isLoading = false;
-                    if (response.isSuccess && response.data) {
-                        // Session is already stored by AuthService.googleAuth
-                        this.toastService.success('Logged in successfully with Google!');
-                        this.router.navigate(['/']);
-                    } else {
-                        this.errorMessage = response.error?.message || 'Google login failed';
-                        this.toastService.error(this.errorMessage!);
-                    }
-                },
-                error: (err: any) => {
-                    this.isLoading = false;
-                    this.errorMessage = 'Google authentication error';
-                    this.toastService.error(this.errorMessage!);
-                    console.error(err);
-                }
-            });
-        }).catch((err) => {
-            this.isLoading = false;
-            console.error('Google Social Error:', err);
-            this.toastService.error('Google login cancelled or failed');
-        });
+        // Obsolete programmatic sign-in.
+        // Google Identity Services (GIS) requires using the native <asl-google-signin-button>.
+        // See HTML template.
     }
 }

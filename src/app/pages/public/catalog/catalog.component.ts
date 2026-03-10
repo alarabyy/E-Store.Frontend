@@ -1,70 +1,124 @@
-import { Component, inject, OnInit, ChangeDetectorRef, signal } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, ChangeDetectorRef, HostListener, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ProductService } from './services/product.service';
 import { CartService } from '../cart/services/cart.service';
 import { WishlistService } from '../wishlist/services/wishlist.service';
-import { ProductService } from './services/product.service';
-import { CategoryWithProductsDto } from './models/catalog.model';
-import { UrlPipe } from '../../../components/pipes/url.pipe';
-import { Product as PublicProduct } from './models/product.model';
 import { ProductCardComponent } from '../../../components/product-card/product-card.component';
 import { LoaderComponent } from '../../../components/loader/loader.component';
-import { ToastService } from '../../../components/toast/services/toast.service';
-import { SeoService } from '../../../core/seo/services/seo.service';
+import { UrlPipe } from '../../../components/pipes/url.pipe';
+import { CollectionService } from './services/collection.service';
 import { AutoScrollDirective } from '../../../core/directives/auto-scroll.directive';
+import { Product } from './models/product.model';
+import { SeoService } from '../../../core/seo/services/seo.service';
+import { ToastService } from '../../../components/toast/services/toast.service';
 
 @Component({
     selector: 'app-catalog',
     standalone: true,
-    imports: [CommonModule, RouterLink, UrlPipe, FormsModule, ProductCardComponent, AutoScrollDirective],
+    imports: [CommonModule, RouterLink, FormsModule, ProductCardComponent, LoaderComponent, UrlPipe, AutoScrollDirective],
     templateUrl: './catalog.component.html',
-    styleUrls: ['./catalog.component.scss']
+    styleUrls: ['./catalog.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CatalogComponent implements OnInit {
-    cartService = inject(CartService);
-    wishlistService = inject(WishlistService);
-    productService = inject(ProductService);
-    toastService = inject(ToastService);
-    seoService = inject(SeoService);
-    private cdr = inject(ChangeDetectorRef);
+    private productService = inject(ProductService);
+    private cartService = inject(CartService);
+    private wishlistService = inject(WishlistService);
+    private route = inject(ActivatedRoute);
+    protected cdr = inject(ChangeDetectorRef);
+    private seoService = inject(SeoService);
+    private toastService = inject(ToastService);
 
-    catalogSections: CategoryWithProductsDto[] = [];
-    isLoading = true;
-    viewMode: 'grid' | 'list' = 'grid';
-    searchQuery = '';
-    activeCategory = 'all';
-    sidebarOpen = false;
-    filtersOpen = false;
+    // Signals for state
+    catalogSections = signal<any[]>([]);
+    isLoading = signal(true);
+    searchQuery = signal('');
+    activeCategory = signal('all');
+    sortBy = signal('default');
 
     // Advanced Filters
-    selectedPriceRange = 'all';
-    minPrice: number | null = null;
-    maxPrice: number | null = null;
-    customMinPrice: number | null = null;
-    customMaxPrice: number | null = null;
-    selectedRating = 0;
-    inStockOnly = false;
-    onSaleOnly = false;
-    featuredOnly = false;
-    sortBy = 'default';
+    minPrice = signal<number | null>(null);
+    maxPrice = signal<number | null>(null);
+    minRating = signal(0);
+    onlyInStock = signal(false);
+    onlyOnSale = signal(false);
+    onlyFeatured = signal(false);
+    showFilters = signal(false); // Mobile sidebar toggle
+    isSticky = signal(false);
 
-    // Review Modal State
-    isReviewModalOpen = false;
-    selectedProductForReview: PublicProduct | null = null;
-    isSubmittingReview = false;
-    newReview = { rating: 5, title: '', comment: '' };
+    // Flip Book Logic
+    currentSpread = signal(0);
+    isFlipping = signal(false);
+    flipDir = signal<'next' | 'prev'>('next');
+    isCoverVisible = signal(true);
+    readonly ITEMS_PER_PAGE = 4;
 
-    // Quick View State
-    isQuickViewOpen = false;
-    isLoadingProduct = false;
-    quickViewProduct: PublicProduct | null = null;
-    activeImage: string = '';
-    quantity: number = 1;
-    selectedVariant: any = null;
+    // Quick View state
+    isQuickViewOpen = signal(false);
+    selectedProduct = signal<any>(null);
+    isLoadingProduct = signal(false);
+    activeImage = signal('');
 
-    // Skeletons
-    skeletonArray = [1, 2, 3, 4, 5, 6, 7, 8];
+    @ViewChild('bookContainer') bookContainer!: ElementRef;
+
+    // Computed filtered and sorted sections
+    filteredSections = computed(() => {
+        const query = this.searchQuery().toLowerCase();
+        const category = this.activeCategory();
+        const sort = this.sortBy();
+        const minP = this.minPrice();
+        const maxP = this.maxPrice();
+        const minR = this.minRating();
+        const inStock = this.onlyInStock();
+        const onSale = this.onlyOnSale();
+        const featured = this.onlyFeatured();
+
+        let sections = this.catalogSections();
+
+        // 1. Filter by category
+        if (category !== 'all') {
+            sections = sections.filter(s => s.slug === category);
+        }
+
+        // 2. Filter products within sections
+        return sections.map(cat => {
+            let products = [...(cat.products || [])];
+
+            // Search
+            if (query) {
+                products = products.filter(p =>
+                    p.name.toLowerCase().includes(query) ||
+                    p.description?.toLowerCase().includes(query)
+                );
+            }
+
+            // Price
+            if (minP !== null) products = products.filter(p => p.minPrice >= minP || (p.price && p.price >= minP));
+            if (maxP !== null) products = products.filter(p => p.minPrice <= maxP || (p.price && p.price <= maxP));
+
+            // Rating
+            if (minR > 0) products = products.filter(p => (p.averageRating || 0) >= minR);
+
+            // Stock
+            if (inStock) products = products.filter(p => p.totalStock > 0);
+
+            // On Sale
+            if (onSale) products = products.filter(p => (p.discountPercentage && p.discountPercentage > 0) || (p.oldPrice && p.oldPrice > p.price));
+
+            // Featured
+            if (featured) products = products.filter(p => p.isFeatured);
+
+            // Sort
+            if (sort === 'price-asc') products.sort((a, b) => a.minPrice - b.minPrice);
+            else if (sort === 'price-desc') products.sort((a, b) => b.minPrice - a.minPrice);
+            else if (sort === 'name-asc') products.sort((a, b) => a.name.localeCompare(b.name));
+            else if (sort === 'rating-desc') products.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+
+            return { ...cat, products };
+        }).filter(cat => cat.products.length > 0);
+    });
 
     ngOnInit() {
         this.seoService.setSeoData({
@@ -72,36 +126,152 @@ export class CatalogComponent implements OnInit {
             description: 'Explore our comprehensive catalog of products. Browse collections, filter by category and price, and find exactly what your home needs.',
             keywords: 'catalog, products, e-store, categories, buy furniture, shop online'
         });
-        this.loadCatalog();
-    }
 
-    loadCatalog() {
-        this.isLoading = true;
-        this.productService.getCatalog().subscribe({
-            next: (res) => {
-                if (res.isSuccess && res.data) {
-                    this.catalogSections = res.data.categories;
-                }
-                this.isLoading = false;
-            },
-            error: () => this.isLoading = false
+        this.route.queryParams.subscribe(params => {
+            if (params['category']) {
+                this.activeCategory.set(params['category']);
+            }
+            this.loadCatalog();
         });
     }
 
-    // ── FLIP BOOK ──────────────────────────────────────────────────────────
-    readonly ITEMS_PER_PAGE = 4;
-    currentSpread = 0;
-    isFlipping = false;
-    flipDir: 'next' | 'prev' = 'next';
-    isCoverVisible = true;
+    @HostListener('window:scroll', [])
+    onWindowScroll() {
+        this.isSticky.set(window.pageYOffset > 300);
+    }
 
-    get allBookProducts(): PublicProduct[] {
-        const all: PublicProduct[] = [];
-        this.filteredSections.forEach(s => all.push(...s.products));
+    trackById(index: number, item: any): any {
+        return item.id || index;
+    }
+
+    loadCatalog() {
+        this.isLoading.set(true);
+        this.productService.getCatalog().subscribe({
+            next: (res) => {
+                if (res.isSuccess && res.data) {
+                    this.catalogSections.set(res.data.categories);
+                }
+                this.isLoading.set(false);
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.isLoading.set(false);
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    onSearchChange(query: string) {
+        this.searchQuery.set(query);
+        this.resetPagination();
+    }
+
+    onSortChange(event: Event) {
+        const val = (event.target as HTMLSelectElement).value;
+        this.sortBy.set(val);
+    }
+
+    setCategory(slug: string) {
+        this.activeCategory.set(slug);
+        this.resetPagination();
+    }
+
+    resetPagination() {
+        this.currentSpread.set(0);
+        this.isCoverVisible.set(true);
+    }
+
+    setPriceRange(min: number | null, max: number | null) {
+        this.minPrice.set(min);
+        this.maxPrice.set(max);
+        this.resetPagination();
+    }
+
+    toggleFilters() {
+        this.showFilters.update(v => !v);
+    }
+
+    clearAllFilters() {
+        this.searchQuery.set('');
+        this.activeCategory.set('all');
+        this.minPrice.set(null);
+        this.maxPrice.set(null);
+        this.minRating.set(0);
+        this.onlyInStock.set(false);
+        this.onlyOnSale.set(false);
+        this.onlyFeatured.set(false);
+        this.sortBy.set('default');
+    }
+
+    removeFilter(type: string) {
+        if (type === 'search') this.searchQuery.set('');
+        else if (type === 'category') this.activeCategory.set('all');
+        else if (type === 'price') { this.minPrice.set(null); this.maxPrice.set(null); }
+        else if (type === 'rating') this.minRating.set(0);
+        else if (type === 'stock') this.onlyInStock.set(false);
+        else if (type === 'sale') this.onlyOnSale.set(false);
+        else if (type === 'featured') this.onlyFeatured.set(false);
+    }
+
+    openQuickView(event: Event, product: any) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.selectedProduct.set(product);
+        this.isQuickViewOpen.set(true);
+        this.isLoadingProduct.set(true);
+        this.activeImage.set(product.imageUrl);
+
+        this.productService.getProductBySlug(product.slug).subscribe({
+            next: (res) => {
+                if (res.isSuccess && res.data) {
+                    this.selectedProduct.set(res.data);
+                    this.activeImage.set(res.data.imageUrl);
+                }
+                this.isLoadingProduct.set(false);
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.isLoadingProduct.set(false);
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    closeQuickView() {
+        this.isQuickViewOpen.set(false);
+        this.selectedProduct.set(null);
+    }
+
+    addToCart(event: Event, product: any) {
+        event.stopPropagation();
+        this.cartService.addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.minPrice,
+            image: product.imageUrl
+        });
+        this.toastService.success('Added to cart!');
+    }
+
+    toggleWishlist(event: Event, product: any) {
+        event.stopPropagation();
+        this.wishlistService.toggleWishlist({
+            id: product.id,
+            name: product.name,
+            price: product.minPrice,
+            image: product.imageUrl
+        });
+    }
+
+    // Book Logic
+    get allBookProducts(): any[] {
+        const all: any[] = [];
+        this.filteredSections().forEach(s => all.push(...s.products));
         return all;
     }
 
-    get bookSpreads(): { left: PublicProduct[], right: PublicProduct[], leftLabel: string, rightLabel: string }[] {
+    get bookSpreads(): any[] {
         const products = this.allBookProducts;
         const spreads: any[] = [];
         const perPage = this.ITEMS_PER_PAGE;
@@ -117,418 +287,68 @@ export class CatalogComponent implements OnInit {
         return spreads;
     }
 
-    get totalSpreads(): number { return this.bookSpreads.length; }
-
-    get currentBookSpread() { return this.bookSpreads[this.currentSpread - 1]; }
-
-    flipNext() {
-        if (this.isFlipping || this.currentSpread >= this.totalSpreads) return;
-        this.flipDir = 'next';
-        this.isFlipping = true;
-        this.isCoverVisible = false;
-        setTimeout(() => { this.currentSpread++; this.isFlipping = false; }, 650);
+    get currentBookSpread() {
+        const spreads = this.bookSpreads;
+        const index = this.currentSpread() - 1;
+        return (index >= 0 && index < spreads.length) ? spreads[index] : null;
     }
 
-    flipPrev() {
-        if (this.isFlipping || this.currentSpread <= 0) return;
-        this.flipDir = 'prev';
-        this.isFlipping = true;
+    nextSpread() {
+        if (this.isFlipping()) return;
+        const total = this.bookSpreads.length;
+        if (this.currentSpread() < total) {
+            this.isFlipping.set(true);
+            this.flipDir.set('next');
+            this.isCoverVisible.set(false);
+            setTimeout(() => {
+                this.currentSpread.update(c => c + 1);
+                this.isFlipping.set(false);
+                this.cdr.markForCheck();
+            }, 600);
+        }
+    }
+
+    prevSpread() {
+        if (this.isFlipping() || this.currentSpread() <= 0) return;
+        this.isFlipping.set(true);
+        this.flipDir.set('prev');
         setTimeout(() => {
-            this.currentSpread--;
-            if (this.currentSpread === 0) this.isCoverVisible = true;
-            this.isFlipping = false;
-        }, 650);
-    }
-
-    getCategoryForProduct(product: PublicProduct): string {
-        return this.catalogSections.find(s =>
-            s.products.some(p => p.id === product.id)
-        )?.name ?? '';
-    }
-
-    get bookProgress(): number {
-        if (this.totalSpreads === 0) return 0;
-        return Math.round((this.currentSpread / this.totalSpreads) * 100);
-    }
-
-    get filteredSections(): CategoryWithProductsDto[] {
-        let sections = JSON.parse(JSON.stringify(this.catalogSections)) as CategoryWithProductsDto[];
-
-        // Filter by active category
-        if (this.activeCategory !== 'all') {
-            sections = sections.filter(s => s.slug === this.activeCategory);
-        }
-
-        // Apply product-level filters and remove empty sections
-        sections = sections.map(s => {
-            let filteredProducts = s.products;
-
-            if (this.searchQuery.trim()) {
-                const q = this.searchQuery.toLowerCase();
-                filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(q));
-            }
-
-            if (this.minPrice !== null) {
-                filteredProducts = filteredProducts.filter(p => p.minPrice >= this.minPrice!);
-            }
-            if (this.maxPrice !== null) {
-                filteredProducts = filteredProducts.filter(p => p.minPrice <= this.maxPrice!);
-            }
-
-            if (this.selectedRating > 0) {
-                filteredProducts = filteredProducts.filter(p => (p.averageRating || 0) >= this.selectedRating);
-            }
-
-            if (this.inStockOnly) {
-                filteredProducts = filteredProducts.filter(p => p.totalStock > 0);
-            }
-
-            if (this.onSaleOnly) {
-                filteredProducts = filteredProducts.filter(p => p.discountPercentage && p.discountPercentage > 0);
-            }
-
-            if (this.featuredOnly) {
-                filteredProducts = filteredProducts.filter(p => p.isFeatured);
-            }
-
-            // Apply Sorting
-            if (this.sortBy === 'price-asc') {
-                filteredProducts.sort((a, b) => a.minPrice - b.minPrice);
-            } else if (this.sortBy === 'price-desc') {
-                filteredProducts.sort((a, b) => b.minPrice - a.minPrice);
-            } else if (this.sortBy === 'rating-desc') {
-                filteredProducts.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
-            } else if (this.sortBy === 'name-asc') {
-                filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (this.sortBy === 'name-desc') {
-                filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-            } else if (this.sortBy === 'most-sold') {
-                filteredProducts.sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0));
-            } else if (this.sortBy === 'most-reviewed') {
-                filteredProducts.sort((a, b) => (b.reviewCount || 0) - (a.reviewCount || 0));
-            }
-
-            return { ...s, products: filteredProducts };
-        }).filter(s => s.products.length > 0);
-
-        return sections;
-    }
-
-    get hasActiveFilters(): boolean {
-        return this.searchQuery !== '' ||
-            this.activeCategory !== 'all' ||
-            this.selectedPriceRange !== 'all' ||
-            this.selectedRating !== 0 ||
-            this.inStockOnly ||
-            this.onSaleOnly ||
-            this.featuredOnly ||
-            this.sortBy !== 'default';
-    }
-
-    get activeFilterCount(): number {
-        let count = 0;
-        if (this.searchQuery !== '') count++;
-        if (this.activeCategory !== 'all') count++;
-        if (this.selectedPriceRange !== 'all') count++;
-        if (this.selectedRating !== 0) count++;
-        if (this.inStockOnly) count++;
-        if (this.onSaleOnly) count++;
-        if (this.featuredOnly) count++;
-        if (this.sortBy !== 'default') count++;
-        return count;
-    }
-
-    get totalProducts(): number {
-        return this.catalogSections.reduce((sum, s) => sum + s.products.length, 0);
-    }
-
-    get filteredCount(): number {
-        return this.filteredSections.reduce((sum, s) => sum + s.products.length, 0);
-    }
-
-    get totalCategories(): number {
-        return this.catalogSections.length;
-    }
-
-    setCategory(slug: string) {
-        this.activeCategory = slug;
-        this.sidebarOpen = false;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-        document.getElementById('catalog-content')?.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    clearFilters() {
-        this.activeCategory = 'all';
-        this.searchQuery = '';
-        this.selectedPriceRange = 'all';
-        this.minPrice = null;
-        this.maxPrice = null;
-        this.customMinPrice = null;
-        this.customMaxPrice = null;
-        this.selectedRating = 0;
-        this.inStockOnly = false;
-        this.onSaleOnly = false;
-        this.featuredOnly = false;
-        this.sortBy = 'default';
-
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    setPriceFilter(rangeId: string, min: number | null, max: number | null) {
-        this.selectedPriceRange = rangeId;
-        this.minPrice = min;
-        this.maxPrice = max;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    applyCustomPriceRange() {
-        this.selectedPriceRange = 'custom';
-        this.minPrice = this.customMinPrice;
-        this.maxPrice = this.customMaxPrice;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    onPriceFilterSelect(event: Event) {
-        const val = (event.target as HTMLSelectElement).value;
-        switch (val) {
-            case 'all': this.setPriceFilter('all', null, null); break;
-            case 'under500': this.setPriceFilter('under500', null, 500); break;
-            case '500to1000': this.setPriceFilter('500to1000', 500, 1000); break;
-            case '1000to5000': this.setPriceFilter('1000to5000', 1000, 5000); break;
-            case 'above5000': this.setPriceFilter('above5000', 5000, null); break;
-        }
-    }
-
-    setRatingFilter(rating: number) {
-        this.selectedRating = rating;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    onRatingFilterSelect(event: Event) {
-        const value = parseInt((event.target as HTMLSelectElement).value, 10);
-        this.setRatingFilter(value);
-    }
-
-    toggleInStock() {
-        this.inStockOnly = !this.inStockOnly;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    toggleOnSale() {
-        this.onSaleOnly = !this.onSaleOnly;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    toggleFeatured() {
-        this.featuredOnly = !this.featuredOnly;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    toggleFilters() {
-        this.filtersOpen = !this.filtersOpen;
-    }
-
-    onSortChange(event: Event) {
-        this.sortBy = (event.target as HTMLSelectElement).value;
-        this.currentSpread = 0;
-        this.isCoverVisible = true;
-    }
-
-    getSectionName(slug: string): string {
-        return this.catalogSections.find(s => s.slug === slug)?.name ?? slug;
-    }
-
-    getPriceRangeLabel(): string {
-        switch (this.selectedPriceRange) {
-            case 'under500': return 'Under 500 EGP';
-            case '500to1000': return '500 - 1,000 EGP';
-            case '1000to5000': return '1,000 - 5,000 EGP';
-            case 'above5000': return '5,000+ EGP';
-            case 'custom': return `${this.minPrice ?? 0} - ${this.maxPrice ?? '∞'} EGP`;
-            default: return '';
-        }
-    }
-
-    getSortLabel(): string {
-        switch (this.sortBy) {
-            case 'price-asc': return 'Price ↑';
-            case 'price-desc': return 'Price ↓';
-            case 'rating-desc': return 'Top Rated';
-            case 'name-asc': return 'A → Z';
-            case 'name-desc': return 'Z → A';
-            case 'most-sold': return 'Most Sold';
-            case 'most-reviewed': return 'Most Reviewed';
-            default: return '';
-        }
-    }
-
-    toggleSidebar() {
-        this.sidebarOpen = !this.sidebarOpen;
-    }
-
-    addToCart(event: Event, product: PublicProduct) {
-        event.stopPropagation();
-        this.cartService.addToCart({
-            id: product.id, name: product.name,
-            price: product.minPrice, image: product.imageUrl
-        });
-        this.toastService.success('Added to cart! 🛒');
-    }
-
-    toggleWishlist(event: Event, product: PublicProduct) {
-        event.stopPropagation();
-        this.wishlistService.toggleWishlist({
-            id: product.id, name: product.name,
-            price: product.minPrice, image: product.imageUrl
-        });
-    }
-
-    openReviewModal(event: Event, product: PublicProduct) {
-        event.stopPropagation();
-        event.preventDefault();
-        this.selectedProductForReview = product;
-        this.newReview = { rating: 5, title: '', comment: '' };
-        this.isReviewModalOpen = true;
-    }
-
-    closeReviewModal() {
-        this.isReviewModalOpen = false;
-        this.selectedProductForReview = null;
-    }
-
-    submitReview() {
-        if (!this.selectedProductForReview) return;
-        if (!this.newReview.title || !this.newReview.comment) {
-            this.toastService.error('Please fill in both title and comment.');
-            return;
-        }
-
-        this.isSubmittingReview = true;
-        this.productService.createProductReview({
-            productId: this.selectedProductForReview.id,
-            title: this.newReview.title,
-            comment: this.newReview.comment,
-            rating: this.newReview.rating
-        }).subscribe({
-            next: (res) => {
-                if (res.isSuccess) {
-                    this.toastService.success('Thank you! Your review has been submitted. ⭐');
-                    this.closeReviewModal();
-                } else {
-                    this.toastService.error(res.error?.message || 'Failed to submit review.');
-                }
-                this.isSubmittingReview = false;
-            },
-            error: (err) => {
-                this.isSubmittingReview = false;
-                if (err.status === 401) {
-                    this.toastService.error('You must be logged in to post a review.');
-                } else {
-                    this.toastService.error('An error occurred. Please try again.');
-                }
-            }
-        });
-    }
-
-    // ── Quick View Methods ──────────────────────────────────────────────────
-    openQuickView(event: Event, product: PublicProduct) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        this.isQuickViewOpen = true;
-        this.isLoadingProduct = true;
-
-        this.productService.getProductBySlug(product.slug).subscribe({
-            next: (res) => {
-                if (res.isSuccess && res.data) {
-                    this.quickViewProduct = res.data;
-                    this.activeImage = res.data.imageUrl;
-                    if (res.data.variants && res.data.variants.length > 0) {
-                        this.selectedVariant = res.data.variants[0];
-                    }
-                }
-                this.isLoadingProduct = false;
-            },
-            error: () => {
-                this.isLoadingProduct = false;
-                this.toastService.error('Failed to load product details.');
-                this.closeQuickView();
-            }
-        });
-    }
-
-    closeQuickView() {
-        this.isQuickViewOpen = false;
-        this.isLoadingProduct = false;
-        this.quickViewProduct = null;
-        this.quantity = 1;
-        this.selectedVariant = null;
-    }
-
-    setActiveImage(img: string) {
-        this.activeImage = img;
-    }
-
-    selectVariant(variant: any) {
-        this.selectedVariant = variant;
-        if (variant.imageUrl) {
-            this.activeImage = variant.imageUrl;
-        }
-    }
-
-    addQuickToCart() {
-        if (!this.quickViewProduct) return;
-
-        this.cartService.addToCart({
-            id: this.quickViewProduct.id,
-            name: this.quickViewProduct.name,
-            price: this.selectedVariant ? (this.selectedVariant.salePrice || this.selectedVariant.price) : this.quickViewProduct.minPrice,
-            image: this.selectedVariant?.imageUrl || this.quickViewProduct.imageUrl,
-            variantId: this.selectedVariant?.id
-        } as any, this.quantity);
-        this.toastService.success('Added to cart!');
-        this.closeQuickView();
-    }
-
-    get originalPrice(): number | null {
-        if (!this.quickViewProduct) return null;
-        if (this.quickViewProduct.discountPercentage && this.quickViewProduct.discountPercentage > 0) {
-            return this.quickViewProduct.minPrice / (1 - this.quickViewProduct.discountPercentage / 100);
-        }
-        if (this.quickViewProduct.maxPrice > this.quickViewProduct.minPrice) {
-            return this.quickViewProduct.maxPrice;
-        }
-        return null;
+            this.currentSpread.update(c => c - 1);
+            if (this.currentSpread() === 0) this.isCoverVisible.set(true);
+            this.isFlipping.set(false);
+            this.cdr.markForCheck();
+        }, 600);
     }
 
     scrollContainer(element: HTMLElement, direction: number) {
-        if (element && element.firstElementChild) {
-            const cardWidth = (element.firstElementChild as HTMLElement).offsetWidth;
-            const gap = 24; // Approx 1.5rem gap
-            const scrollAmount = (cardWidth + gap) * direction;
-            element.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        if (!element || !element.firstElementChild) return;
 
-            // Force UI update after smooth scroll finishes
-            setTimeout(() => this.cdr.detectChanges(), 400);
+        const cardWidth = (element.firstElementChild as HTMLElement).offsetWidth;
+        const scrollAmount = (cardWidth + 24) * direction;
+
+        const isAtEnd = element.scrollLeft + element.clientWidth >= element.scrollWidth - 10;
+        const isAtStart = element.scrollLeft <= 10;
+
+        if (direction === 1 && isAtEnd) {
+            // Loop to start
+            element.scrollTo({ left: 0, behavior: 'smooth' });
+        } else if (direction === -1 && isAtStart) {
+            // Loop to end
+            element.scrollTo({ left: element.scrollWidth, behavior: 'smooth' });
+        } else {
+            element.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
+
+        // Force re-check after animation
+        setTimeout(() => this.cdr.markForCheck(), 600);
     }
 
     canScrollLeft(element: HTMLElement): boolean {
-        if (!element) return false;
-        return element.scrollLeft > 0;
+        // If looping is desired, always return true if scrollable content exists
+        return element ? element.scrollWidth > element.clientWidth : false;
     }
 
     canScrollRight(element: HTMLElement): boolean {
-        if (!element) return false;
-        // The -1 accounts for sub-pixel rounding
-        return element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
+        return element ? element.scrollWidth > element.clientWidth : false;
     }
 }

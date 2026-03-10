@@ -116,10 +116,12 @@
         </div>
 
         <!-- Social Login -->
-        <button type="button" class="btn-google btn-block" (click)="loginWithGoogle()">
-            <i class="ri-google-fill social-icon"></i>
-            <span>Partner via Google</span>
-        </button>
+        <div class="google-btn-wrapper">
+            <div class="google-inner-shadow">
+                <asl-google-signin-button type="standard" size="large" text="signup_with" shape="pill"
+                    theme="filled_black"></asl-google-signin-button>
+            </div>
+        </div>
     </form>
 
     <div class="auth-footer">

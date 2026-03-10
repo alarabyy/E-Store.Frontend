@@ -2,12 +2,12 @@
     position: fixed;
     bottom: 30px;
     right: 30px;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    color: white;
-    border: none;
-    border-radius: 15px;
+    width: 54px;
+    height: 54px;
+    background: #ffffff; // White base
+    color: #0f172a; // Navy icon
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 50%; // Perfect circle
     display: flex;
     align-items: center;
     justify-content: center;
@@ -15,25 +15,26 @@
     z-index: 10000;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(20px);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 
     i {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         transition: transform 0.3s ease;
     }
 
     &.visible {
         opacity: 1;
         visibility: visible;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 
     &:hover {
-        transform: translateY(-5px);
-        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-        box-shadow: 0 15px 30px rgba(37, 99, 235, 0.6);
+        background: #0f172a; // Navy on hover
+        color: #ffffff;
+        transform: translateY(-8px) scale(1.1);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 
         i {
             transform: translateY(-3px);
@@ -47,9 +48,10 @@
 
 @media (max-width: 768px) {
     .scroll-btn {
-        bottom: 20px;
+        bottom: 25px;
         right: 20px;
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
     }
 }

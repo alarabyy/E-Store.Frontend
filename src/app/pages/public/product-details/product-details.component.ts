@@ -8,6 +8,7 @@ import { WishlistService } from '../wishlist/services/wishlist.service';
 import { PromotionService } from '../../dashboard/promotions/promotion.service';
 import { ToastService } from '../../../components/toast/services/toast.service';
 import { UrlPipe } from '../../../components/pipes/url.pipe';
+import { AuthService } from '../../auth/services/auth.service';
 import { environment } from '../../../../environments/environment';
 import { SeoService } from '../../../core/seo/services/seo.service';
 
@@ -27,6 +28,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private promotionService = inject(PromotionService);
     private toastService = inject(ToastService);
     private seoService = inject(SeoService);
+    private authService = inject(AuthService);
     private el = inject(ElementRef);
     @ViewChild('reviewsSection') reviewsSection!: ElementRef;
 
@@ -250,6 +252,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
 
     addToCart() {
+        if (!this.authService.isAuthenticated()) {
+            this.toastService.info('Log in to start shopping and add items to your cart!', 'Welcome Back!');
+            this.router.navigate(['/auth/login']);
+            return;
+        }
+
         if (this.product.stockLevel === 0) return;
         this.isAddingToCart = true;
 
@@ -273,6 +281,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
 
     toggleWishlist() {
+        if (!this.authService.isAuthenticated()) {
+            this.toastService.info('Join us to keep track of your favorite products!', 'Join the Club');
+            this.router.navigate(['/auth/login']);
+            return;
+        }
+
         const inWishlist = this.wishlistService.isInWishlist(this.product.id);
         this.wishlistService.toggleWishlist({
             id: this.product.id,

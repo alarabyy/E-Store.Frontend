@@ -32,7 +32,7 @@ import { ToastService } from './services/toast.service';
             <i class="ri-information-line" *ngIf="toast.type === 'info'"></i>
           </div>
           <div class="center-content">
-            <h3>{{ toast.type === 'success' ? 'Success!' : toast.type === 'error' ? 'Error!' : 'Info' }}</h3>
+            <h3>{{ toast.title || (toast.type === 'success' ? 'Success!' : toast.type === 'error' ? 'Error!' : 'Info') }}</h3>
             <p>{{ toast.message }}</p>
           </div>
         </div>

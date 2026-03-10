@@ -6,7 +6,7 @@
         </header>
 
         <!-- Empty State -->
-        <div class="empty-state" *ngIf="wishlistService.itemCount === 0">
+        <div class="empty-state" *ngIf="wishlistService.itemCount() === 0">
             <i class="ri-heart-pulse-line icon-lg"></i>
             <h2>Your wishlist is empty</h2>
             <p>You haven't added any products to your wishlist yet. Browse the store and collect the products you love!
@@ -17,7 +17,7 @@
         </div>
 
         <!-- Wishlist Content -->
-        <div class="wishlist-grid" *ngIf="wishlistService.itemCount > 0">
+        <div class="wishlist-grid" *ngIf="wishlistService.itemCount() > 0">
             <app-product-card *ngFor="let item of mappedProducts()" [product]="$any(item)"></app-product-card>
         </div>
     </div>

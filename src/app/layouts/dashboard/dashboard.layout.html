@@ -4,16 +4,16 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="logo-wrapper" *ngIf="!isSidebarCollapsed()">
+            <div class="logo-wrapper custom-logo-wrapper">
                 <app-logo size="small" [light]="true" [glow]="true"></app-logo>
             </div>
-            <div class="logo-mini" *ngIf="isSidebarCollapsed()">
+            <div class="logo-mini custom-logo-mini">
                 <span class="mini-e">E</span>
                 <span class="mini-dash">-</span>
             </div>
             <button class="toggle-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
-                <i class="ri-menu-fold-line" *ngIf="!isSidebarCollapsed()"></i>
-                <i class="ri-menu-unfold-line" *ngIf="isSidebarCollapsed()"></i>
+                <i class="ri-menu-fold-line toggle-icon fold"></i>
+                <i class="ri-menu-unfold-line toggle-icon unfold"></i>
             </button>
         </div>
 
@@ -106,11 +106,7 @@
             <!-- Settings & Configuration -->
             <div class="nav-group">
                 <div class="group-label">Settings</div>
-                <a routerLink="/dashboard/store-settings" routerLinkActive="active" class="nav-item"
-                    (click)="closeMobileSidebar()">
-                    <i class="ri-store-3-line icon"></i>
-                    <span class="label">Store Settings</span>
-                </a>
+
                 <a routerLink="/dashboard/services" routerLinkActive="active" class="nav-item"
                     (click)="closeMobileSidebar()">
                     <i class="ri-settings-5-line icon"></i>

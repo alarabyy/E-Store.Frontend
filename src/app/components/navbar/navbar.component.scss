@@ -22,7 +22,7 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: linear-gradient(90deg, #0a0f1d, #1e293b, #0a0f1d);
     background-size: 200% auto;
     color: #fff;
-    padding: 10px 0;
+    padding: 6px 0;
     font-size: 0.9rem;
     font-weight: 600;
     font-family: 'Outfit', 'Inter', sans-serif;
@@ -135,7 +135,7 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 1.5rem;
-    height: 70px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -185,11 +185,11 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem;
 
     @media (max-width: 900px) {
         position: fixed;
-        top: 60px; // Height of nav header on mobile
+        top: 60px;
         left: 0;
         right: 0;
         bottom: 0;
@@ -204,9 +204,6 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         z-index: 999;
         overflow-y: auto;
-
-        // Remove border-top as per user preference for clean look, 
-        // rely on spacing and typography
     }
 
     &.show {
@@ -221,41 +218,74 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 700;
     font-size: 0.95rem;
     color: #475569;
-    padding: 0.6rem 1rem;
-    border-radius: 12px;
+    padding: 0.6rem 1.1rem;
+    border-radius: 14px;
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transition: $transition-base;
     position: relative;
     cursor: pointer;
     background: transparent;
     border: none;
+    overflow: hidden;
+    z-index: 1;
 
-    i {
-        font-size: 1.1rem;
-        color: #94a3b8;
-        transition: $transition-base;
+    // Hover background effect
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: color-mix(in srgb, $accent 10%, transparent);
+        border-radius: 14px;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: -1;
     }
 
-    &:hover,
-    &.active {
+    i {
+        font-size: 1.3rem;
+        color: #94a3b8;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    &:hover {
         color: $primary;
-        background: color-mix(in srgb, $primary 3%, transparent);
+
+        &::before {
+            transform: scale(1);
+            opacity: 1;
+        }
 
         i {
             color: $accent;
-            transform: scale(1.1);
+            transform: translateY(-2px) scale(1.1);
         }
     }
 
     &.active {
-        background: color-mix(in srgb, $accent 8%, transparent); // Accent tint
-        color: color-mix(in srgb, $accent 90%, black);
+        color: $primary;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: $accent;
+            box-shadow: 0 0 8px color-mix(in srgb, $accent 60%, transparent);
+        }
 
         i {
             color: $accent;
+        }
+
+        &::before {
+            display: none;
         }
     }
 
@@ -264,22 +294,32 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         padding: 1rem 1.25rem;
         font-size: 1rem;
         border: 1px solid #f1f5f9;
-        justify-content: space-between; // Optional: icon on right? No, standard is left.
+        border-radius: 12px;
+
+        &::before {
+            display: none;
+        }
+
+        &::after {
+            display: none;
+        }
 
         &:hover,
         &.active {
-            transform: translateX(-5px);
+            transform: translateX(5px);
             border-color: color-mix(in srgb, $accent 30%, transparent);
+            background: color-mix(in srgb, $accent 5%, transparent);
         }
     }
 }
 
 /* --- Divider --- */
 .divider-v {
-    width: 1px;
-    height: 24px;
-    background: #e2e8f0;
+    width: 2px;
+    height: 18px;
+    background: rgba(226, 232, 240, 0.6);
     margin: 0 0.5rem;
+    border-radius: 2px;
 
     @media (max-width: 900px) {
         display: none;
@@ -302,7 +342,7 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .cart-badge {
         position: absolute;
         top: 2px;
-        right: 2px;
+        right: 4px;
         min-width: 18px;
         height: 18px;
         border-radius: 9px;
@@ -314,40 +354,60 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         align-items: center;
         justify-content: center;
         padding: 0 4px;
-        box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
-        border: 2px solid #fff; // Cutout effect
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+        border: 2px solid #ffffff;
+        transform: scale(1);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
         @media (max-width: 900px) {
             position: static;
-            margin-right: auto; // Push to far left in flex row (rtl)
+            margin-right: auto;
             border: none;
         }
+    }
+
+    &:hover .wishlist-badge,
+    &:hover .cart-badge {
+        transform: scale(1.1) translateY(-2px);
     }
 }
 
 .wishlist-badge {
     background: #ec4899; // Pink for wishlist
-    box-shadow: 0 2px 5px rgba(236, 72, 153, 0.4);
+    box-shadow: 0 4px 10px rgba(236, 72, 153, 0.4);
 }
 
 /* --- Auth Buttons --- */
 .nav-btn-login {
     font-weight: 700;
-    padding: 0.6rem 1.25rem;
+    padding: 0.6rem 1.2rem;
     color: #475569;
+    background: #f8fafc;
     border-radius: 12px;
-    transition: $transition-base;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    i {
+        font-size: 1.2rem;
+        transition: transform 0.4s;
+    }
 
     &:hover {
         color: $primary;
-        background: #f8fafc;
+        background: #e2e8f0;
+        transform: translateY(-2px);
+
+        i {
+            transform: translateX(2px);
+        }
     }
 
     @media (max-width: 900px) {
         width: 100%;
-        text-align: center;
-        border: 1px solid #e2e8f0;
+        justify-content: center;
         margin-top: 1rem;
     }
 }
@@ -356,22 +416,33 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: $primary;
     color: white;
     font-weight: 700;
-    padding: 0.6rem 1.5rem;
-    border-radius: 99px;
+    padding: 0.6rem 1.4rem;
+    border-radius: 12px;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-    transition: $transition-base;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    i {
+        font-size: 1.2rem;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
     &:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3);
-        background: color-mix(in srgb, $primary 95%, white);
+        background: $accent;
+
+        i {
+            transform: scale(1.1) rotate(5deg);
+        }
     }
 
     @media (max-width: 900px) {
         width: 100%;
-        text-align: center;
-        padding: 1rem;
+        justify-content: center;
     }
 }
 
@@ -379,7 +450,7 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .user-actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem;
 
     @media (max-width: 900px) {
         flex-direction: column;
@@ -391,19 +462,31 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .logout-btn {
     color: #ef4444 !important;
 
+    i {
+        color: #ef4444 !important;
+    }
+
+    &::before {
+        background: color-mix(in srgb, #ef4444 10%, transparent);
+    }
+
     &:hover {
-        background: #fef2f2 !important;
-        border-color: #fee2e2 !important;
+        background: transparent;
+        color: #dc2626 !important;
+
+        i {
+            color: #dc2626 !important;
+        }
     }
 }
 
 /* --- Category Bar (Second Row) --- */
 .category-bar {
-    border-top: 1px solid rgba(226, 232, 240, 0.5);
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    min-height: 46px;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    min-height: 40px;
     height: auto;
     display: flex;
     align-items: center;
@@ -422,7 +505,7 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     align-items: center;
     justify-content: flex-start;
     gap: 1.5rem;
-    padding: 0.4rem 1.5rem;
+    padding: 0 1.5rem;
     height: auto;
     max-width: 1400px;
     margin: 0 auto;
@@ -430,7 +513,7 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     @media (max-width: 900px) {
         gap: 1rem;
-        padding: 0.5rem 1rem;
+        padding: 0 1rem;
     }
 }
 
@@ -440,7 +523,7 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     justify-content: flex-start;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 0.75rem 2.5rem;
+    gap: 0.5rem 1.5rem;
     flex: 1;
 
     // Hide scrollbar
@@ -462,38 +545,63 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: #64748b;
     text-decoration: none;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.5rem 0;
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0.25rem 0;
+
+    .icon-hover {
+        font-size: 1rem;
+        opacity: 0;
+        transform: scale(0.5) translateX(-10px);
+        width: 0;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        color: $accent;
+    }
 
     &:hover {
         color: $primary;
-        transform: translateY(-2px);
+
+        .icon-hover {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+            width: 16px;
+        }
     }
 
     &.special {
         color: #ef4444;
         font-weight: 800;
+
+        .fire-icon {
+            color: #f97316;
+            margin-right: 4px;
+        }
+
+        &:hover {
+            transform: translateY(-2px);
+            text-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
     }
 
-    // Modern indicator
     &::after {
         content: '';
         position: absolute;
-        bottom: 0;
+        bottom: 2px;
         left: 0;
         width: 100%;
         height: 2px;
         background: $accent;
         transform: scaleX(0);
-        transform-origin: left; // LTR origin
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: left;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border-radius: 2px;
     }
 
     &:hover::after {
         transform: scaleX(1);
-        transform-origin: left; // Swipe effect
     }
 }
 
@@ -508,13 +616,13 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: $primary;
+    background: $accent; // Making it orange to match screenshot if it wasn't already
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.8rem;
     font-family: 'Outfit', sans-serif;
-    font-weight: 600;
-    border-radius: 8px;
+    font-weight: 700;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
 
@@ -596,8 +704,12 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         li {
             white-space: nowrap;
-            padding: 1rem;
+            padding: 0;
             border-bottom: 2px solid transparent;
+
+            .parent-link {
+                padding: 1rem 1.25rem;
+            }
 
             &.active {
                 border-bottom: 2px solid $primary;
@@ -610,15 +722,22 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     li {
-        padding: 0.75rem 1.25rem;
+        padding: 0;
         cursor: pointer;
         font-family: 'Outfit', sans-serif;
         font-weight: 500;
         color: #475569;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         transition: all 0.2s ease;
+
+        .parent-link {
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            text-decoration: none;
+            color: inherit;
+        }
 
         &:hover,
         &.active {

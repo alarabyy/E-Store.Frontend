@@ -89,10 +89,7 @@ export const DASHBOARD_ROUTES: Routes = [
         path: 'newsletter',
         loadComponent: () => import('../pages/dashboard/newsletter/newsletter.component').then(m => m.NewsletterDashboardComponent)
     },
-    {
-        path: 'store-settings',
-        loadComponent: () => import('../pages/dashboard/store/store-settings/store-settings.component').then(m => m.StoreSettingsComponent)
-    },
+
     {
         path: 'services',
         loadComponent: () => import('../pages/dashboard/service-configurations/service-configurations.component').then(m => m.ServiceConfigurationsComponent)

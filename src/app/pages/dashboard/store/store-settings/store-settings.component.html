@@ -14,10 +14,7 @@
             <i class="ri-information-line"></i>
             <span>General Info</span>
         </button>
-        <button [class.active]="activeTab === 'colors'" (click)="setTab('colors')">
-            <i class="ri-palette-line"></i>
-            <span>Theme Colors</span>
-        </button>
+
         <button [class.active]="activeTab === 'banners'" (click)="setTab('banners')">
             <i class="ri-image-line"></i>
             <span>Home Banners</span>
@@ -36,9 +33,6 @@
     <div class="settings-content">
         <app-general-info *ngIf="activeTab === 'general'" [settings]="settingsResponse?.settings || null">
         </app-general-info>
-
-        <app-theme-colors *ngIf="activeTab === 'colors'" [settings]="settingsResponse?.settings || null">
-        </app-theme-colors>
 
         <app-home-banners *ngIf="activeTab === 'banners'" [banners]="settingsResponse?.homeBanners || []"
             (refresh)="loadSettings()">

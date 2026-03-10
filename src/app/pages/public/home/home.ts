@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, ChangeDetectionStrategy, signal, computed, PLATFORM_ID, NgZone } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { CartService } from '../cart/services/cart.service';
 import { WishlistService } from '../wishlist/services/wishlist.service';
@@ -18,7 +18,8 @@ import { AutoScrollDirective } from '../../../core/directives/auto-scroll.direct
     standalone: true,
     imports: [CommonModule, RouterLink, UrlPipe, ProductCardComponent, LoaderComponent, AutoScrollDirective],
     templateUrl: './home.html',
-    styleUrls: ['./home.scss']
+    styleUrls: ['./home.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit, OnDestroy {
     private cartService = inject(CartService);
@@ -27,33 +28,35 @@ export class HomeComponent implements OnInit, OnDestroy {
     public storeService = inject(StoreService);
     private toastService = inject(ToastService);
     private cdr = inject(ChangeDetectorRef);
-    public settings$ = this.storeService.settings$;
     private router = inject(Router);
     private seoService = inject(SeoService);
+    private platformId = inject(PLATFORM_ID);
+    private ngZone = inject(NgZone);
+    private collectionService = inject(CollectionService);
 
-    // Carousel / Slide Logic
-    currentSlide = 0;
+    public settings$ = this.storeService.settings$;
+
+    // State via Signals
+    carouselOffers = signal<any[]>([]);
+    offers = signal<any[]>([]);
+    shopByItems = signal<any[]>([]);
+    categories = signal<any[]>([]);
+    featuredProducts = signal<any[]>([]);
+    featuredCollections = signal<any[]>([]);
+    isLoading = signal(true);
+    currentSlide = signal(0);
+
+    // Flash Toast Signals
+    showFlashToast = signal(false);
+    flashToastVisible = signal(false);
+    flashOffer = signal<any>(null);
+    isFlashToastPaused = signal(false);
+
     private slideInterval: any;
-
-    // Data from Backend
-    carouselOffers: any[] = [];
-    offers: any[] = [];
-    shopByItems: any[] = [];
-    categories: any[] = [];
-    featuredProducts: any[] = [];
-    featuredCollections: any[] = [];
-    isLoading = true;
-
-    // Flash toast
-    showFlashToast = false;
-    flashToastVisible = false;
-    flashOffer: any = null;
     private flashToastTimer: any;
     private flashToastStartTime = 0;
     private flashToastRemaining = 8000;
-    public isFlashToastPaused = false;
-
-    private collectionService = inject(CollectionService);
+    private parallaxListener: ((e: MouseEvent) => void) | null = null;
 
     ngOnInit() {
         this.seoService.setSeoData({
@@ -64,42 +67,45 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.loadHomeData();
         this.loadFeaturedCollections();
-        this.initParallax();
+
+        if (isPlatformBrowser(this.platformId)) {
+            this.initParallax();
+        }
     }
 
     ngOnDestroy() {
         this.stopSlideTimer();
         if (this.flashToastTimer) clearTimeout(this.flashToastTimer);
+        if (this.parallaxListener) {
+            window.removeEventListener('mousemove', this.parallaxListener);
+        }
     }
 
-    /** Loads all home page data from the dedicated /home/data endpoint */
+    trackById(index: number, item: any): any {
+        return item.id || index;
+    }
+
     private loadHomeData() {
-        this.isLoading = true;
+        this.isLoading.set(true);
         this.homeService.getHomeData().subscribe({
             next: (res) => {
                 if (res.isSuccess && res.data) {
                     const data: HomeDataDto = res.data;
 
-                    // User Request: Collections are the primary offers now.
-                    // We skip banners to avoid duplicates/flicker.
-
-                    // Map exclusive offers
-                    this.offers = data.exclusiveOffers.map(o => ({
+                    this.offers.set(data.exclusiveOffers.map(o => ({
                         title: o.title,
                         desc: o.description,
                         image: o.imageUrl,
                         link: o.linkUrl
-                    }));
+                    })));
 
-                    // Map shop-by items
-                    this.shopByItems = data.shopByItems.map(s => ({
+                    this.shopByItems.set(data.shopByItems.map(s => ({
                         name: s.title,
                         image: s.imageUrl,
                         link: s.linkUrl
-                    }));
+                    })));
 
-                    // Map categories and keep their products for sectional display
-                    this.categories = data.categories.map(c => ({
+                    this.categories.set(data.categories.map(c => ({
                         id: c.id,
                         name: c.name,
                         slug: c.slug,
@@ -109,9 +115,8 @@ export class HomeComponent implements OnInit, OnDestroy {
                             ...p,
                             categoryName: c.name
                         }))
-                    }));
+                    })));
 
-                    // Flatten and take first 8 products as featured
                     const allProducts: any[] = [];
                     data.categories.forEach((cat: any) => {
                         if (cat.products) {
@@ -131,29 +136,27 @@ export class HomeComponent implements OnInit, OnDestroy {
                         }
                     });
 
-                    this.featuredProducts = allProducts.slice(0, 8);
-
-                    // Start slider after data loaded
+                    this.featuredProducts.set(allProducts.slice(0, 8));
                     this.startSlideTimer();
                 }
-                this.isLoading = false;
+                this.isLoading.set(false);
+                this.cdr.markForCheck();
             },
             error: () => {
-                this.isLoading = false;
+                this.isLoading.set(false);
+                this.cdr.markForCheck();
             }
         });
     }
 
-    /** Loads featured collections from /collections/list for the home page showcase */
     private loadFeaturedCollections() {
         this.collectionService.getCollectionsList(1, 5).subscribe({
             next: (res) => {
                 const items = res?.data || res?.items || [];
-                this.featuredCollections = items;
+                this.featuredCollections.set(items);
 
-                // User Request: Replace slider data with Collections as "Offers"
                 if (items.length > 0) {
-                    this.carouselOffers = items.map((c: any, i: number) => ({
+                    this.carouselOffers.set(items.map((c: any, i: number) => ({
                         title: c.name,
                         desc: c.description || 'Exclusive bundle with special pricing',
                         image: c.imageUrl,
@@ -163,85 +166,86 @@ export class HomeComponent implements OnInit, OnDestroy {
                         bg: i % 2 === 0
                             ? 'linear-gradient(45deg, #0f172a, #1e293b)'
                             : 'linear-gradient(45deg, #c5a059, #b48e43)'
-                    }));
+                    })));
 
-                    // Reset slider state
-                    this.currentSlide = 0;
+                    this.currentSlide.set(0);
                     this.startSlideTimer();
-                    this.cdr.detectChanges();
-
-                    // Show flash toast offer notification
                     setTimeout(() => this.showFlashOfferToast(), 2000);
                 }
+                this.cdr.markForCheck();
             },
-            error: () => { /* collections are optional */ }
+            error: () => {
+                this.cdr.markForCheck();
+            }
         });
     }
 
-    // ── Flash Toast ──────────────────────────────────────────────────────────────
     private showFlashOfferToast() {
-        if (this.carouselOffers.length === 0) return;
-        this.flashOffer = this.carouselOffers[0];
-        this.showFlashToast = true;
+        if (this.carouselOffers().length === 0) return;
+        this.flashOffer.set(this.carouselOffers()[0]);
+        this.showFlashToast.set(true);
 
-        // Slide in after a short delay
         setTimeout(() => {
-            this.flashToastVisible = true;
+            this.flashToastVisible.set(true);
             this.flashToastStartTime = Date.now();
             this.flashToastRemaining = 8000;
-            this.cdr.detectChanges();
+            this.cdr.markForCheck();
         }, 300);
 
-        // Auto dismiss after 8 seconds
         this.flashToastTimer = setTimeout(() => {
             this.dismissFlashToast();
         }, 8000);
     }
 
     pauseFlashToast() {
-        if (this.isFlashToastPaused) return;
-        this.isFlashToastPaused = true;
+        if (this.isFlashToastPaused()) return;
+        this.isFlashToastPaused.set(true);
         clearTimeout(this.flashToastTimer);
 
-        // Calculate remaining time
         const elapsed = Date.now() - this.flashToastStartTime;
         this.flashToastRemaining -= elapsed;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
     }
 
     resumeFlashToast() {
-        if (!this.isFlashToastPaused) return;
-        this.isFlashToastPaused = false;
+        if (!this.isFlashToastPaused()) return;
+        this.isFlashToastPaused.set(false);
         this.flashToastStartTime = Date.now();
 
         this.flashToastTimer = setTimeout(() => {
             this.dismissFlashToast();
         }, this.flashToastRemaining);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
     }
 
     dismissFlashToast(event?: Event) {
         if (event) event.stopPropagation();
         clearTimeout(this.flashToastTimer);
-        this.flashToastVisible = false;
+        this.flashToastVisible.set(false);
         setTimeout(() => {
-            this.showFlashToast = false;
-            this.cdr.detectChanges();
+            this.showFlashToast.set(false);
+            this.cdr.markForCheck();
         }, 500);
+        this.cdr.markForCheck();
     }
 
     goToFlashOffer() {
-        if (this.flashOffer?.slug) {
+        const offer = this.flashOffer();
+        if (offer?.slug) {
             this.dismissFlashToast();
-            this.router.navigate(['/collections', this.flashOffer.slug]);
+            this.router.navigate(['/collections', offer.slug]);
         }
     }
 
-    // ── Slider Methods ──────────────────────────────────────────────────────────
     startSlideTimer() {
         this.stopSlideTimer();
-        if (typeof window !== 'undefined' && this.carouselOffers.length > 1) {
-            this.slideInterval = setInterval(() => this.nextSlide(), 5000);
+        if (isPlatformBrowser(this.platformId) && this.carouselOffers().length > 1) {
+            this.slideInterval = setInterval(() => {
+                this.ngZone.run(() => {
+                    this.nextSlide();
+                    this.cdr.markForCheck();
+                });
+            }, 5000);
         }
     }
 
@@ -250,20 +254,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     setSlide(index: number) {
-        this.currentSlide = index;
+        this.currentSlide.set(index);
         this.startSlideTimer();
     }
 
     nextSlide() {
-        if (this.carouselOffers.length > 0) {
-            this.currentSlide = (this.currentSlide + 1) % this.carouselOffers.length;
+        const offers = this.carouselOffers();
+        if (offers.length > 0) {
+            this.currentSlide.set((this.currentSlide() + 1) % offers.length);
         }
     }
 
-    // ── Parallax ─────────────────────────────────────────────────────────────────
     initParallax() {
-        if (typeof window !== 'undefined') {
-            window.addEventListener('mousemove', (e) => {
+        this.ngZone.runOutsideAngular(() => {
+            this.parallaxListener = (e: MouseEvent) => {
                 const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
                 const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
                 const visual = document.querySelector('.hero-visual') as HTMLElement;
@@ -272,8 +276,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                     const speed = (i + 1) * 0.5;
                     (el as HTMLElement).style.transform = `translate(${-moveX * speed}px, ${-moveY * speed}px)`;
                 });
-            });
-        }
+            };
+            window.addEventListener('mousemove', this.parallaxListener as any);
+        });
     }
 
     scrollToSection(sectionId: string) {
@@ -298,30 +303,15 @@ export class HomeComponent implements OnInit, OnDestroy {
                 } else {
                     this.toastService.error(res.error?.message || 'Subscription failed.');
                 }
+                this.cdr.markForCheck();
             },
-            error: () => this.toastService.error('Connection error. Please try again later.')
+            error: () => {
+                this.toastService.error('Connection error. Please try again later.');
+                this.cdr.markForCheck();
+            }
         });
     }
 
-    unsubscribeNewsletter(email: string) {
-        if (!email || !email.includes('@')) {
-            this.toastService.error('Please enter a valid email address.');
-            return;
-        }
-
-        this.homeService.unsubscribe(email).subscribe({
-            next: (res) => {
-                if (res.isSuccess) {
-                    this.toastService.success('Unsubscribed successfully. We will miss you!');
-                } else {
-                    this.toastService.error(res.error?.message || 'Unsubscription failed.');
-                }
-            },
-            error: () => this.toastService.error('Connection error. Please try again later.')
-        });
-    }
-
-    // ── Static Data ──────────────────────────────────────────────────────────────
     stats = [
         { value: '5000+', label: 'Happy Customers', icon: 'ri-user-smile-fill' },
         { value: '1500+', label: 'Exclusive Products', icon: 'ri-home-heart-fill' },
@@ -335,9 +325,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         { name: 'Mohamed Ali', comment: 'The best place to buy modern furniture in Egypt without competition.', avatar: 'ri-user-star-line' }
     ];
 
-    activeHotspot: number | null = null;
+    activeHotspot = signal<number | null>(null);
     toggleHotspot(id: number | null) {
-        this.activeHotspot = this.activeHotspot === id ? null : id;
+        this.activeHotspot.set(this.activeHotspot() === id ? null : id);
     }
 
     getIconForCategory(category: string): string {
@@ -352,12 +342,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     scrollContainer(element: HTMLElement, direction: number) {
         if (element && element.firstElementChild) {
             const cardWidth = (element.firstElementChild as HTMLElement).offsetWidth;
-            const gap = 24; // Approx 1.5rem gap
+            const gap = 24;
             const scrollAmount = (cardWidth + gap) * direction;
             element.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-
-            // Force UI update after smooth scroll finishes
-            setTimeout(() => this.cdr.detectChanges(), 400);
+            setTimeout(() => this.cdr.markForCheck(), 400);
         }
     }
 
@@ -368,7 +356,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     canScrollRight(element: HTMLElement): boolean {
         if (!element) return false;
-        // The -1 accounts for sub-pixel rounding
         return element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
     }
 }

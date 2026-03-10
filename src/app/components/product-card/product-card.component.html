@@ -1,60 +1,53 @@
-<div class="product-card">
-    <!-- Discount Badge -->
-    <div class="p-badge" *ngIf="product.discountPercentage">
-        <span class="save-text">SAVE</span>
-        <span class="save-pct">{{product.discountPercentage}}%</span>
-    </div>
+<div class="product-card group">
+    <!-- Image Section -->
+    <div class="p-image-box" [routerLink]="['/product', product.slug]" [state]="{ product: product }">
+        <img [src]="displayImage | url" [alt]="product.name" class="p-image-el">
 
-    <!-- Top Actions -->
-    <div class="p-actions-top">
-        <button class="action-btn wishlist-btn"
-            [title]="wishlistService.isInWishlist(product.id) ? 'Remove from Wishlist' : 'Save to Wishlist'"
-            [class.active]="wishlistService.isInWishlist(product.id)" (click)="toggleWishlist($event)">
-            <i [class]="wishlistService.isInWishlist(product.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
-        </button>
-        <button class="action-btn" title="Quick View" (click)="openQuickView($event)">
-            <i class="ri-eye-line"></i>
-        </button>
-    </div>
-
-    <!-- Product Image -->
-    <div class="p-image" [routerLink]="['/product', product.slug]" [state]="{ product: product }">
-        <img [src]="product.imageUrl | url" [alt]="product.name">
-    </div>
-
-    <!-- Product Info -->
-    <div class="p-info">
-        <div class="p-category">{{ categoryName || product.categoryName }}</div>
-        <h4 [routerLink]="['/product', product.slug]" [state]="{ product: product }">{{product.name}}</h4>
-
-        <div class="p-rating">
-            <div class="stars">
-                <i class="ri-star-fill" *ngFor="let star of [1,2,3,4,5]"
-                    [style.color]="star <= product.averageRating ? '#f59e0b' : '#cbd5e1'"></i>
-            </div>
-            <span class="rating-num">{{product.averageRating | number:'1.1-1'}}</span>
+        <!-- Discount Badge (sleek) -->
+        <div class="p-discount-badge" *ngIf="product.discountPercentage">
+            -{{product.discountPercentage}}%
         </div>
 
-        <div class="p-footer">
-            <div class="p-price">
-                <span class="current">{{product.minPrice | number:'1.0-0'}} <small>EGP</small></span>
-                <span class="old" *ngIf="originalPrice">
-                    {{ originalPrice | number:'1.0-0'}}
-                </span>
+        <!-- Hover Actions -->
+        <div class="p-hover-actions">
+            <button class="p-icon-btn" [class.active]="wishlistService.isInWishlist(product.id)"
+                (click)="toggleWishlist($event)"
+                [title]="wishlistService.isInWishlist(product.id) ? 'Remove from Wishlist' : 'Save to Wishlist'">
+                <i [class]="wishlistService.isInWishlist(product.id) ? 'ri-heart-fill' : 'ri-heart-line'"></i>
+            </button>
+            <button class="p-icon-btn" (click)="openQuickView($event)" title="Quick View">
+                <i class="ri-eye-line"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Info Section (Tight & Professional) -->
+    <div class="p-details">
+        <div class="p-details-top">
+            <span class="p-cat">{{ categoryName || product.categoryName }}</span>
+            <div class="p-rate">
+                <i class="ri-star-fill"></i>
+                <span>{{product.averageRating | number:'1.1-1'}}</span>
             </div>
-            <div class="p-actions-bottom">
-                <button class="btn-quick-add" [class.is-adding]="isAddingToCart" [class.is-added]="cartAdded"
-                    (click)="addToCart($event)" [disabled]="isAddingToCart || cartAdded" title="Add to Cart">
-                    <i class="ri-shopping-basket-line" *ngIf="!isAddingToCart && !cartAdded"></i>
-                    <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart"></i>
-                    <i class="ri-check-line" *ngIf="cartAdded"></i>
-                    <span>{{ cartAdded ? 'Added' : (isAddingToCart ? 'Adding' : 'Add to Cart') }}</span>
-                </button>
-                <button class="btn-details" [routerLink]="['/product', product.slug]" [state]="{ product: product }"
-                    title="View Details">
-                    <i class="ri-arrow-right-line"></i>
-                </button>
+        </div>
+
+        <h3 class="p-title" [routerLink]="['/product', product.slug]" [state]="{ product: product }">
+            {{product.name}}
+        </h3>
+
+        <div class="p-price-wrap">
+            <div class="price-box">
+                <span class="curr-price">{{product.minPrice | number:'1.0-0'}} <small>EGP</small></span>
+                <span class="old-price" *ngIf="originalPrice">{{ originalPrice | number:'1.0-0'}}</span>
             </div>
+            <button class="add-to-cart-btn" [class.is-adding]="isAddingToCart()" [class.is-added]="cartAdded()"
+                (click)="addToCart($event)" [disabled]="isAddingToCart() || cartAdded()" title="Add to Cart">
+
+                <span class="btn-text" *ngIf="!isAddingToCart() && !cartAdded()">Add to Cart</span>
+                <i class="ri-shopping-cart-2-line" *ngIf="!isAddingToCart() && !cartAdded()"></i>
+                <i class="ri-loader-4-line spin-icon" *ngIf="isAddingToCart()"></i>
+                <i class="ri-check-line" *ngIf="cartAdded()"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -62,25 +55,25 @@
 <!-- Quick View Modal -->
 <div class="qv-host" #quickViewOverlay>
     <div class="qv-overlay-backdrop" (click)="closeQuickView()"></div>
-    <div class="qv-modal" *ngIf="isQuickViewOpen" (click)="$event.stopPropagation()">
+    <div class="qv-modal" *ngIf="isQuickViewOpen()" (click)="$event.stopPropagation()">
         <button class="close-btn" (click)="closeQuickView()">
             <i class="ri-close-line"></i>
         </button>
 
-        <div class="qv-loading" *ngIf="isLoadingProduct">
+        <div class="qv-loading" *ngIf="isLoadingProduct()">
             <div class="loader"></div>
             <p>Loading Product Details...</p>
         </div>
 
-        <div class="qv-content" *ngIf="!isLoadingProduct && quickViewProduct">
+        <div class="qv-content" *ngIf="!isLoadingProduct() && quickViewProduct() as qProd">
             <!-- Left: Gallery -->
             <div class="qv-gallery">
                 <div class="main-image">
-                    <img [src]="activeImage | url" [alt]="quickViewProduct.name">
+                    <img [src]="activeImage() | url" [alt]="qProd.name">
                 </div>
-                <div class="thumbnails" *ngIf="quickViewProduct.imagesList && quickViewProduct.imagesList.length > 1">
-                    <div class="thumb" *ngFor="let img of quickViewProduct.imagesList"
-                        [class.active]="activeImage === img" (click)="setActiveImage(img)">
+                <div class="thumbnails" *ngIf="qProd.imagesList && qProd.imagesList.length > 1">
+                    <div class="thumb" *ngFor="let img of qProd.imagesList" [class.active]="activeImage() === img"
+                        (click)="activeImage.set(img)">
                         <img [src]="img | url">
                     </div>
                 </div>
@@ -89,16 +82,16 @@
             <!-- Right: Details -->
             <div class="qv-details">
                 <div class="qv-header">
-                    <span class="qv-category-badge">{{ quickViewProduct.categoryName }}</span>
-                    <h2 class="qv-title">{{ quickViewProduct.name }}</h2>
+                    <span class="qv-category-badge">{{ qProd.categoryName }}</span>
+                    <h2 class="qv-title">{{ qProd.name }}</h2>
                     <div class="qv-rating-row">
                         <div class="stars">
                             <i class="ri-star-fill" *ngFor="let i of [1,2,3,4,5]"
-                                [style.color]="i <= quickViewProduct.averageRating ? '#f59e0b' : '#e2e8f0'"></i>
+                                [style.color]="i <= qProd.averageRating ? '#f59e0b' : '#e2e8f0'"></i>
                         </div>
-                        <span class="count">({{ quickViewProduct.reviewCount }} reviews)</span>
-                        <span class="sold-count" *ngIf="quickViewProduct.totalSold > 0">
-                            <i class="ri-fire-line"></i> {{ quickViewProduct.totalSold }} sold
+                        <span class="count">({{ qProd.reviewCount }} reviews)</span>
+                        <span class="sold-count" *ngIf="qProd.totalSold > 0">
+                            <i class="ri-fire-line"></i> {{ qProd.totalSold }} sold
                         </span>
                     </div>
                 </div>
@@ -106,29 +99,29 @@
                 <div class="qv-price-box">
                     <div class="price-main">
                         <span class="current">
-                            {{ (selectedVariant ? (selectedVariant.salePrice || selectedVariant.price) :
-                            quickViewProduct.minPrice) | number:'1.0-0' }}
+                            {{ (selectedVariant() ? (selectedVariant().salePrice || selectedVariant().price) :
+                            qProd.minPrice) | number:'1.0-0' }}
                             <small>EGP</small>
                         </span>
-                        <span class="old" *ngIf="selectedVariant?.salePrice || quickViewProduct.discountPercentage">
-                            {{ (selectedVariant?.salePrice ? selectedVariant.price : originalPrice) | number:'1.0-0' }}
+                        <span class="old" *ngIf="selectedVariant()?.salePrice || qProd.discountPercentage">
+                            {{ (selectedVariant()?.salePrice ? selectedVariant().price : originalPrice) | number:'1.0-0'
+                            }}
                         </span>
                     </div>
-                    <div class="stock-status" [class.out]="quickViewProduct.totalStock === 0">
-                        <i
-                            [class]="quickViewProduct.totalStock > 0 ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'"></i>
-                        {{ quickViewProduct.totalStock > 0 ? 'In Stock' : 'Out of Stock' }}
+                    <div class="stock-status" [class.out]="qProd.totalStock === 0">
+                        <i [class]="qProd.totalStock > 0 ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'"></i>
+                        {{ qProd.totalStock > 0 ? 'In Stock' : 'Out of Stock' }}
                     </div>
                 </div>
 
-                <p class="qv-summary">{{ quickViewProduct.summary }}</p>
+                <p class="qv-summary">{{ qProd.summary }}</p>
 
                 <!-- Variants -->
-                <div class="qv-variants" *ngIf="quickViewProduct.variants && quickViewProduct.variants.length > 0">
+                <div class="qv-variants" *ngIf="qProd.variants && qProd.variants.length > 0">
                     <label>Available Options</label>
                     <div class="v-grid">
-                        <div class="v-pill" *ngFor="let v of quickViewProduct.variants"
-                            [class.active]="selectedVariant?.id === v.id" (click)="selectVariant(v)">
+                        <div class="v-pill" *ngFor="let v of qProd.variants"
+                            [class.active]="selectedVariant()?.id === v.id" (click)="selectedVariant.set(v)">
                             <img [src]="v.imageUrl | url" *ngIf="v.imageUrl" class="v-img">
                             <span>{{ v.name }}</span>
                         </div>
@@ -138,19 +131,17 @@
                 <!-- Footer Actions -->
                 <div class="qv-footer">
                     <div class="qty-selector">
-                        <button (click)="quantity = quantity > 1 ? quantity - 1 : 1">-</button>
-                        <input type="number" [(ngModel)]="quantity" readonly>
-                        <button (click)="quantity = quantity + 1">+</button>
+                        <button (click)="quantity.set(quantity() > 1 ? quantity() - 1 : 1)">-</button>
+                        <input type="number" [ngModel]="quantity()" readonly>
+                        <button (click)="quantity.set(quantity() + 1)">+</button>
                     </div>
-                    <button class="btn-add-main" (click)="addQuickToCart()"
-                        [disabled]="quickViewProduct.totalStock === 0">
+                    <button class="btn-add-main" (click)="addQuickToCart()" [disabled]="qProd.totalStock === 0">
                         <i class="ri-shopping-basket-line"></i>
                         Add to Cart
                     </button>
                 </div>
 
-                <a [routerLink]="['/product', quickViewProduct.slug]" (click)="closeQuickView()"
-                    class="full-details-link">
+                <a [routerLink]="['/product', qProd.slug]" (click)="closeQuickView()" class="full-details-link">
                     View Full Product Details <i class="ri-arrow-right-line"></i>
                 </a>
             </div>

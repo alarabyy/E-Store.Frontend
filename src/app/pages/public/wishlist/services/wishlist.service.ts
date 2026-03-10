@@ -1,11 +1,5 @@
-import { Injectable, signal } from '@angular/core';
-
-export interface WishlistItem {
-    id: number;
-    name: string;
-    price: number;
-    image: string;
-}
+import { Injectable, signal, computed } from '@angular/core';
+import { WishlistItem } from '../models/wishlist.model';
 
 @Injectable({
     providedIn: 'root'
@@ -16,13 +10,11 @@ export class WishlistService {
     // Expose as readonly signal
     items = this.wishlistItems.asReadonly();
 
-    // Get total count
-    get itemCount(): number {
-        return this.wishlistItems().length;
-    }
+    // Computed total count
+    itemCount = computed(() => this.wishlistItems().length);
 
     // Toggle item (add/remove)
-    toggleWishlist(product: { id: number; name: string; price: number; image: string }) {
+    toggleWishlist(product: WishlistItem) {
         const currentItems = this.wishlistItems();
         const existingItem = currentItems.find(item => item.id === product.id);
 

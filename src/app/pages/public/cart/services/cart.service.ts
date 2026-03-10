@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
@@ -21,15 +21,15 @@ export class CartService {
     // Expose as readonly signal
     items = this.cartItems.asReadonly();
 
-    // Get total count
-    get itemCount(): number {
-        return this.cartItems().reduce((sum, item) => sum + item.quantity, 0);
-    }
+    // Computed total count
+    itemCount = computed(() =>
+        this.cartItems().reduce((sum, item) => sum + item.quantity, 0)
+    );
 
-    // Get total price
-    get totalPrice(): number {
-        return this.cartItems().reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    }
+    // Computed total price
+    totalPrice = computed(() =>
+        this.cartItems().reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    );
 
     // Add item to cart
     addToCart(product: { id: any; name: string; price: number; image: string }, quantity: number = 1) {

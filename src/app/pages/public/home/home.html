@@ -1,10 +1,10 @@
-<div class="home-wrapper" [class.loading]="isLoading">
+<div class="home-wrapper" [class.loading]="isLoading()">
 
     <!-- ══════════════════════════════════════════════════════════
          FLASH OFFER TOAST — Slides in from right on page load
     ══════════════════════════════════════════════════════════ -->
-    <div class="flash-toast" *ngIf="showFlashToast && flashOffer" [class.show]="flashToastVisible"
-        [class.paused]="isFlashToastPaused" (mouseenter)="pauseFlashToast()" (mouseleave)="resumeFlashToast()"
+    <div class="flash-toast" *ngIf="showFlashToast() && flashOffer()" [class.show]="flashToastVisible()"
+        [class.paused]="isFlashToastPaused()" (mouseenter)="pauseFlashToast()" (mouseleave)="resumeFlashToast()"
         (click)="goToFlashOffer()">
 
         <div class="flash-toast-glow"></div>
@@ -26,14 +26,14 @@
         </div>
 
         <div class="flash-content">
-            <h4 class="flash-title">{{ flashOffer.title }}</h4>
-            <p class="flash-desc">{{ flashOffer.desc }}</p>
+            <h4 class="flash-title">{{ flashOffer().title }}</h4>
+            <p class="flash-desc">{{ flashOffer().desc }}</p>
 
             <div class="flash-footer">
-                <div class="flash-price" *ngIf="flashOffer.priceNow">
-                    <span class="flash-now">{{ flashOffer.priceNow | number:'1.0-0' }} EGP</span>
-                    <span class="flash-was" *ngIf="flashOffer.originalPrice">
-                        {{ flashOffer.originalPrice | number:'1.0-0' }} EGP
+                <div class="flash-price" *ngIf="flashOffer().priceNow">
+                    <span class="flash-now">{{ flashOffer().priceNow | number:'1.0-0' }} EGP</span>
+                    <span class="flash-was" *ngIf="flashOffer().originalPrice">
+                        {{ flashOffer().originalPrice | number:'1.0-0' }} EGP
                     </span>
                 </div>
                 <div class="flash-action">
@@ -44,8 +44,8 @@
 
         <!-- Progress Bar -->
         <div class="flash-progress">
-            <div class="flash-progress-fill" [class.running]="flashToastVisible && !isFlashToastPaused"
-                [style.animation-play-state]="isFlashToastPaused ? 'paused' : 'running'">
+            <div class="flash-progress-fill" [class.running]="flashToastVisible() && !isFlashToastPaused()"
+                [style.animation-play-state]="isFlashToastPaused() ? 'paused' : 'running'">
             </div>
         </div>
     </div>
@@ -90,7 +90,7 @@
 
                 <!-- Trust counters -->
                 <div class="hero-trust">
-                    <div class="trust-num" *ngFor="let s of stats">
+                    <div class="trust-num" *ngFor="let s of stats; trackBy: trackById">
                         <strong>{{ s.value }}</strong>
                         <span>{{ s.label }}</span>
                     </div>
@@ -150,7 +150,7 @@
                         </a>
                     </div>
                     <div class="hero-trust">
-                        <div class="trust-num" *ngFor="let s of stats">
+                        <div class="trust-num" *ngFor="let s of stats; trackBy: trackById">
                             <strong>{{ s.value }}</strong>
                             <span>{{ s.label }}</span>
                         </div>
@@ -182,7 +182,7 @@
     <!-- ══════════════════════════════════════════════════════════
          COLLECTIONS SLIDER — Premium Offer Showcase
     ══════════════════════════════════════════════════════════ -->
-    <section class="collections-slider" id="offers" *ngIf="carouselOffers && carouselOffers.length > 0">
+    <section class="collections-slider" id="offers" *ngIf="carouselOffers() && carouselOffers().length > 0">
 
         <!-- Section header -->
         <div class="slider-header">
@@ -192,15 +192,15 @@
                         <span class="live-pulse"></span>
                         LIVE OFFERS
                     </span>
-                    <span class="slider-count">{{ currentSlide + 1 }} / {{ carouselOffers.length }}</span>
+                    <span class="slider-count">{{ currentSlide() + 1 }} / {{ carouselOffers().length }}</span>
                 </div>
             </div>
         </div>
 
         <!-- Slide track -->
         <div class="slides-track">
-            <div class="slide-item" *ngFor="let slide of carouselOffers; let i = index"
-                [class.active]="i === currentSlide">
+            <div class="slide-item" *ngFor="let slide of carouselOffers(); let i = index; trackBy: trackById"
+                [class.active]="i === currentSlide()">
 
                 <!-- Full-bleed background -->
                 <div class="slide-bg" [style.background]="slide.bg">
@@ -268,21 +268,21 @@
         <!-- Navigation -->
         <div class="slider-nav">
             <button class="nav-arrow prev"
-                (click)="setSlide((currentSlide - 1 + carouselOffers.length) % carouselOffers.length)">
+                (click)="setSlide((currentSlide() - 1 + carouselOffers().length) % carouselOffers().length)">
                 <i class="ri-arrow-left-s-line"></i>
             </button>
             <div class="dots">
-                <span class="dot" *ngFor="let s of carouselOffers; let i = index" [class.active]="i === currentSlide"
+                <span class="dot" *ngFor="let s of carouselOffers(); let i = index; trackBy: trackById" [class.active]="i === currentSlide()"
                     (click)="setSlide(i)"></span>
             </div>
-            <button class="nav-arrow next" (click)="setSlide((currentSlide + 1) % carouselOffers.length)">
+            <button class="nav-arrow next" (click)="setSlide((currentSlide() + 1) % carouselOffers().length)">
                 <i class="ri-arrow-right-s-line"></i>
             </button>
         </div>
 
         <!-- Progress bar -->
         <div class="slider-progress">
-            <div class="progress-fill" [style.width.%]="((currentSlide + 1) / carouselOffers.length) * 100"></div>
+            <div class="progress-fill" [style.width.%]="((currentSlide() + 1) / carouselOffers().length) * 100"></div>
         </div>
     </section>
 
@@ -307,8 +307,8 @@
                     [class.disabled]="!canScrollLeft(trendingScroll)">
                     <i class="ri-arrow-left-s-line"></i>
                 </button>
-                <div class="products-grid-home scrollable" #trendingScroll appAutoScroll (scroll)="0">
-                    <app-product-card *ngFor="let p of featuredProducts" [product]="p"
+                <div class="products-grid-home scrollable" #trendingScroll appAutoScroll>
+                    <app-product-card *ngFor="let p of featuredProducts(); trackBy: trackById" [product]="p"
                         [categoryName]="p.categoryName || p.category">
                     </app-product-card>
                 </div>
@@ -320,7 +320,7 @@
         </section>
 
         <!-- Dynamic Category Sections -->
-        <ng-container *ngFor="let cat of categories; let i = index">
+        <ng-container *ngFor="let cat of categories(); let i = index; trackBy: trackById">
             <section class="products-section category-reveal" *ngIf="cat.products && cat.products.length > 0">
                 <div class="section-head">
                     <div class="head-label category-tag">{{ cat.name }}</div>
@@ -336,8 +336,8 @@
                         [class.disabled]="!canScrollLeft(catScroll)">
                         <i class="ri-arrow-left-s-line"></i>
                     </button>
-                    <div class="products-grid-home scrollable" #catScroll appAutoScroll (scroll)="0">
-                        <app-product-card *ngFor="let p of cat.products" [product]="p" [categoryName]="cat.name">
+                    <div class="products-grid-home scrollable" #catScroll appAutoScroll>
+                        <app-product-card *ngFor="let p of cat.products; trackBy: trackById" [product]="p" [categoryName]="cat.name">
                         </app-product-card>
                     </div>
                     <button class="nav-btn right" (click)="scrollContainer(catScroll, 1)"
@@ -355,7 +355,7 @@
     ══════════════════════════════════════════════════════════ -->
     <section class="stats-banner">
         <div class="stats-inner">
-            <div class="stat-item" *ngFor="let s of stats">
+            <div class="stat-item" *ngFor="let s of stats; trackBy: trackById">
                 <div class="stat-icon-wrap">
                     <i [class]="s.icon"></i>
                 </div>
@@ -379,7 +379,7 @@
         </div>
 
         <div class="testi-grid">
-            <div class="testi-card" *ngFor="let t of testimonials; let i = index">
+            <div class="testi-card" *ngFor="let t of testimonials; trackBy: trackById; let i = index">
                 <div class="testi-top">
                     <div class="testi-avatar">{{ t.name.charAt(0) }}</div>
                     <div>
@@ -438,5 +438,5 @@
     </section>
 
     <!-- Loader -->
-    <app-loader [show]="isLoading"></app-loader>
+    <app-loader [show]="isLoading()"></app-loader>
 </div>

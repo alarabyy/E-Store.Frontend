@@ -1,12 +1,13 @@
-import { Component, Input, Output, EventEmitter, inject, ViewChild, ElementRef, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, ViewChild, ElementRef, OnDestroy, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../pages/public/catalog/models/product.model';
 import { CartService } from '../../pages/public/cart/services/cart.service';
 import { WishlistService } from '../../pages/public/wishlist/services/wishlist.service';
 import { ToastService } from '../toast/services/toast.service';
 import { ProductService } from '../../pages/public/catalog/services/product.service';
+import { AuthService } from '../../pages/auth/services/auth.service';
 import { UrlPipe } from '../pipes/url.pipe';
 
 @Component({
@@ -14,14 +15,17 @@ import { UrlPipe } from '../pipes/url.pipe';
     standalone: true,
     imports: [CommonModule, RouterLink, FormsModule, UrlPipe, DecimalPipe],
     templateUrl: './product-card.component.html',
-    styleUrls: ['./product-card.component.scss']
+    styleUrls: ['./product-card.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductCardComponent implements OnDestroy, AfterViewInit {
-    cartService = inject(CartService);
-    wishlistService = inject(WishlistService);
-    productService = inject(ProductService);
-    toastService = inject(ToastService);
+    private cartService = inject(CartService);
+    public wishlistService = inject(WishlistService);
+    private productService = inject(ProductService);
+    private toastService = inject(ToastService);
     private cdr = inject(ChangeDetectorRef);
+    private authService = inject(AuthService);
+    private router = inject(Router);
 
     @Input() product!: Product;
     @Input() categoryName: string = '';
@@ -30,52 +34,67 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
 
     @ViewChild('quickViewOverlay') quickViewOverlay!: ElementRef<HTMLDivElement>;
 
-    // Quick View State
-    isQuickViewOpen = false;
-    isLoadingProduct = false;
-    quickViewProduct: Product | null = null;
-    activeImage: string = '';
-    quantity: number = 1;
-    selectedVariant: any = null;
+    // Signals for state
+    isQuickViewOpen = signal(false);
+    isLoadingProduct = signal(false);
+    quickViewProduct = signal<Product | null>(null);
+    activeImage = signal('');
+    quantity = signal(1);
+    selectedVariant = signal<any>(null);
 
-    // Feedback states
-    isAddingToCart = false;
-    cartAdded = false;
+    isAddingToCart = signal(false);
+    cartAdded = signal(false);
 
     addToCart(event: Event) {
         event.stopPropagation();
-        this.isAddingToCart = true;
 
-        // Simulating network delay for effect
+        if (!this.authService.isAuthenticated()) {
+            this.toastService.info('Please log in to add items to your cart. We\'d love to have you with us!', 'Authentication Required');
+            this.router.navigate(['/auth/login']);
+            return;
+        }
+
+        this.isAddingToCart.set(true);
+
         setTimeout(() => {
             this.cartService.addToCart({
                 id: this.product.id,
                 name: this.product.name,
                 price: this.product.minPrice,
-                image: this.product.imageUrl
+                image: this.displayImage
             });
-            this.isAddingToCart = false;
-            this.cartAdded = true;
+            this.isAddingToCart.set(false);
+            this.cartAdded.set(true);
             this.toastService.success(`✓ "${this.product.name}" added to cart!`);
 
             setTimeout(() => {
-                this.cartAdded = false;
+                this.cartAdded.set(false);
+                this.cdr.markForCheck();
             }, 2000);
+            this.cdr.markForCheck();
         }, 400);
     }
 
     toggleWishlist(event: Event) {
         event.stopPropagation();
+
+        if (!this.authService.isAuthenticated()) {
+            this.toastService.info('Log in to save your favorite items and find them later!', 'Join Us!');
+            this.router.navigate(['/auth/login']);
+            return;
+        }
         this.wishlistService.toggleWishlist({
             id: this.product.id,
             name: this.product.name,
             price: this.product.minPrice,
-            image: this.product.imageUrl
+            image: this.displayImage,
+            slug: this.product.slug,
+            categoryName: this.categoryName || this.product.categoryName || 'Saved Item',
+            averageRating: this.product.averageRating || 0
         });
     }
 
     ngAfterViewInit() {
-        // Move overlay to body immediately to avoid Angular change detection issues with moved DOM nodes later
         if (this.quickViewOverlay && this.quickViewOverlay.nativeElement) {
             const overlay = this.quickViewOverlay.nativeElement;
             if (overlay.parentElement !== document.body) {
@@ -93,11 +112,8 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
             return;
         }
 
-        this.isQuickViewOpen = true;
-        this.isLoadingProduct = true;
-
-        // Force detection since we rely on template elements for visibility
-        this.cdr.detectChanges();
+        this.isQuickViewOpen.set(true);
+        this.isLoadingProduct.set(true);
 
         if (this.quickViewOverlay && this.quickViewOverlay.nativeElement) {
             this.quickViewOverlay.nativeElement.style.display = 'flex';
@@ -106,73 +122,68 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
         this.productService.getProductBySlug(this.product.slug).subscribe({
             next: (res) => {
                 if (res.isSuccess && res.data) {
-                    this.quickViewProduct = res.data;
-                    this.activeImage = res.data.imageUrl;
+                    this.quickViewProduct.set(res.data);
+                    this.activeImage.set(res.data.imageUrl);
                     if (res.data.variants && res.data.variants.length > 0) {
-                        this.selectedVariant = res.data.variants[0];
+                        this.selectedVariant.set(res.data.variants[0]);
                     }
                 }
-                this.isLoadingProduct = false;
-                this.cdr.detectChanges(); // Ensure the modal UI renders the data
+                this.isLoadingProduct.set(false);
+                this.cdr.markForCheck();
             },
             error: () => {
-                this.isLoadingProduct = false;
+                this.isLoadingProduct.set(false);
                 this.toastService.error('Failed to load product details.');
                 this.closeQuickView();
-                this.cdr.detectChanges();
+                this.cdr.markForCheck();
             }
         });
     }
 
     closeQuickView() {
-        this.isQuickViewOpen = false;
-        this.isLoadingProduct = false;
-        this.quickViewProduct = null;
-        this.quantity = 1;
+        this.isQuickViewOpen.set(false);
+        this.isLoadingProduct.set(false);
+        this.quickViewProduct.set(null);
+        this.quantity.set(1);
 
-        try {
-            if (this.quickViewOverlay && this.quickViewOverlay.nativeElement) {
-                this.quickViewOverlay.nativeElement.style.display = 'none';
-            }
-        } catch (e) { }
-        this.cdr.detectChanges();
+        if (this.quickViewOverlay && this.quickViewOverlay.nativeElement) {
+            this.quickViewOverlay.nativeElement.style.display = 'none';
+        }
+        this.cdr.markForCheck();
     }
 
     ngOnDestroy() {
-        try {
-            if (this.quickViewOverlay && this.quickViewOverlay.nativeElement) {
-                const overlay = this.quickViewOverlay.nativeElement;
-                if (overlay.parentElement === document.body) {
-                    overlay.remove();
-                }
+        if (this.quickViewOverlay && this.quickViewOverlay.nativeElement) {
+            const overlay = this.quickViewOverlay.nativeElement;
+            if (overlay.parentElement === document.body) {
+                overlay.remove();
             }
-        } catch (e) { }
-    }
-
-    setActiveImage(img: string) {
-        this.activeImage = img;
-    }
-
-    selectVariant(variant: any) {
-        this.selectedVariant = variant;
-        if (variant.imageUrl) {
-            this.activeImage = variant.imageUrl;
         }
     }
 
     addQuickToCart() {
-        if (!this.quickViewProduct) return;
+        if (!this.authService.isAuthenticated()) {
+            this.closeQuickView();
+            this.toastService.info('Log in to add this item to your cart and complete your purchase.', 'Authentication Required');
+            this.router.navigate(['/auth/login']);
+            return;
+        }
 
+        const prod = this.quickViewProduct();
+        if (!prod) return;
+
+        const variant = this.selectedVariant();
         this.cartService.addToCart({
-            id: this.quickViewProduct.id,
-            name: this.quickViewProduct.name,
-            price: this.selectedVariant ? (this.selectedVariant.salePrice || this.selectedVariant.price) : this.quickViewProduct.minPrice,
-            image: this.selectedVariant?.imageUrl || this.quickViewProduct.imageUrl,
-            variantId: this.selectedVariant?.id
-        } as any, this.quantity);
+            id: prod.id,
+            name: prod.name,
+            price: variant ? (variant.salePrice || variant.price) : prod.minPrice,
+            image: variant?.imageUrl || this.getProdImage(prod),
+            variantId: variant?.id
+        } as any, this.quantity());
         this.toastService.success('Added to cart!');
         this.closeQuickView();
     }
+
     get originalPrice(): number | null {
         if (this.product.discountPercentage && this.product.discountPercentage > 0) {
             return this.product.minPrice / (1 - this.product.discountPercentage / 100);
@@ -181,5 +192,18 @@ export class ProductCardComponent implements OnDestroy, AfterViewInit {
             return this.product.maxPrice;
         }
         return null;
+    }
+
+    get displayImage(): string {
+        return this.getProdImage(this.product);
+    }
+
+    private getProdImage(prod: Product | null): string {
+        if (!prod) return '';
+        if (prod.imageUrl) return prod.imageUrl;
+        if (prod.images && prod.images.length > 0) return prod.images[0].imageUrl;
+        if (prod.imagesList && prod.imagesList.length > 0) return prod.imagesList[0];
+        if ((prod as any).image) return (prod as any).image;
+        return '';
     }
 }

@@ -1,8 +1,8 @@
-<div class="category-page" *ngIf="!isLoading && category">
+<div class="category-page" *ngIf="!isLoading() && category() as cat">
     <!-- Professional Centered Header -->
     <header class="category-header">
         <div class="header-bg"
-            [style.background-image]="(category.imageUrl && category.imageUrl !== 'string' && category.imageUrl !== 'null') ? 'url(' + (category.imageUrl | url) + ')' : null">
+            [style.background-image]="(cat.imageUrl && cat.imageUrl !== 'string' && cat.imageUrl !== 'null') ? 'url(' + (cat.imageUrl | url) + ')' : null">
         </div>
         <div class="header-overlay"></div>
 
@@ -13,15 +13,15 @@
                     <span class="sep">/</span>
                     <a routerLink="/catalog">Catalog</a>
                     <span class="sep">/</span>
-                    <span class="curr">{{ category.name }}</span>
+                    <span class="curr">{{ cat.name }}</span>
                 </nav>
 
-                <h1 class="cat-title luxe-slide-up">{{ category.name }}</h1>
-                <p class="cat-desc luxe-fade-in" *ngIf="category.description">{{ category.description }}</p>
+                <h1 class="cat-title luxe-slide-up">{{ cat.name }}</h1>
+                <p class="cat-desc luxe-fade-in" *ngIf="cat.description">{{ cat.description }}</p>
 
                 <div class="cat-stats luxe-fade-in">
                     <div class="stat-item">
-                        <span class="val">{{ category.products?.totalCount || products.length }}</span>
+                        <span class="val">{{ totalCount() }}</span>
                         <span class="lbl">Items in Collection</span>
                     </div>
                 </div>
@@ -37,19 +37,17 @@
                 <div class="left">
                     <h3>Curated Selection</h3>
                 </div>
-                <div class="right">
-                    <!-- Future feature: Sorting dropdown -->
-                </div>
             </div>
 
             <!-- Products Grid -->
-            <div class="products-grid" *ngIf="products.length > 0">
-                <app-product-card *ngFor="let p of products" [product]="p" [categoryName]="category.name">
+            <div class="products-grid" *ngIf="products().length > 0">
+                <app-product-card *ngFor="let p of products(); trackBy: trackById" [product]="p"
+                    [categoryName]="cat.name">
                 </app-product-card>
             </div>
 
             <!-- Empty State -->
-            <div class="empty-state luxe-fade-in" *ngIf="products.length === 0">
+            <div class="empty-state luxe-fade-in" *ngIf="products().length === 0">
                 <div class="empty-visual">
                     <i class="ri-search-2-line"></i>
                 </div>
@@ -57,21 +55,23 @@
                 <p>We're currently updating our selection. Please explore other categories or check back later.</p>
                 <a routerLink="/catalog" class="btn-luxe">Back to Catalog</a>
             </div>
+
             <!-- Pagination -->
-            <div class="pagination-bar luxe-fade-in" *ngIf="totalPages > 1">
-                <button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+            <div class="pagination-bar luxe-fade-in" *ngIf="totalPages() > 1">
+                <button class="pg-btn" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
                     <i class="ri-arrow-left-s-line"></i>
                 </button>
-                <ng-container *ngFor="let p of pageNumbers">
-                    <button class="pg-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+                <ng-container *ngFor="let p of pageNumbers(); trackBy: trackById">
+                    <button class="pg-btn" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
                 </ng-container>
-                <button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+                <button class="pg-btn" [disabled]="currentPage() === totalPages()"
+                    (click)="goToPage(currentPage() + 1)">
                     <i class="ri-arrow-right-s-line"></i>
                 </button>
             </div>
 
             <!-- Discover More Footer -->
-            <div class="discover-footer luxe-fade-in" *ngIf="products.length > 0">
+            <div class="discover-footer luxe-fade-in" *ngIf="products().length > 0">
                 <div class="divider"></div>
                 <p>Enjoying this collection?</p>
                 <div class="actions">
@@ -84,12 +84,10 @@
 </div>
 
 <!-- Loader -->
-<app-loader [show]="isLoading"></app-loader>
-
-
+<app-loader [show]="isLoading()"></app-loader>
 
 <!-- Error Template -->
-<div class="luxe-error-screen" *ngIf="!isLoading && (error || !category)">
+<div class="luxe-error-screen" *ngIf="!isLoading() && (error() || !category())">
     <div class="error-container">
         <i class="ri-ghost-line"></i>
         <h1>Category Not Accessible</h1>

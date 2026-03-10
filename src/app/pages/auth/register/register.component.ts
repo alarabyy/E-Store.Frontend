@@ -4,13 +4,13 @@ import { RouterLink, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RegisterRequest, GoogleAuthRequest } from '../models/auth.models';
 import { TranslateModule } from '@ngx-translate/core';
-import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-register',
     standalone: true,
-    imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule],
+    imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule, GoogleSigninButtonModule],
     templateUrl: './register.component.html',
     styleUrls: ['./register.component.scss']
 })
@@ -42,6 +42,33 @@ export class RegisterComponent implements OnInit {
         if (this.authService.isAuthenticated()) {
             this.router.navigate(['/']);
         }
+
+        this.socialAuthService.authState.subscribe((user) => {
+            if (user && user.idToken) {
+                this.handleGoogleRegisterSuccess(user.idToken);
+            }
+        });
+    }
+
+    handleGoogleRegisterSuccess(idToken: string) {
+        this.isLoading = true;
+        const request: GoogleAuthRequest = { idToken };
+
+        this.authService.googleAuth(request).subscribe({
+            next: (response: any) => {
+                this.isLoading = false;
+                if (response.isSuccess) {
+                    this.router.navigate(['/dashboard']);
+                } else {
+                    this.errorMessage = response.error?.message || 'Google Partner registration failed';
+                }
+            },
+            error: (err: any) => {
+                this.isLoading = false;
+                this.errorMessage = 'Google authentication error';
+                console.error(err);
+            }
+        });
     }
 
     private passwordMatchValidator(group: FormGroup) {
@@ -95,30 +122,8 @@ export class RegisterComponent implements OnInit {
     }
 
     loginWithGoogle() {
-        this.isLoading = true;
-        this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(user => {
-            const request: GoogleAuthRequest = {
-                idToken: user.idToken || ''
-            };
-            this.authService.googleAuth(request).subscribe({
-                next: (response: any) => {
-                    this.isLoading = false;
-                    if (response.isSuccess) {
-                        this.router.navigate(['/dashboard']);
-                    } else {
-                        // if response.isSuccess is false, show error
-                        this.errorMessage = response.error?.message || 'Google login failed';
-                    }
-                },
-                error: (err: any) => {
-                    this.isLoading = false;
-                    this.errorMessage = 'Google authentication error';
-                    console.error(err);
-                }
-            });
-        }).catch(err => {
-            this.isLoading = false;
-            console.error('Google Social Error:', err);
-        });
+        // Obsolete programmatic sign-in.
+        // Google Identity Services (GIS) requires using the native <asl-google-signin-button>.
+        // See HTML template.
     }
 }
